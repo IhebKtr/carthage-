@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<StackPane fx:id="contentStack" 
+           xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.carthage.controllers.user.ReclamationsController">
+
+    <!-- View 1: List View -->
+    <VBox fx:id="listView" spacing="20" style="-fx-background-color: transparent;">
+        <!-- Header Row -->
+        <HBox alignment="CENTER_LEFT">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Mes Réclamations" styleClass="header-title"/>
+                <Label text="Suivez l'état de vos demandes et échangez avec le support." styleClass="sub-header"/>
+            </VBox>
+            <Button text="＋  Nouvelle demande" styleClass="button-solid-red"
+                    style="-fx-background-radius: 20px; -fx-padding: 10 20;" onAction="#onNewReclamation"/>
+        </HBox>
+
+        <!-- Reclamation list -->
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+            <VBox fx:id="reclamationsList" spacing="12"
+                  style="-fx-background-color: transparent; -fx-padding: 2 0 0 0;"/>
+        </ScrollPane>
+    </VBox>
+
+</StackPane>

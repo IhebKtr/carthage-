@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane stylesheets="@../../css/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.carthage.controllers.user.MainLayoutController">
+
+    <!-- Sidebar -->
+    <left>
+        <VBox styleClass="sidebar" prefWidth="220" spacing="4">
+            <padding>
+                <Insets top="24" right="12" bottom="20" left="12"/>
+            </padding>
+
+            <!-- Logo -->
+            <TextFlow style="-fx-padding: 0 0 24 10; -fx-font-size: 22px; -fx-font-weight: bold; -fx-font-style: italic;">
+                <Text text="CARTHAGE " fill="WHITE"/>
+                <Text text="ARENA" fill="#E50914"/>
+            </TextFlow>
+
+            <!-- Nav Items -->
+            <Button fx:id="btnDashboard"    text="⌂   Accueil"       styleClass="sidebar-button, active" maxWidth="Infinity" onAction="#onDashboardClicked"/>
+            <Button fx:id="btnTournois"     text="🏆  Mes Tournois"  styleClass="sidebar-button" maxWidth="Infinity" onAction="#onTournoisClicked"/>
+            <Button fx:id="btnBoutique"     text="🛒  Boutique"       styleClass="sidebar-button" maxWidth="Infinity" onAction="#onBoutiqueClicked"/>
+            <Button fx:id="btnEquipe"       text="👥  Équipe"         styleClass="sidebar-button" maxWidth="Infinity" onAction="#onEquipeClicked"/>
+            <Button fx:id="btnProfil"       text="👤  Profil"         styleClass="sidebar-button" maxWidth="Infinity" onAction="#onProfilClicked"/>
+            <Button fx:id="btnReclamations" text="🎧  Réclamations"   styleClass="sidebar-button" maxWidth="Infinity" onAction="#onReclamationsClicked"/>
+            <Button fx:id="btnParametres"   text="⚙   Paramètres"    styleClass="sidebar-button" maxWidth="Infinity" onAction="#onParametresClicked"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Button text="⏻   Déconnexion" styleClass="sidebar-button" maxWidth="Infinity" onAction="#onLogoutClicked"
+                    style="-fx-text-fill: -carthage-accent;"/>
+        </VBox>
+    </left>
+
+    <!-- Content -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: -carthage-base; -fx-background: -carthage-base; -fx-border-color: transparent;">
+            <StackPane fx:id="contentArea" style="-fx-background-color: -carthage-base;">
+                <padding>
+                    <Insets top="30" right="40" bottom="30" left="40"/>
+                </padding>
+            </StackPane>
+        </ScrollPane>
+    </center>
+
+</BorderPane>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      alignment="CENTER" spacing="25" style="-fx-background-color: transparent;">
+
+    <padding><Insets top="50" bottom="50"/></padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="15" maxWidth="500">
+        <Button text="← Retour" onAction="#showEmptyState" 
+                style="-fx-background-color: transparent; -fx-text-fill: -carthage-text-muted; -fx-cursor: hand;"/>
+    </HBox>
+
+    <VBox spacing="35" styleClass="glass-panel" maxWidth="500" alignment="CENTER">
+        <padding><Insets top="50" right="50" bottom="50" left="50"/></padding>
+
+        <VBox spacing="15" alignment="CENTER">
+            <StackPane style="-fx-background-color: #1E2633; -fx-background-radius: 50; -fx-min-width: 70; -fx-min-height: 70; -fx-max-width: 70; -fx-max-height: 70;">
+                <Label text="🔑" style="-fx-font-size: 24px;"/>
+            </StackPane>
+            
+            <VBox alignment="CENTER" spacing="8">
+                <Label text="Rejoindre une Équipe" styleClass="header-title" style="-fx-font-size: 24px;"/>
+                <Label text="Entrez le code d'invitation fourni par votre Team Leader." styleClass="text-muted" alignment="CENTER" textAlignment="CENTER"/>
+            </VBox>
+        </VBox>
+
+        <VBox spacing="20" alignment="CENTER">
+            <TextField fx:id="joinTeamCode" promptText="EX : X7K - 9P2" 
+                       styleClass="rounded-input" alignment="CENTER"
+                       style="-fx-font-size: 22px; -fx-font-family: 'Courier New'; -fx-font-weight: bold; -fx-text-fill: #9CA3AF; -fx-background-color: #0B0E14; -fx-border-color: #2A3441; -fx-background-radius: 12; -fx-border-radius: 12;"/>
+            
+            <Button text="👥  Rejoindre" maxWidth="Infinity" styleClass="button-solid-red" 
+                    style="-fx-padding: 14 0; -fx-font-size: 15px; -fx-background-radius: 30;" 
+                    onAction="#onJoinTeamSubmit"/>
+        </VBox>
+
+        <Label text="En rejoignant une équipe, vous acceptez de suivre ses règles et de participer&#10;aux tournois inscrits par le Leader." 
+               alignment="CENTER" textAlignment="CENTER" styleClass="text-muted" style="-fx-font-size: 11px;"/>
+    </VBox>
+
+</VBox>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Rectangle?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carthage.controllers.user.TournoiDetailController"
+      spacing="0" style="-fx-background-color: transparent;">
+
+    <!-- Hero Banner Section -->
+    <StackPane prefHeight="240">
+        <!-- Background Mock -->
+        <Region style="-fx-background-color: #0B0E14; -fx-background-radius: 12 12 0 0;"/>
+        <Region style="-fx-background-color: linear-gradient(to right, #0B0E14 30%, transparent 100%), 
+                                   linear-gradient(to top, #0B0E14 0%, transparent 40%);"/>
+        
+        <VBox spacing="10" alignment="BOTTOM_LEFT">
+            <padding><Insets left="40" bottom="30"/></padding>
+            <HBox spacing="10">
+                <Label fx:id="statusBadge" text="UPCOMING" style="-fx-background-color: #F59E0B; -fx-text-fill: black; -fx-padding: 3 8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4;"/>
+                <Label fx:id="gameBadge" text="VALORANT" style="-fx-background-color: #374151; -fx-text-fill: white; -fx-padding: 3 8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4;"/>
+            </HBox>
+            <Label fx:id="tournoiName" text="IHEB TOURNOI2" style="-fx-text-fill: white; -fx-font-size: 42px; -fx-font-weight: 900; -fx-font-style: italic;"/>
+            <Label fx:id="tournoiDesc" text="Un tournoi elimination sur VALORANT." styleClass="text-muted" style="-fx-font-size: 15px;"/>
+        </VBox>
+        
+        <!-- Back Button -->
+        <HBox alignment="TOP_LEFT">
+            <padding><Insets top="20" left="20"/></padding>
+            <Button text="← Retour" onAction="#onBack" style="-fx-background-color: rgba(255,255,255,0.1); -fx-text-fill: white; -fx-background-radius: 20; -fx-padding: 6 15;"/>
+        </HBox>
+    </StackPane>
+
+    <!-- Main Content Area -->
+    <VBox spacing="30" style="-fx-background-color: #0B0E14; -fx-background-radius: 0 0 12 12;">
+        <padding><Insets top="30" right="40" bottom="30" left="40"/></padding>
+
+        <HBox spacing="40">
+            <!-- Left Info Panel -->
+            <VBox spacing="20" prefWidth="250">
+                <VBox spacing="5">
+                    <Label text="CASHPRIZE TOTAL" styleClass="stat-title" style="-fx-font-size: 12px;"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="🏆" style="-fx-font-size: 26px;"/>
+                        <Label fx:id="prizeLabel" text="200" style="-fx-text-fill: #FACC15; -fx-font-size: 44px; -fx-font-weight: bold;"/>
+                        <Label text="DT" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <Label text="Réparti sur le top 3" styleClass="text-muted" style="-fx-font-size: 11px; -fx-background-color: #1E2633; -fx-padding: 4 8; -fx-background-radius: 10;"/>
+                </VBox>
+            </VBox>
+
+            <!-- Rules Grid -->
+            <VBox styleClass="glass-panel" HBox.hgrow="ALWAYS" spacing="20">
+                <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+                <Label text="⚔  Règlement du Tournoi" style="-fx-text-fill: -carthage-accent; -fx-font-weight: bold; -fx-font-size: 16px;"/>
+                
+                <GridPane hgap="40" vgap="25">
+                    <!-- Format -->
+                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="⚙" style="-fx-text-fill: -carthage-text-muted; -fx-font-size: 16px;"/>
+                            <VBox>
+                                <Label text="Format" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                                <Label fx:id="formatLabel" text="elimination" styleClass="text-muted" style="-fx-font-size: 11px;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                    <!-- Teams -->
+                    <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="👥" style="-fx-text-fill: -carthage-text-muted; -fx-font-size: 16px;"/>
+                            <VBox>
+                                <Label text="Equipes" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                                <Label fx:id="teamsLimitLabel" text="8 équipes max." styleClass="text-muted" style="-fx-font-size: 11px;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                    <!-- Dates -->
+                    <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="🕒" style="-fx-text-fill: -carthage-text-muted; -fx-font-size: 16px;"/>
+                            <VBox>
+                                <Label text="Dates" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                                <Label fx:id="datesLabel" text="Du --/-- au --/--" styleClass="text-muted" style="-fx-font-size: 11px;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                    <!-- Platform -->
+                    <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="💻" style="-fx-text-fill: -carthage-text-muted; -fx-font-size: 16px;"/>
+                            <VBox>
+                                <Label text="Plateforme" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                                <Label text="Tournoi PC uniquement. Discord obligatoire." styleClass="text-muted" style="-fx-font-size: 11px;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </GridPane>
+
+                <VBox spacing="8">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="📍" style="-fx-text-fill: -carthage-accent; -fx-font-size: 16px;"/>
+                        <Label text="LIEU DE L'ÉVÉNEMENT" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                    </HBox>
+                    <Label fx:id="locationLabel" text="El Menzah Sports Palace, Tunis" styleClass="text-muted" style="-fx-font-size: 12px;"/>
+                    <Region fx:id="mapMock" prefHeight="150" style="-fx-background-color: #1E2633; -fx-background-radius: 12; -fx-border-color: #2A3441; -fx-border-radius: 12;"/>
+                </VBox>
+            </VBox>
+        </HBox>
+
+        <!-- Matches Section -->
+        <VBox spacing="15">
+            <Label text="🎮  Matchs du Tournoi" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;"/>
+            <VBox fx:id="matchList" spacing="20"/>
+        </VBox>
+
+        <!-- Registration Status Area -->
+        <VBox styleClass="glass-panel" spacing="20">
+            <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+            <HBox alignment="BOTTOM_LEFT">
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="Inscriptions" style="-fx-text-fill: -carthage-text-muted; -fx-font-size: 12px;"/>
+                    <HBox spacing="6" alignment="BOTTOM_LEFT">
+                        <Label fx:id="regCountLabel" text="0" style="-fx-text-fill: -carthage-accent; -fx-font-size: 22px; -fx-font-weight: bold;"/>
+                        <Label text="/ 8" style="-fx-text-fill: -carthage-text-muted; -fx-font-size: 16px; -fx-padding: 0 0 3 0;"/>
+                    </HBox>
+                </VBox>
+                <VBox alignment="BOTTOM_RIGHT">
+                    <Label text="CLÔTURE LE" style="-fx-text-fill: #9CA3AF; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                    <Label fx:id="closureDateLabel" text="--" style="-fx-text-fill: white; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
+            
+            <ProgressBar fx:id="regProgress" progress="0.0" prefWidth="Infinity" style="-fx-accent: -carthage-accent;"/>
+
+            <HBox spacing="20" alignment="CENTER_LEFT">
+                <Label text="ⓧ Equipe complète" style="-fx-text-fill: #6b7280; -fx-font-size: 12px;"/>
+                <Label text="🟢 Frais: Gratuit" style="-fx-text-fill: #4ADE80; -fx-font-size: 12px;"/>
+            </HBox>
+
+            <Button fx:id="joinBtn" text="Rejoindre avec mon équipe →" maxWidth="Infinity" styleClass="button-solid-red" 
+                    style="-fx-padding: 14 0; -fx-font-size: 16px; -fx-background-radius: 12;" onAction="#onJoinTournament"/>
+        </VBox>
+
+        <!-- Registered Teams -->
+        <VBox spacing="15">
+            <HBox alignment="CENTER_LEFT">
+                <Label text="ÉQUIPES INSCRITES" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;" HBox.hgrow="ALWAYS"/>
+                <Label text="Voir tout" style="-fx-text-fill: -carthage-accent; -fx-font-size: 11px;"/>
+            </HBox>
+            <VBox fx:id="teamsList" spacing="10"/>
+        </VBox>
+    </VBox>
+</VBox>

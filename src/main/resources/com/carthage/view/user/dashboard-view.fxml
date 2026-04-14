@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox stylesheets="@../../css/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.user.DashboardController" spacing="30">
+    
+    <Label text="Dashboard Overview" styleClass="header-title" />
+    <Label text="Welcome to the Carthage Management System. Here is what is happening today." styleClass="sub-header" style="-fx-padding: -20 0 0 0;" />
+
+    <!-- Top Stats Row -->
+    <HBox spacing="20">
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="5">
+            <Label text="ACTIVE TOURNAMENTS" styleClass="stat-title" />
+            <Label text="0" fx:id="activeTournoisLabel" styleClass="stat-value" />
+        </VBox>
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="5">
+            <Label text="REGISTERED TEAMS" styleClass="stat-title" />
+            <Label text="0" fx:id="registeredTeamsLabel" styleClass="stat-value" />
+        </VBox>
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="5">
+            <Label text="ONGOING MATCHES" styleClass="stat-title" />
+            <Label text="0" fx:id="ongoingMatchesLabel" styleClass="stat-value" />
+            <Label text="2 Matches Delayed" style="-fx-text-fill: #EF4444; -fx-font-size: 12px;"/>
+        </VBox>
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="CENTER_LEFT" spacing="5">
+            <Label text="SUPPORT TICKETS" styleClass="stat-title" />
+            <Label text="0" fx:id="supportTicketsLabel" styleClass="stat-value" />
+        </VBox>
+    </HBox>
+
+    <!-- Main Content Grid -->
+    <GridPane vgap="20" hgap="20" VBox.vgrow="ALWAYS">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="65" />
+            <ColumnConstraints percentWidth="35" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints vgrow="ALWAYS" />
+        </rowConstraints>
+
+        <!-- Left: Live Matches -->
+        <VBox styleClass="glass-panel" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label text="Live Broadcasts" styleClass="header-title" style="-fx-font-size: 20px;" />
+            
+            <VBox alignment="CENTER" VBox.vgrow="ALWAYS">
+                <Label text="No live matches right now." styleClass="text-muted" />
+            </VBox>
+        </VBox>
+
+        <!-- Right: Recent Activity -->
+        <VBox styleClass="glass-panel" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label text="System Activity" styleClass="header-title" style="-fx-font-size: 20px;" />
+            <VBox spacing="10" style="-fx-padding: 20 0 0 0;">
+                <Label text="• Team 'FNC' registered." styleClass="text-muted" />
+                <Label text="• Server maintenance complete." styleClass="text-muted" />
+                <Label text="• Support ticket #102 closed." styleClass="text-muted" />
+            </VBox>
+        </VBox>
+    </GridPane>
+
+</VBox>

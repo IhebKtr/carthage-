@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carthage.controllers.user.SkinDetailController"
+      spacing="30" style="-fx-background-color: transparent;">
+
+    <!-- Back Navigation -->
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Button text="← Retour à la boutique" onAction="#onBack"
+                style="-fx-background-color: transparent; -fx-text-fill: -carthage-text-muted; -fx-cursor: hand; -fx-font-size: 13px;"/>
+    </HBox>
+
+    <HBox spacing="40">
+        <!-- Left: Image Showcase -->
+        <StackPane HBox.hgrow="ALWAYS" style="-fx-background-radius: 24; -fx-overflow: hiden;">
+            <Region style="-fx-background-color: #1E2633; -fx-background-radius: 24;"/>
+            <ImageView fx:id="skinImage" fitWidth="600" fitHeight="400" preserveRatio="true">
+                <Image url="@../../images/valorant-placeholder.jpg"/> <!-- This will be replaced by setImageUrl -->
+            </ImageView>
+            <Region style="-fx-background-color: linear-gradient(to top, rgba(11,14,20,0.8) 0%, transparent 100%); -fx-background-radius: 24;"/>
+        </StackPane>
+
+        <!-- Right: Info Sidebar -->
+        <VBox spacing="25" prefWidth="350">
+            <VBox spacing="10" styleClass="glass-panel">
+                <padding><Insets top="24" right="30" bottom="24" left="30"/></padding>
+
+                <HBox spacing="8">
+                    <Label fx:id="gameBadge" text="VALORANT" style="-fx-background-color: -carthage-accent-low; -fx-text-fill: -carthage-accent; -fx-padding: 3 8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4;"/>
+                    <Label fx:id="rarityBadge" text="COMMON" style="-fx-background-color: #374151; -fx-text-fill: #9CA3AF; -fx-padding: 3 8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4;"/>
+                </HBox>
+
+                <Label fx:id="skinName" text="1000VP" style="-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold;"/>
+                <Label fx:id="skinDesc" text="1K Valorant Points" styleClass="text-muted" style="-fx-font-size: 14px;"/>
+
+                <Region prefHeight="10"/>
+
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Prix" style="-fx-text-fill: -carthage-text-muted; -fx-font-size: 14px;" HBox.hgrow="ALWAYS"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Label text="🌀" style="-fx-font-size: 20px;"/>
+                        <Label fx:id="skinPrice" text="4500" style="-fx-text-fill: #FACC15; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+                    </HBox>
+                </HBox>
+
+                <Region prefHeight="20"/>
+
+                <Button fx:id="buyButton" text="🛒 Acheter maintenant" maxWidth="Infinity" styleClass="button-solid-red"
+                        style="-fx-padding: 14; -fx-background-radius: 12; -fx-font-size: 15px; -fx-font-weight: bold;" onAction="#onPurchase"/>
+                
+                <Button text="♡ Ajouter aux favoris" maxWidth="Infinity" styleClass="filter-toggle"
+                        style="-fx-padding: 12; -fx-background-radius: 12; -fx-font-size: 14px;"/>
+            </VBox>
+        </VBox>
+    </HBox>
+
+    <!-- Bottom: Similar Items -->
+    <VBox spacing="15">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label style="-fx-background-color: -carthage-accent; -fx-min-width: 4; -fx-pref-height: 20;"/>
+            <Label text="Articles Similaires" style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+        </HBox>
+        
+        <HBox fx:id="relatedList" spacing="20" maxWidth="Infinity">
+            <!-- Related item cards will be added here -->
+        </HBox>
+    </VBox>
+
+</VBox>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox stylesheets="@../../css/main.css" spacing="20" style="-fx-background-color: -carthage-base; -fx-padding: 30;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.TournoiManagementController">
+    
+    <!-- Top Header Bar -->
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Gestion des Tournois" styleClass="header-title" />
+            <Label text="Créer et gérer les tournois de la plateforme" styleClass="sub-header" />
+        </VBox>
+        <Button text="+ Créer" styleClass="button-solid-red" onAction="#handleCreate" />
+    </HBox>
+
+    <!-- Filters Bar -->
+    <HBox spacing="15" alignment="CENTER_LEFT" styleClass="glass-panel" style="-fx-padding: 10;">
+        <TextField promptText="Rechercher un tournoi..." styleClass="rounded-input" HBox.hgrow="ALWAYS" />
+        <Button text="Tous les jeux" styleClass="filter-toggle" />
+        <Button text="Tous les statuts" styleClass="filter-toggle" />
+    </HBox>
+
+    <!-- Table -->
+    <TableView fx:id="tournoiTable" VBox.vgrow="ALWAYS" styleClass="admin-table">
+        <columns>
+            <TableColumn fx:id="colId" text="ID" prefWidth="100"/>
+            <TableColumn fx:id="colNom" text="NOM" prefWidth="200" />
+            <TableColumn fx:id="colJeu" text="JEU" prefWidth="150" />
+            <TableColumn fx:id="colEquipes" text="ÉQUIPES" prefWidth="120" />
+            <TableColumn fx:id="colStatut" text="STATUT" prefWidth="120" />
+            <TableColumn fx:id="colCagnotte" text="CAGNOTTE" prefWidth="120" />
+            <TableColumn fx:id="colDate" text="DATE" prefWidth="150" />
+            <TableColumn fx:id="colActions" text="ACTIONS" prefWidth="150"/>
+        </columns>
+    </TableView>
+
+</VBox>

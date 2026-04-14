@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.shape.Circle?>
+
+<BorderPane stylesheets="@../../css/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.AdminMainLayoutController">
+    <!-- LEFT SIDEBAR -->
+    <left>
+        <VBox fx:id="sidebarMenu" styleClass="sidebar" prefWidth="250" spacing="5">
+            <padding>
+                <Insets top="20" right="0" bottom="20" left="0"/>
+            </padding>
+            
+            <!-- Logo Section -->
+            <HBox alignment="CENTER_LEFT" spacing="15">
+                <padding>
+                    <Insets bottom="30" left="20"/>
+                </padding>
+                <!-- Placeholder for logo if exists -->
+                <!-- <ImageView fitWidth="40" fitHeight="40"> <Image url="@../../images/logo.png"/> </ImageView> -->
+                <VBox alignment="CENTER_LEFT">
+                    <Label text="ADMIN" style="-fx-text-fill: -carthage-text-muted; -fx-font-size: 16px; -fx-font-weight: bold; -fx-letter-spacing: 2px;"/>
+                    <Label text="PANEL" style="-fx-text-fill: -carthage-accent; -fx-font-size: 16px; -fx-font-weight: bold; -fx-letter-spacing: 2px;"/>
+                </VBox>
+            </HBox>
+
+            <fx:define>
+                <ToggleGroup fx:id="navGroup"/>
+            </fx:define>
+
+            <!-- Navigation Buttons -->
+            <ToggleButton text="Tableau de Bord" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showDashboard"/>
+            <ToggleButton text="Utilisateurs" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showUtilisateurs"/>
+            <ToggleButton text="Licences" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup"/>
+            <ToggleButton text="Réclamations" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showReclamations"/>
+            <ToggleButton text="Tournois" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showTournois"/>
+            <ToggleButton text="Jeux" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showJeux"/>
+            <ToggleButton text="Boutique" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup"/>
+            <ToggleButton text="Rapports" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup"/>
+            <ToggleButton text="Paramètres" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup"/>
+        </VBox>
+    </left>
+
+    <!-- CENTER CONTENT AREA -->
+    <center>
+        <StackPane fx:id="contentArea" style="-fx-background-color: -carthage-base;">
+            <VBox alignment="CENTER" spacing="20">
+                <Label text="ADMIN DASHBOARD PREVIEW" styleClass="header-title" style="-fx-text-fill: -carthage-accent;" />
+                <Label text="Select an option from the sidebar to begin." styleClass="sub-header" />
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>

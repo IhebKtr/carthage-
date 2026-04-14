@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carthage.controllers.user.BoutiqueController"
+      spacing="20" style="-fx-background-color: transparent;">
+
+    <!-- Header -->
+    <VBox spacing="4">
+        <Label text="Boutique de Skins" styleClass="header-title"/>
+        <Label text="Améliorez votre arsenal avec des skins exclusifs." styleClass="sub-header"/>
+    </VBox>
+
+    <!-- Filter Bar -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <ToggleButton fx:id="btnAll" text="Tous les Jeux" styleClass="filter-toggle-active" onAction="#onFilterAll"/>
+        <ToggleButton fx:id="btnVal" text="Valorant" styleClass="filter-toggle" onAction="#onFilterValorant"/>
+        <ToggleButton fx:id="btnLol" text="League of Legends" styleClass="filter-toggle" onAction="#onFilterLoL"/>
+        <ToggleButton fx:id="btnCs"  text="CS2" styleClass="filter-toggle" onAction="#onFilterCS2"/>
+
+        <Region HBox.hgrow="ALWAYS"/>
+
+        <Button text="Trier par  ↕" styleClass="filter-toggle"
+                style="-fx-background-radius: 20px; -fx-padding: 8 18;"/>
+        <TextField fx:id="searchField" promptText="🔍  Rechercher des skins..."
+                   style="-fx-background-color: #141A23; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280;
+                          -fx-background-radius: 20px; -fx-padding: 9 16 9 16; -fx-font-size: 13px;"
+                   prefWidth="220"/>
+    </HBox>
+
+    <!-- Skin Grid -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+        <FlowPane fx:id="skinsGrid" hgap="18" vgap="18" prefWrapLength="9999"
+                  style="-fx-background-color: transparent; -fx-padding: 5 0 0 0;"/>
+    </ScrollPane>
+
+</VBox>
