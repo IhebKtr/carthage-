@@ -70,7 +70,14 @@ public class UserService {
             user.setPassword(storedPassword);
             String rolesRaw = rs.getString("roles");
             if (rolesRaw != null && !rolesRaw.isBlank()) {
-                user.setRoles(Arrays.asList(rolesRaw.split(",")));
+                // Roles are stored as a JSON array string e.g. ["ROLE_USER","ROLE_ADMIN"]
+                // Strip the brackets and quotes before splitting
+                String stripped = rolesRaw.trim()
+                        .replaceAll("^\\[|\\]$", "")  // remove leading [ and trailing ]
+                        .replaceAll("\"", "");          // remove all quotes
+                if (!stripped.isBlank()) {
+                    user.setRoles(Arrays.asList(stripped.split(",")));
+                }
             }
             user.setBalance(rs.getInt("balance"));
             user.setStatus(status);
