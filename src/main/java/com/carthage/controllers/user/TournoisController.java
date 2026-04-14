@@ -178,7 +178,7 @@ public class TournoisController {
         btn.setStyle("-fx-background-color: #1E2633; -fx-text-fill: white;" +
             " -fx-background-radius: 20px; -fx-padding: 6 14; -fx-cursor: hand; -fx-font-size: 12px;");
         btn.setOnAction(e -> {
-            MainLayoutController mlc = (MainLayoutController) card.getScene().getRoot().getUserData();
+            MainLayoutController mlc = (MainLayoutController) card.getScene().lookup("#contentArea").getUserData();
             mlc.loadTournoiDetail(id);
         });
 

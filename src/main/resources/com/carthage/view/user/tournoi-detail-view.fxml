@@ -123,7 +123,7 @@
                     <Label text="Inscriptions" style="-fx-text-fill: -carthage-text-muted; -fx-font-size: 12px;"/>
                     <HBox spacing="6" alignment="BOTTOM_LEFT">
                         <Label fx:id="regCountLabel" text="0" style="-fx-text-fill: -carthage-accent; -fx-font-size: 22px; -fx-font-weight: bold;"/>
-                        <Label text="/ 8" style="-fx-text-fill: -carthage-text-muted; -fx-font-size: 16px; -fx-padding: 0 0 3 0;"/>
+                        <Label fx:id="regMaxLabel" text="/ 8" style="-fx-text-fill: -carthage-text-muted; -fx-font-size: 16px; -fx-padding: 0 0 3 0;"/>
                     </HBox>
                 </VBox>
                 <VBox alignment="BOTTOM_RIGHT">

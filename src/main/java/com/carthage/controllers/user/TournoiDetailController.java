@@ -18,13 +18,14 @@ public class TournoiDetailController {
 
     @FXML private Label tournoiName, tournoiDesc, statusBadge, gameBadge;
     @FXML private Label prizeLabel, formatLabel, teamsLimitLabel, datesLabel, locationLabel;
-    @FXML private Label regCountLabel, closureDateLabel;
+    @FXML private Label regCountLabel, regMaxLabel, closureDateLabel;
     @FXML private ProgressBar regProgress;
     @FXML private VBox matchList, teamsList;
     @FXML private Button joinBtn;
 
     private Connection connection;
     private UUID currentTournoiId;
+    private int maxTeams = 8;
     private static final DateTimeFormatter FMT_SHORT = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
     @FXML
@@ -50,12 +51,24 @@ public class TournoiDetailController {
             if (rs.next()) {
                 tournoiName.setText(rs.getString("nom"));
                 tournoiDesc.setText(rs.getString("nom") + " sur " + rs.getString("game_name"));
-                statusBadge.setText(nvl(rs.getString("status"), "UPCOMING").toUpperCase());
+
+                // Status badge with color coding
+                String status = nvl(rs.getString("status"), "UPCOMING").toUpperCase();
+                statusBadge.setText(status);
+                switch (status) {
+                    case "ONGOING" -> statusBadge.setStyle("-fx-background-color: #F59E0B; -fx-text-fill: black; -fx-padding: 3 8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4;");
+                    case "COMPLETED" -> statusBadge.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; -fx-padding: 3 8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4;");
+                    default -> statusBadge.setStyle("-fx-background-color: #22C55E; -fx-text-fill: white; -fx-padding: 3 8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4;");
+                }
+
                 gameBadge.setText(nvl(rs.getString("game_name"), "GAME").toUpperCase());
                 prizeLabel.setText(String.valueOf(rs.getInt("prize_pool")));
                 formatLabel.setText(nvl(rs.getString("type"), "Elimination"));
-                int max = rs.getInt("nb_equipes_max");
-                teamsLimitLabel.setText(max + " équipes max.");
+
+                maxTeams = rs.getInt("nb_equipes_max");
+                teamsLimitLabel.setText(maxTeams + " équipes max.");
+                regMaxLabel.setText("/ " + maxTeams);
+
                 locationLabel.setText(nvl(rs.getString("place"), "En ligne"));
                 
                 Timestamp start = rs.getTimestamp("date_debut");
@@ -84,12 +97,19 @@ public class TournoiDetailController {
             
             int currentRound = -1;
             VBox roundBox = null;
+            boolean hasMatches = false;
 
             while (rs.next()) {
+                hasMatches = true;
                 int round = rs.getInt("round");
                 if (round != currentRound) {
                     currentRound = round;
-                    Label roundTitle = new Label(round + "  Round " + round + "  " + (round == 1 ? "DEMI-FINALES" : "FINALE"));
+                    String roundLabel = switch (round) {
+                        case 1 -> "DEMI-FINALES";
+                        case 2 -> "FINALE";
+                        default -> "ROUND " + round;
+                    };
+                    Label roundTitle = new Label("🎯  Round " + round + "  —  " + roundLabel);
                     roundTitle.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
                     
                     roundBox = new VBox(10);
@@ -105,6 +125,12 @@ public class TournoiDetailController {
                         rs.getTimestamp("scheduled_at")
                     ));
                 }
+            }
+
+            if (!hasMatches) {
+                Label empty = new Label("Aucun match programmé pour l'instant.");
+                empty.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-padding: 10 0;");
+                matchList.getChildren().add(empty);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -125,7 +151,13 @@ public class TournoiDetailController {
                 count++;
             }
             regCountLabel.setText(String.valueOf(count));
-            regProgress.setProgress(count / 8.0);
+            regProgress.setProgress(maxTeams > 0 ? (double) count / maxTeams : 0);
+
+            if (count == 0) {
+                Label empty = new Label("Aucune équipe inscrite pour le moment.");
+                empty.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 13px; -fx-padding: 10 0;");
+                teamsList.getChildren().add(empty);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -148,14 +180,23 @@ public class TournoiDetailController {
         
         Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
         
-        Label statusBadge = new Label(nvl(status, "PROGRAMMÉ").toUpperCase());
-        statusBadge.setStyle("-fx-background-color: #1E2633; -fx-text-fill: #3B82F6; -fx-padding: 4 8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4;");
+        String st = nvl(status, "PROGRAMMÉ").toUpperCase();
+        Label statusLabel = new Label(st);
+        String badgeColor = switch (st) {
+            case "ONGOING", "EN_COURS" -> "#F59E0B";
+            case "COMPLETED", "TERMINÉ" -> "#4ADE80";
+            default -> "#3B82F6";
+        };
+        statusLabel.setStyle("-fx-background-color: #1E2633; -fx-text-fill: " + badgeColor + "; -fx-padding: 4 8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4;");
 
         VBox info = new VBox(2);
-        info.getChildren().addAll(new HBox(10, team1, vs, team2), new Label(date != null ? date.toLocalDateTime().format(FMT_SHORT) : "--"));
-        ((Label)info.getChildren().get(1)).setStyle("-fx-text-fill: #6b7280; -fx-font-size: 11px;");
+        HBox teamsRow = new HBox(10, team1, vs, team2);
+        teamsRow.setAlignment(Pos.CENTER_LEFT);
+        Label dateLabel = new Label(date != null ? date.toLocalDateTime().format(FMT_SHORT) : "--");
+        dateLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 11px;");
+        info.getChildren().addAll(teamsRow, dateLabel);
 
-        row.getChildren().addAll(info, spacer, statusBadge);
+        row.getChildren().addAll(info, spacer, statusLabel);
         return row;
     }
 
@@ -165,12 +206,12 @@ public class TournoiDetailController {
         row.setPadding(new Insets(10, 15, 10, 15));
         row.setStyle("-fx-background-color: #141A23; -fx-background-radius: 8;");
         
-        Label avatar = new Label(tag != null ? tag.substring(0, Math.min(2, tag.length())) : "??");
-        avatar.setStyle("-fx-background-color: #1E2633; -fx-text-fill: white; -fx-padding: 8; -fx-background-radius: 20; -fx-font-size: 10px;");
+        Label avatar = new Label(tag != null ? tag.substring(0, Math.min(2, tag.length())).toUpperCase() : "??");
+        avatar.setStyle("-fx-background-color: #1E2633; -fx-text-fill: white; -fx-padding: 8; -fx-background-radius: 20; -fx-font-size: 10px; -fx-font-weight: bold;");
         
         VBox info = new VBox(2);
         Label n = new Label(name); n.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-        Label t = new Label("2 membres • Inscrit"); t.setStyle("-fx-text-fill: #4ADE80; -fx-font-size: 10px;");
+        Label t = new Label("Inscrit ✔"); t.setStyle("-fx-text-fill: #4ADE80; -fx-font-size: 10px;");
         info.getChildren().addAll(n, t);
         
         row.getChildren().addAll(avatar, info);
@@ -178,17 +219,53 @@ public class TournoiDetailController {
     }
 
     private void checkButtons() {
-        // Logic to disable joinBtn if already registered
+        User user = SessionContext.getInstance().getCurrentUser();
+        if (user == null) {
+            joinBtn.setDisable(true);
+            joinBtn.setText("Connectez-vous pour rejoindre");
+            return;
+        }
+
+        // Check if user's team is already registered in this tournament
+        String sql = "SELECT COUNT(*) AS cnt FROM tournoi_team tt " +
+                     "JOIN team_membership tm ON tt.team_id = tm.team_id " +
+                     "WHERE tt.tournoi_id = UNHEX(REPLACE(?, '-', '')) " +
+                     "AND tm.player_id = UNHEX(REPLACE(?, '-', ''))";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, currentTournoiId.toString());
+            ps.setString(2, user.getId().toString());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next() && rs.getInt("cnt") > 0) {
+                joinBtn.setDisable(true);
+                joinBtn.setText("✔ Déjà inscrit");
+                joinBtn.setStyle("-fx-background-color: #1E2633; -fx-text-fill: #4ADE80; -fx-padding: 14 0; -fx-font-size: 16px; -fx-background-radius: 12; -fx-border-color: #4ADE80; -fx-border-radius: 12; -fx-border-width: 1;");
+                return;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        // Check if user is a captain of any team
+        String captainSql = "SELECT COUNT(*) AS cnt FROM team_membership WHERE player_id = UNHEX(REPLACE(?, '-', '')) AND role = 'CAPTAIN'";
+        try (PreparedStatement ps = connection.prepareStatement(captainSql)) {
+            ps.setString(1, user.getId().toString());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next() && rs.getInt("cnt") == 0) {
+                joinBtn.setDisable(true);
+                joinBtn.setText("Vous devez être Leader d'une équipe");
+                joinBtn.setStyle("-fx-background-color: #1E2633; -fx-text-fill: #6b7280; -fx-padding: 14 0; -fx-font-size: 14px; -fx-background-radius: 12;");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML public void onBack() {
         try {
-            // Find contentArea in the scene
             javafx.scene.Node ca = tournoiName.getScene().lookup("#contentArea");
             if (ca != null && ca.getUserData() instanceof MainLayoutController mlc) {
                 mlc.loadView("tournois-view.fxml");
             } else {
-                // Fallback direct load
                 System.err.println("MainLayoutController could not be found to navigate back.");
             }
         } catch (Exception e) {
@@ -198,6 +275,8 @@ public class TournoiDetailController {
 
     @FXML public void onJoinTournament() {
         User user = SessionContext.getInstance().getCurrentUser();
+        if (user == null) return;
+
         // Finding user's team where they are Captain
         String findTeam = "SELECT HEX(team_id) as tid FROM team_membership WHERE player_id = UNHEX(REPLACE(?, '-', '')) AND role = 'CAPTAIN' LIMIT 1";
         try (PreparedStatement ps = connection.prepareStatement(findTeam)) {
@@ -211,6 +290,7 @@ public class TournoiDetailController {
                     psIns.setString(2, teamHexId);
                     psIns.executeUpdate();
                     loadRegisteredTeams();
+                    checkButtons();
                     showAlert("Succès", "Votre équipe a été inscrite avec succès !");
                 }
             } else {
