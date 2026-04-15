@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carthagearena.controller.AiDescriptionController"
+      styleClass="page-container" spacing="16">
+
+    <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+
+    <!-- ─── En-tête ──────────────────────────────────────────────────── -->
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="🤖 Générateur de Description IA" styleClass="page-title"/>
+            <Label text="Groq AI (LLaMA 3.3-70b) · Descriptions épiques pour vos produits"
+                   styleClass="page-subtitle"/>
+        </VBox>
+        <ProgressIndicator fx:id="spinner" prefWidth="32" prefHeight="32"/>
+    </HBox>
+
+    <HBox spacing="16">
+
+        <!-- ─── Colonne gauche : saisie ──────────────────────────────── -->
+        <VBox spacing="14" prefWidth="420" styleClass="stat-card">
+            <Label text="📝 Paramètres du produit" styleClass="section-title"/>
+
+            <VBox spacing="4">
+                <Label text="Produit existant (optionnel)" styleClass="field-label"/>
+                <ComboBox fx:id="cbMerch" maxWidth="Infinity" styleClass="form-field"
+                          promptText="Choisir un produit pour pré-remplir..."/>
+            </VBox>
+
+            <VBox spacing="4">
+                <Label text="Nom du produit *" styleClass="field-label"/>
+                <TextField fx:id="tfName" promptText="Ex : Maillot Carthage Arena"
+                           styleClass="form-field"/>
+            </VBox>
+
+            <HBox spacing="12">
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="Type *" styleClass="field-label"/>
+                    <TextField fx:id="tfType" promptText="shirt / cap / jersey..."
+                               styleClass="form-field"/>
+                </VBox>
+                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                    <Label text="Prix (centimes) *" styleClass="field-label"/>
+                    <TextField fx:id="tfPrice" promptText="Ex : 2500"
+                               styleClass="form-field"/>
+                </VBox>
+            </HBox>
+
+            <!-- Métriques IA -->
+            <Separator/>
+            <Label text="📊 Analyse IA" styleClass="section-title"/>
+            <Label fx:id="lblFraudScore" text="Score fraude : —" styleClass="label"/>
+            <Label fx:id="lblDynamicPrice" text="Prix dynamique : —" styleClass="label"/>
+
+            <Button text="✨ Générer la description" styleClass="btn, btn-primary"
+                    onAction="#onGenerate" fx:id="btnGenerate" maxWidth="Infinity"/>
+        </VBox>
+
+        <!-- ─── Colonne droite : résultat ────────────────────────────── -->
+        <VBox fx:id="panelResult" spacing="12" HBox.hgrow="ALWAYS" styleClass="stat-card">
+            <Label text="💬 Description générée" styleClass="section-title"/>
+            <TextArea fx:id="taGeneratedDescription"
+                      wrapText="true" VBox.vgrow="ALWAYS" prefRowCount="12"
+                      styleClass="form-field"
+                      promptText="La description apparaîtra ici..."/>
+            <Button text="💾 Appliquer au produit sélectionné" fx:id="btnApply"
+                    styleClass="btn, btn-success" onAction="#onApply"
+                    maxWidth="Infinity"/>
+        </VBox>
+
+    </HBox>
+
+    <!-- ─── Status bar ────────────────────────────────────────────────── -->
+    <Label fx:id="lblStatus" text="" styleClass="label"/>
+
+</VBox>

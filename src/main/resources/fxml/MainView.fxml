@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.carthagearena.controller.MainController"
+            styleClass="root-pane">
+
+    <!-- ─── Sidebar ─────────────────────────────────────────────────── -->
+    <left>
+        <VBox styleClass="sidebar" spacing="8" prefWidth="240">
+            <padding><Insets top="24" right="16" bottom="24" left="16"/></padding>
+
+            <!-- Logo -->
+            <VBox alignment="CENTER" spacing="4">
+                <Label text="🏟️" styleClass="logo-icon"/>
+                <Label text="Carthage Arena" styleClass="logo-text"/>
+                <Label text="Gestion Merchandising" styleClass="logo-subtitle"/>
+            </VBox>
+
+            <Separator styleClass="sidebar-divider"/>
+
+            <!-- Navigation -->
+            <Button fx:id="btnMerch" text="🛍️  Produits Merch"
+                    styleClass="nav-btn, nav-btn-active"
+                    onAction="#showMerch"
+                    maxWidth="Infinity"/>
+            <Button fx:id="btnOrders" text="📦  Commandes"
+                    styleClass="nav-btn"
+                    onAction="#showOrders"
+                    maxWidth="Infinity"/>
+            <Button fx:id="btnAi" text="🤖  IA Descriptions"
+                    styleClass="nav-btn"
+                    onAction="#showAi"
+                    maxWidth="Infinity"/>
+            <Button fx:id="btnPayment" text="💳  Paiement Stripe"
+                    styleClass="nav-btn"
+                    onAction="#showPayment"
+                    maxWidth="Infinity"/>
+            <Button fx:id="btnStats" text="📊  Statistiques"
+                    styleClass="nav-btn"
+                    onAction="#showStats"
+                    maxWidth="Infinity"/>
+
+            <Separator styleClass="sidebar-divider"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Label text="Carthage Arena v1.0" styleClass="version-label"/>
+        </VBox>
+    </left>
+
+    <!-- ─── Contenu principal ──────────────────────────────────────── -->
+    <center>
+        <StackPane fx:id="contentArea" styleClass="content-area">
+        </StackPane>
+    </center>
+
+</BorderPane>

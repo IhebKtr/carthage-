@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carthagearena.controller.PaymentController"
+      styleClass="page-container" spacing="16">
+
+    <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+
+    <!-- ─── En-tête ──────────────────────────────────────────────────── -->
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="💳 Paiement Stripe" styleClass="page-title"/>
+            <Label text="Créez une session de paiement sécurisée Stripe Checkout"
+                   styleClass="page-subtitle"/>
+        </VBox>
+        <ProgressIndicator fx:id="spinner" prefWidth="32" prefHeight="32"/>
+    </HBox>
+
+    <HBox spacing="16">
+
+        <!-- ─── Formulaire de commande ────────────────────────────────── -->
+        <VBox spacing="14" prefWidth="400" styleClass="stat-card">
+            <Label text="🛍️ Nouvelle commande" styleClass="section-title"/>
+
+            <!-- Produit -->
+            <VBox spacing="4">
+                <Label text="Produit *" styleClass="field-label"/>
+                <ComboBox fx:id="cbMerch" maxWidth="Infinity" styleClass="form-field"
+                          promptText="Sélectionner un produit..."/>
+            </VBox>
+
+            <!-- Quantité -->
+            <VBox spacing="4">
+                <Label text="Quantité *" styleClass="field-label"/>
+                <TextField fx:id="tfQuantity" promptText="1" styleClass="form-field"/>
+            </VBox>
+
+            <!-- Utilisateur -->
+            <Separator/>
+            <Label text="👤 Informations client" styleClass="section-title"/>
+            <VBox spacing="4">
+                <Label text="ID Utilisateur *" styleClass="field-label"/>
+                <TextField fx:id="tfUserId" promptText="Ex : 2" styleClass="form-field"/>
+            </VBox>
+            <VBox spacing="4">
+                <Label text="Email *" styleClass="field-label"/>
+                <TextField fx:id="tfUserEmail" promptText="client@example.tn"
+                           styleClass="form-field"/>
+            </VBox>
+
+            <!-- Boutons -->
+            <HBox spacing="10">
+                <Button fx:id="btnCheckout" text="🌐 Payer via Stripe"
+                        styleClass="btn, btn-primary"
+                        onAction="#onCheckout" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                <Button fx:id="btnSimulate" text="🧪 Simuler paiement"
+                        styleClass="btn, btn-warning"
+                        onAction="#onSimulatePayment" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+            </HBox>
+        </VBox>
+
+        <!-- ─── Résumé commande + score fraude ───────────────────────── -->
+        <VBox fx:id="panelSummary" spacing="12" prefWidth="300" styleClass="stat-card">
+            <Label text="📋 Résumé" styleClass="section-title"/>
+
+            <HBox spacing="8">
+                <Label text="Produit :" styleClass="field-label" prefWidth="100"/>
+                <Label fx:id="lblProductName" text="—" styleClass="label" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <HBox spacing="8">
+                <Label text="Prix × Qté :" styleClass="field-label" prefWidth="100"/>
+                <Label fx:id="lblProductPrice" text="—" styleClass="label"/>
+            </HBox>
+            <HBox spacing="8">
+                <Label text="Total :" styleClass="field-label" prefWidth="100"/>
+                <Label fx:id="lblTotalAmount" text="—"
+                       style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #e6a817;"/>
+            </HBox>
+
+            <Separator/>
+            <Label text="🛡️ Analyse anti-fraude" styleClass="section-title"/>
+            <Label fx:id="lblFraudScore" text="—" styleClass="label"/>
+            <Label text="(Groq AI fraudScore)" styleClass="field-label"/>
+        </VBox>
+
+        <!-- ─── Historique commandes ──────────────────────────────────── -->
+        <VBox spacing="10" HBox.hgrow="ALWAYS" styleClass="stat-card">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="📜 Historique commandes" styleClass="section-title"
+                       HBox.hgrow="ALWAYS"/>
+                <Button text="🔍 Charger" styleClass="btn, btn-secondary"
+                        onAction="#onLoadHistory"/>
+            </HBox>
+
+            <TableView fx:id="tableUserOrders" VBox.vgrow="ALWAYS" styleClass="main-table">
+                <columns>
+                    <TableColumn fx:id="colOrderRef"    text="Réf."   prefWidth="100"/>
+                    <TableColumn fx:id="colOrderTotal"  text="Total"  prefWidth="110"/>
+                    <TableColumn fx:id="colOrderStatus" text="Statut" prefWidth="120"/>
+                </columns>
+                <placeholder>
+                    <Label text="Aucune commande" styleClass="empty-placeholder"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+
+    </HBox>
+
+    <!-- ─── Barre de statut ───────────────────────────────────────────── -->
+    <Label fx:id="lblStatus" text="" styleClass="label"/>
+
+</VBox>

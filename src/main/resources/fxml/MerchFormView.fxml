@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carthagearena.controller.MerchFormController"
+      styleClass="form-container" spacing="20" prefWidth="520">
+
+    <padding><Insets top="32" right="32" bottom="32" left="32"/></padding>
+
+    <!-- Titre -->
+    <Label fx:id="lblTitle" text="➕ Nouveau produit" styleClass="form-title"/>
+
+    <!-- ─── Nom ─────────────────────────────────────────────────────── -->
+    <VBox spacing="4">
+        <Label text="Nom du produit *" styleClass="field-label"/>
+        <TextField fx:id="tfName" promptText="Ex : Maillot Carthage Arena 2025"
+                   styleClass="form-field"/>
+        <Label fx:id="lblErrorName" text="" styleClass="error-label" visible="false"/>
+    </VBox>
+
+    <!-- ─── Description ──────────────────────────────────────────────── -->
+    <VBox spacing="4">
+        <Label text="Description" styleClass="field-label"/>
+        <TextArea fx:id="taDescription" promptText="Description du produit..."
+                  styleClass="form-field" prefRowCount="3" wrapText="true"/>
+    </VBox>
+
+    <!-- ─── Prix et Stock ────────────────────────────────────────────── -->
+    <HBox spacing="16">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Prix (en centimes) *" styleClass="field-label"/>
+            <TextField fx:id="tfPrice" promptText="Ex : 2500 = 25.00 DT"
+                       styleClass="form-field"/>
+            <Label fx:id="lblErrorPrice" text="" styleClass="error-label" visible="false"/>
+        </VBox>
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Stock *" styleClass="field-label"/>
+            <TextField fx:id="tfStock" promptText="Ex : 100"
+                       styleClass="form-field"/>
+            <Label fx:id="lblErrorStock" text="" styleClass="error-label" visible="false"/>
+        </VBox>
+    </HBox>
+
+    <!-- ─── Type ──────────────────────────────────────────────────────── -->
+    <VBox spacing="4">
+        <Label text="Type de produit *" styleClass="field-label"/>
+        <ComboBox fx:id="cbType" maxWidth="Infinity" styleClass="form-field"/>
+        <Label fx:id="lblErrorType" text="" styleClass="error-label" visible="false"/>
+    </VBox>
+
+    <!-- ─── Image URL & Preview ────────────────────────────────────────── -->
+    <HBox spacing="16">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="URL de l'image (ou Base64)" styleClass="field-label"/>
+            <TextField fx:id="tfImageUrl" promptText="https://... ou data:image/..."
+                       styleClass="form-field"/>
+        </VBox>
+        <VBox alignment="CENTER" style="-fx-border-color: #444c56; -fx-border-radius: 4; -fx-padding: 4; -fx-background-color: #22272e;">
+            <ImageView fx:id="imagePreview" fitWidth="80" fitHeight="80" preserveRatio="true"/>
+        </VBox>
+    </HBox>
+
+    <!-- ─── Jeu associé ──────────────────────────────────────────────── -->
+    <VBox spacing="4">
+        <Label text="Jeu associé" styleClass="field-label"/>
+        <ComboBox fx:id="cbGame" maxWidth="Infinity" styleClass="form-field"/>
+    </VBox>
+
+    <!-- ─── Erreur globale ───────────────────────────────────────────── -->
+    <Label fx:id="lblGlobalError" text="" styleClass="global-error"
+           visible="false" wrapText="true"/>
+
+    <!-- ─── Boutons ──────────────────────────────────────────────────── -->
+    <HBox spacing="12" alignment="CENTER_RIGHT">
+        <Button fx:id="btnCancel" text="Annuler" styleClass="btn, btn-secondary"
+                onAction="#onCancel"/>
+        <Button fx:id="btnSave" text="💾 Enregistrer" styleClass="btn, btn-primary"
+                onAction="#onSave"/>
+    </HBox>
+
+</VBox>

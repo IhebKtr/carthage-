@@ -1,0 +1,430 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< com.carthagearena:carthage-arena >------------------
+[INFO] Building Carthage Arena 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> javafx:0.0.8:run (default-cli) > process-classes @ carthage-arena >>>
+[WARNING] 6 problems were encountered while building the effective model for org.openjfx:javafx-controls:jar:21 during dependency collection step for project (use -X to see details)
+[WARNING] The artifact mysql:mysql-connector-java:jar:8.0.33 has been relocated to com.mysql:mysql-connector-j:jar:8.0.33: MySQL Connector/J artifacts moved to reverse-DNS compliant Maven 2+ coordinates.
+[INFO] 
+[INFO] --- resources:3.4.0:resources (default-resources) @ carthage-arena ---
+[INFO] Copying 8 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ carthage-arena ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] <<< javafx:0.0.8:run (default-cli) < process-classes @ carthage-arena <<<
+[INFO] 
+[WARNING] The artifact mysql:mysql-connector-java:jar:8.0.33 has been relocated to com.mysql:mysql-connector-j:jar:8.0.33: MySQL Connector/J artifacts moved to reverse-DNS compliant Maven 2+ coordinates.
+[INFO] 
+[INFO] --- javafx:0.0.8:run (default-cli) @ carthage-arena ---
+? Connexion Ó la base de donnÚes Útablie
+mvn : 
+javafx.fxml.LoadException: 
+Au caractère Ligne:1 : 94
++ ... nv:PATH = "$env:JAVA_HO
+ME\bin;$env:PATH"; mvn 
+javafx:run 2>&1 | Out-F ...
++                            
+                   
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (javafx.  
+  fxml.LoadException: :Str   
+ ing) [], RemoteException
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+/D:/projet-java-web/target/cl
+asses/fxml/MerchListView.fxml
+
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.constructLoadExc
+eption(FXMLLoader.java:2722)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:2700)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:2563)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:3376)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:3332)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:3300)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:3272)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:3248)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.load(FXMLLoader.
+java:3241)
+	at com.carthagearena.control
+ler.MainController.loadView(M
+ainController.java:62)
+	at com.carthagearena.control
+ler.MainController.showMerch(
+MainController.java:32)
+	at com.carthagearena.control
+ler.MainController.initialize
+(MainController.java:27)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:2670)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:2563)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.load(FXMLLoader.
+java:2531)
+	at com.carthagearena.MainApp
+.start(MainApp.java:15)
+	at javafx.graphics@21/com.su
+n.javafx.application.Launcher
+Impl.lambda$launchApplication
+1$9(LauncherImpl.java:839)
+	at javafx.graphics@21/com.su
+n.javafx.application.Platform
+Impl.lambda$runAndWait$12(Pla
+tformImpl.java:483)
+	at javafx.graphics@21/com.su
+n.javafx.application.Platform
+Impl.lambda$runLater$10(Platf
+ormImpl.java:456)
+	at java.base/java.security.A
+ccessController.doPrivileged(
+AccessController.java:399)
+	at javafx.graphics@21/com.su
+n.javafx.application.Platform
+Impl.lambda$runLater$11(Platf
+ormImpl.java:455)
+	at javafx.graphics@21/com.su
+n.glass.ui.InvokeLaterDispatc
+her$Future.run(InvokeLaterDis
+patcher.java:95)
+	at javafx.graphics@21/com.su
+n.glass.ui.win.WinApplication
+._runLoop(Native Method)
+	at javafx.graphics@21/com.su
+n.glass.ui.win.WinApplication
+.lambda$runLoop$3(WinApplicat
+ion.java:185)
+	at java.base/java.lang.Threa
+d.run(Thread.java:833)
+Caused by: java.lang.IllegalA
+rgumentException: Invalid 
+UUID string: ??.Wx??0T?J??
+	at java.base/java.util.UUID.
+fromString1(UUID.java:280)
+	at java.base/java.util.UUID.
+fromString(UUID.java:258)
+	at com.carthagearena.service
+.MerchService.mapResultSet(Me
+rchService.java:173)
+	at com.carthagearena.service
+.MerchService.findAll(MerchSe
+rvice.java:61)
+	at com.carthagearena.control
+ler.MerchListController.loadD
+ata(MerchListController.java:
+152)
+	at com.carthagearena.control
+ler.MerchListController.initi
+alize(MerchListController.jav
+a:58)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:2670)
+	... 23 more
+avr. 15, 2026 12:31:03 AM 
+javafx.css.CssParser parse
+WARNING: CSS Error parsing fi
+le:/D:/projet-java-web/target
+/classes/css/style.css: 
+Expected RBRACE at [12,4]
+javafx.fxml.LoadException: 
+/D:/projet-java-web/target/cl
+asses/fxml/MerchListView.fxml
+
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.constructLoadExc
+eption(FXMLLoader.java:2722)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:2700)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:2563)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:3376)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:3332)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:3300)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:3272)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:3248)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.load(FXMLLoader.
+java:3241)
+	at com.carthagearena.control
+ler.MainController.loadView(M
+ainController.java:62)
+	at com.carthagearena.control
+ler.MainController.showMerch(
+MainController.java:32)
+	at java.base/jdk.internal.re
+flect.NativeMethodAccessorImp
+l.invoke0(Native Method)
+	at java.base/jdk.internal.re
+flect.NativeMethodAccessorImp
+l.invoke(NativeMethodAccessor
+Impl.java:77)
+	at java.base/jdk.internal.re
+flect.DelegatingMethodAccesso
+rImpl.invoke(DelegatingMethod
+AccessorImpl.java:43)
+	at java.base/java.lang.refle
+ct.Method.invoke(Method.java:
+568)
+	at com.sun.javafx.reflect.Tr
+ampoline.invoke(MethodUtil.ja
+va:72)
+	at jdk.internal.reflect.Gene
+ratedMethodAccessor2.invoke(U
+nknown Source)
+	at java.base/jdk.internal.re
+flect.DelegatingMethodAccesso
+rImpl.invoke(DelegatingMethod
+AccessorImpl.java:43)
+	at java.base/java.lang.refle
+ct.Method.invoke(Method.java:
+568)
+	at javafx.base@21/com.sun.ja
+vafx.reflect.MethodUtil.invok
+e(MethodUtil.java:270)
+	at javafx.fxml@21/com.sun.ja
+vafx.fxml.MethodHelper.invoke
+(MethodHelper.java:84)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader$MethodHandler.in
+voke(FXMLLoader.java:1855)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader$ControllerMethod
+EventHandler.handle(FXMLLoade
+r.java:1726)
+	at javafx.base@21/com.sun.ja
+vafx.event.CompositeEventHand
+ler.dispatchBubblingEvent(Com
+positeEventHandler.java:86)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventHandlerManage
+r.dispatchBubblingEvent(Event
+HandlerManager.java:232)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventHandlerManage
+r.dispatchBubblingEvent(Event
+HandlerManager.java:189)
+	at javafx.base@21/com.sun.ja
+vafx.event.CompositeEventDisp
+atcher.dispatchBubblingEvent(
+CompositeEventDispatcher.java
+:59)
+	at javafx.base@21/com.sun.ja
+vafx.event.BasicEventDispatch
+er.dispatchEvent(BasicEventDi
+spatcher.java:58)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventDispatchChain
+Impl.dispatchEvent(EventDispa
+tchChainImpl.java:114)
+	at javafx.base@21/com.sun.ja
+vafx.event.BasicEventDispatch
+er.dispatchEvent(BasicEventDi
+spatcher.java:56)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventDispatchChain
+Impl.dispatchEvent(EventDispa
+tchChainImpl.java:114)
+	at javafx.base@21/com.sun.ja
+vafx.event.BasicEventDispatch
+er.dispatchEvent(BasicEventDi
+spatcher.java:56)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventDispatchChain
+Impl.dispatchEvent(EventDispa
+tchChainImpl.java:114)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventUtil.fireEven
+tImpl(EventUtil.java:74)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventUtil.fireEven
+t(EventUtil.java:49)
+	at javafx.base@21/javafx.eve
+nt.Event.fireEvent(Event.java
+:198)
+	at javafx.graphics@21/javafx
+.scene.Node.fireEvent(Node.ja
+va:8875)
+	at javafx.controls@21/javafx
+.scene.control.Button.fire(Bu
+tton.java:203)
+	at javafx.controls@21/com.su
+n.javafx.scene.control.behavi
+or.ButtonBehavior.mouseReleas
+ed(ButtonBehavior.java:207)
+	at javafx.controls@21/com.su
+n.javafx.scene.control.inputm
+ap.InputMap.handle(InputMap.j
+ava:274)
+	at javafx.base@21/com.sun.ja
+vafx.event.CompositeEventHand
+ler$NormalEventHandlerRecord.
+handleBubblingEvent(Composite
+EventHandler.java:247)
+	at javafx.base@21/com.sun.ja
+vafx.event.CompositeEventHand
+ler.dispatchBubblingEvent(Com
+positeEventHandler.java:80)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventHandlerManage
+r.dispatchBubblingEvent(Event
+HandlerManager.java:232)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventHandlerManage
+r.dispatchBubblingEvent(Event
+HandlerManager.java:189)
+	at javafx.base@21/com.sun.ja
+vafx.event.CompositeEventDisp
+atcher.dispatchBubblingEvent(
+CompositeEventDispatcher.java
+:59)
+	at javafx.base@21/com.sun.ja
+vafx.event.BasicEventDispatch
+er.dispatchEvent(BasicEventDi
+spatcher.java:58)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventDispatchChain
+Impl.dispatchEvent(EventDispa
+tchChainImpl.java:114)
+	at javafx.base@21/com.sun.ja
+vafx.event.BasicEventDispatch
+er.dispatchEvent(BasicEventDi
+spatcher.java:56)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventDispatchChain
+Impl.dispatchEvent(EventDispa
+tchChainImpl.java:114)
+	at javafx.base@21/com.sun.ja
+vafx.event.BasicEventDispatch
+er.dispatchEvent(BasicEventDi
+spatcher.java:56)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventDispatchChain
+Impl.dispatchEvent(EventDispa
+tchChainImpl.java:114)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventUtil.fireEven
+tImpl(EventUtil.java:74)
+	at javafx.base@21/com.sun.ja
+vafx.event.EventUtil.fireEven
+t(EventUtil.java:54)
+	at javafx.base@21/javafx.eve
+nt.Event.fireEvent(Event.java
+:198)
+	at javafx.graphics@21/javafx
+.scene.Scene$MouseHandler.pro
+cess(Scene.java:3984)
+	at javafx.graphics@21/javafx
+.scene.Scene.processMouseEven
+t(Scene.java:1890)
+	at javafx.graphics@21/javafx
+.scene.Scene$ScenePeerListene
+r.mouseEvent(Scene.java:2708)
+	at javafx.graphics@21/com.su
+n.javafx.tk.quantum.GlassView
+EventHandler$MouseEventNotifi
+cation.run(GlassViewEventHand
+ler.java:411)
+	at javafx.graphics@21/com.su
+n.javafx.tk.quantum.GlassView
+EventHandler$MouseEventNotifi
+cation.run(GlassViewEventHand
+ler.java:301)
+	at java.base/java.security.A
+ccessController.doPrivileged(
+AccessController.java:399)
+	at javafx.graphics@21/com.su
+n.javafx.tk.quantum.GlassView
+EventHandler.lambda$handleMou
+seEvent$2(GlassViewEventHandl
+er.java:450)
+	at javafx.graphics@21/com.su
+n.javafx.tk.quantum.QuantumTo
+olkit.runWithoutRenderLock(Qu
+antumToolkit.java:424)
+	at javafx.graphics@21/com.su
+n.javafx.tk.quantum.GlassView
+EventHandler.handleMouseEvent
+(GlassViewEventHandler.java:4
+49)
+	at javafx.graphics@21/com.su
+n.glass.ui.View.handleMouseEv
+ent(View.java:551)
+	at javafx.graphics@21/com.su
+n.glass.ui.View.notifyMouse(V
+iew.java:937)
+	at javafx.graphics@21/com.su
+n.glass.ui.win.WinApplication
+._runLoop(Native Method)
+	at javafx.graphics@21/com.su
+n.glass.ui.win.WinApplication
+.lambda$runLoop$3(WinApplicat
+ion.java:185)
+	at java.base/java.lang.Threa
+d.run(Thread.java:833)
+Caused by: java.lang.IllegalA
+rgumentException: Invalid 
+UUID string: ??.Wx??0T?J??
+	at java.base/java.util.UUID.
+fromString1(UUID.java:280)
+	at java.base/java.util.UUID.
+fromString(UUID.java:258)
+	at com.carthagearena.service
+.MerchService.mapResultSet(Me
+rchService.java:173)
+	at com.carthagearena.service
+.MerchService.findAll(MerchSe
+rvice.java:61)
+	at com.carthagearena.control
+ler.MerchListController.loadD
+ata(MerchListController.java:
+152)
+	at com.carthagearena.control
+ler.MerchListController.initi
+alize(MerchListController.jav
+a:58)
+	at javafx.fxml@21/javafx.fxm
+l.FXMLLoader.loadImpl(FXMLLoa
+der.java:2670)
+	... 66 more
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  31:54 min
+[INFO] Finished at: 2026-04-15T01:02:51+02:00
+[INFO] ------------------------------------------------------------------------

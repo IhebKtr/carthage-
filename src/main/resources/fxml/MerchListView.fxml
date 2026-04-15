@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carthagearena.controller.MerchListController"
+      styleClass="page-container" spacing="16">
+
+    <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+
+    <!-- ─── En-tête ──────────────────────────────────────────────────── -->
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="🛍️ Gestion des Produits Merch" styleClass="page-title"/>
+            <Label text="Gérez votre catalogue de produits dérivés" styleClass="page-subtitle"/>
+        </VBox>
+        <Button text="➕ Ajouter un produit" styleClass="btn, btn-primary"
+                onAction="#onAddMerch" fx:id="btnAdd"/>
+        <Button text="🔄 Actualiser" styleClass="btn, btn-secondary"
+                onAction="#onRefresh"/>
+    </HBox>
+
+    <!-- ─── Stats cards ──────────────────────────────────────────────── -->
+    <HBox spacing="16">
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <Label text="📦" styleClass="stat-icon"/>
+            <Label fx:id="lblTotalProducts" text="Produits : 0" styleClass="stat-value"/>
+        </VBox>
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <Label text="📊" styleClass="stat-icon"/>
+            <Label fx:id="lblTotalStock" text="Stock total : 0" styleClass="stat-value"/>
+        </VBox>
+    </HBox>
+
+    <!-- ─── Filtres ──────────────────────────────────────────────────── -->
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <TextField fx:id="tfSearch" promptText="🔍 Rechercher par nom..."
+                   styleClass="search-field" prefWidth="300"/>
+        <Label text="Type :"/>
+        <ComboBox fx:id="cbTypeFilter" prefWidth="180"/>
+    </HBox>
+
+    <!-- ─── Tableau ──────────────────────────────────────────────────── -->
+    <TableView fx:id="tableMerch" VBox.vgrow="ALWAYS" styleClass="main-table">
+        <columns>
+            <TableColumn fx:id="colName"    text="Nom du produit"   prefWidth="250"/>
+            <TableColumn fx:id="colType"    text="Type"             prefWidth="120"/>
+            <TableColumn fx:id="colPrice"   text="Prix"             prefWidth="120"/>
+            <TableColumn fx:id="colStock"   text="Stock"            prefWidth="100"/>
+            <TableColumn fx:id="colActions" text="Actions"          prefWidth="220"/>
+        </columns>
+        <placeholder>
+            <Label text="Aucun produit trouvé" styleClass="empty-placeholder"/>
+        </placeholder>
+    </TableView>
+
+</VBox>
