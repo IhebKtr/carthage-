@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox stylesheets="@../../css/main.css"
+      spacing="20"
+      style="-fx-background-color: -carthage-base; -fx-padding: 30;"
+      xmlns="http://javafx.com/javafx/16"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carthage.controllers.admin.TournoiMatchesController">
+
+    <!-- ── Top Header Bar ── -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Button text="←" styleClass="btn-icon-action" onAction="#handleBack" />
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label fx:id="headerTitleLabel"
+                   text="Créer les Matchs"
+                   style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;" />
+            <Label fx:id="headerSubLabel"
+                   text="Générer le tableau de rencontres pour ce tournoi"
+                   styleClass="sub-header" />
+        </VBox>
+        <!-- Live match count badge -->
+        <Label fx:id="infoMatchCountLabel"
+               text="0 matchs"
+               style="-fx-background-color: rgba(229,9,20,0.15); -fx-text-fill: #E50914;
+                      -fx-font-weight: bold; -fx-padding: 6 16; -fx-background-radius: 20;
+                      -fx-font-size: 13px;" />
+    </HBox>
+
+    <!-- ── Warning banner (hidden by default) ── -->
+    <Label fx:id="statusWarningLabel"
+           text=""
+           wrapText="true"
+           visible="false"
+           style="-fx-text-fill: #FBBF24; -fx-font-weight: bold; -fx-padding: 8 15;
+                  -fx-background-color: rgba(251,191,36,0.10); -fx-background-radius: 8;" />
+
+    <!-- ── Main Body ── -->
+    <HBox spacing="25" VBox.vgrow="ALWAYS">
+
+        <!-- ── Left: Configuration Panel ── -->
+        <VBox spacing="20" prefWidth="320"
+              style="-fx-background-color: #141A23; -fx-padding: 25;
+                     -fx-background-radius: 12; -fx-border-color: #2A3441;
+                     -fx-border-radius: 12;">
+
+            <Label text="⚙  Configuration du Bracket"
+                   style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;" />
+
+            <!-- Info cards -->
+            <VBox spacing="10">
+                <!-- Teams -->
+                <HBox spacing="12" alignment="CENTER_LEFT"
+                      style="-fx-background-color: #1A212D; -fx-padding: 12;
+                             -fx-background-radius: 8;">
+                    <Label text="👥" style="-fx-font-size: 20px;" />
+                    <VBox spacing="2">
+                        <Label text="ÉQUIPES INSCRITES"
+                               style="-fx-text-fill: #6B7280; -fx-font-size: 9px; -fx-font-weight: bold;" />
+                        <Label fx:id="infoTeamsLabel" text="— équipes"
+                               style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                    </VBox>
+                </HBox>
+
+                <!-- Type -->
+                <HBox spacing="12" alignment="CENTER_LEFT"
+                      style="-fx-background-color: #1A212D; -fx-padding: 12;
+                             -fx-background-radius: 8;">
+                    <Label text="🏆" style="-fx-font-size: 20px;" />
+                    <VBox spacing="2">
+                        <Label text="TYPE DE TOURNOI"
+                               style="-fx-text-fill: #6B7280; -fx-font-size: 9px; -fx-font-weight: bold;" />
+                        <Label fx:id="infoTypeLabel" text="—"
+                               style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <Region prefHeight="5" />
+
+            <!-- Date du premier match -->
+            <VBox spacing="6">
+                <Label text="DATE DU PREMIER MATCH" styleClass="form-label" />
+                <DatePicker fx:id="firstMatchDatePicker"
+                            styleClass="rounded-input"
+                            maxWidth="Infinity" />
+            </VBox>
+
+            <!-- Intervalle entre matchs -->
+            <VBox spacing="6">
+                <Label text="INTERVALLE ENTRE MATCHS (MINUTES)" styleClass="form-label" />
+                <TextField fx:id="minutesBetweenField"
+                           promptText="ex: 90"
+                           styleClass="rounded-input" />
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <!-- Generate Button -->
+            <Button text="⚡  Créer les Matchs"
+                    onAction="#handleCreateMatches"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: -carthage-accent; -fx-text-fill: white;
+                           -fx-font-weight: bold; -fx-font-size: 14px;
+                           -fx-background-radius: 25; -fx-padding: 14 24;
+                           -fx-cursor: hand;" />
+
+            <!-- Test Email Button -->
+            <Button text="📧 Tester Rappels Emails (24h)"
+                    onAction="#handleTestEmails"
+                    maxWidth="Infinity"
+                    style="-fx-background-color: transparent; -fx-text-fill: #9CA3AF;
+                           -fx-font-weight: bold; -fx-font-size: 13px;
+                           -fx-border-color: #2A3441; -fx-border-radius: 25; -fx-padding: 10 24;
+                           -fx-cursor: hand;" />
+
+            <!-- Info note -->
+            <Label text="ℹ  Pour Single/Double Elimination, seul le Round 1 est généré.
+Les rounds suivants sont créés après la saisie des résultats."
+                   wrapText="true"
+                   style="-fx-text-fill: #6B7280; -fx-font-size: 11px; -fx-padding: 5 0 0 0;" />
+        </VBox>
+
+        <!-- ── Right: Match List ── -->
+        <VBox spacing="12" HBox.hgrow="ALWAYS">
+
+            <Label text="📋  Matchs Générés"
+                   style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: white;" />
+
+            <!-- Column Headers -->
+            <HBox spacing="10" alignment="CENTER_LEFT"
+                  style="-fx-background-color: #141A23; -fx-padding: 10 20;
+                         -fx-background-radius: 8 8 0 0;
+                         -fx-border-color: #2A3441; -fx-border-width: 0 0 1 0;">
+                <Label text="STATUT" prefWidth="115"
+                       style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                <Label text="ÉQUIPE 1" prefWidth="140"
+                       style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px; -fx-font-weight: bold; -fx-alignment: CENTER_RIGHT;" />
+                <Label text="  "    prefWidth="30" />
+                <Label text="ÉQUIPE 2" prefWidth="140"
+                       style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label text="SCORE" prefWidth="60"
+                       style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px; -fx-font-weight: bold; -fx-alignment: center;" />
+                <Label text="DATE PRÉVUE" prefWidth="130"
+                       style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px; -fx-font-weight: bold;" />
+            </HBox>
+
+            <!-- Empty state -->
+            <Label fx:id="emptyStateLabel"
+                   text="Aucun match généré pour ce tournoi.
+Configurez les paramètres à gauche et cliquez sur « Créer les Matchs »."
+                   wrapText="true"
+                   visible="true"
+                   style="-fx-text-fill: #6B7280; -fx-font-size: 13px; -fx-padding: 40;
+                          -fx-alignment: center; -fx-text-alignment: center;
+                          -fx-background-color: #141A23; -fx-background-radius: 0 0 8 8;" />
+
+            <!-- Scrollable match list -->
+            <ScrollPane fx:id="matchesScrollPane"
+                        VBox.vgrow="ALWAYS"
+                        fitToWidth="true"
+                        visible="false"
+                        styleClass="edge-to-edge">
+                <VBox fx:id="matchesContainer"
+                      spacing="8"
+                      style="-fx-background-color: #141A23; -fx-padding: 15;
+                             -fx-background-radius: 0 0 8 8;" />
+            </ScrollPane>
+
+        </VBox>
+    </HBox>
+</VBox>

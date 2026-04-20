@@ -9,6 +9,11 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import com.gluonhq.maps.MapPoint;
+import com.gluonhq.maps.MapView;
+import com.gluonhq.maps.MapLayer;
+import javafx.scene.shape.Circle;
+import javafx.geometry.Point2D;
 
 import java.sql.*;
 import java.time.format.DateTimeFormatter;
@@ -22,6 +27,8 @@ public class TournoiDetailController {
     @FXML private ProgressBar regProgress;
     @FXML private VBox matchList, teamsList;
     @FXML private Button joinBtn;
+    @FXML private MapView mapWebView;
+    private MapLayer markerLayer;
 
     private Connection connection;
     private UUID currentTournoiId;
@@ -69,7 +76,9 @@ public class TournoiDetailController {
                 teamsLimitLabel.setText(maxTeams + " équipes max.");
                 regMaxLabel.setText("/ " + maxTeams);
 
-                locationLabel.setText(nvl(rs.getString("place"), "En ligne"));
+                String place = nvl(rs.getString("place"), "Tunis");
+                locationLabel.setText(place);
+                updateMap(place);
                 
                 Timestamp start = rs.getTimestamp("date_debut");
                 Timestamp end = rs.getTimestamp("date_fin");
@@ -84,11 +93,62 @@ public class TournoiDetailController {
         }
     }
 
+    private class CustomMapLayer extends MapLayer {
+        private final Circle circle;
+        private final MapPoint mapPoint;
+
+        public CustomMapLayer(MapPoint mapPoint) {
+            this.mapPoint = mapPoint;
+            this.circle = new Circle(8, Color.web("#E50914"));
+            this.circle.setStroke(Color.WHITE);
+            this.circle.setStrokeWidth(2);
+            this.getChildren().add(circle);
+        }
+
+        @Override
+        protected void layoutLayer() {
+            Point2D point = getMapPoint(mapPoint.getLatitude(), mapPoint.getLongitude());
+            if (point != null) {
+                circle.setTranslateX(point.getX());
+                circle.setTranslateY(point.getY());
+            }
+        }
+    }
+
+    private void updateMap(String place) {
+        if (place == null || mapWebView == null) return;
+
+        double lat;
+        double lon;
+        switch (place) {
+            case "Sousse":           lat = 35.8254; lon = 10.6369; break;
+            case "Sfax":            lat = 34.7406; lon = 10.7603; break;
+            case "Monastir":        lat = 35.7780; lon = 10.8262; break;
+            case "Bizerte":         lat = 37.2744; lon = 9.8739;  break;
+            case "Esprit, Ghazela": lat = 36.8985; lon = 10.1898; break;
+            default:                lat = 36.8065; lon = 10.1815; break;
+        }
+
+        MapPoint mapPoint = new MapPoint(lat, lon);
+        mapWebView.setCenter(mapPoint);
+        mapWebView.setZoom(13);
+        
+        if (markerLayer != null) {
+            mapWebView.removeLayer(markerLayer);
+        }
+        
+        markerLayer = new CustomMapLayer(mapPoint);
+        mapWebView.addLayer(markerLayer);
+    }
+
     private void loadMatches() {
         matchList.getChildren().clear();
-        String sql = "SELECT m.*, t1.name as team1_name, t2.name as team2_name FROM match_game m " +
+        String sql = "SELECT HEX(m.id) as id, m.round, m.status, m.scheduled_at, m.score, " +
+                     "t1.name as team1_name, t2.name as team2_name, w.name as winner_name " +
+                     "FROM match_game m " +
                      "LEFT JOIN team t1 ON m.team1_id = t1.id " +
                      "LEFT JOIN team t2 ON m.team2_id = t2.id " +
+                     "LEFT JOIN team w ON m.winner_id = w.id " +
                      "WHERE m.tournoi_id = UNHEX(REPLACE(?, '-', '')) " +
                      "ORDER BY m.round ASC, m.scheduled_at ASC";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -104,12 +164,7 @@ public class TournoiDetailController {
                 int round = rs.getInt("round");
                 if (round != currentRound) {
                     currentRound = round;
-                    String roundLabel = switch (round) {
-                        case 1 -> "DEMI-FINALES";
-                        case 2 -> "FINALE";
-                        default -> "ROUND " + round;
-                    };
-                    Label roundTitle = new Label("🎯  Round " + round + "  —  " + roundLabel);
+                    Label roundTitle = new Label("🎯  Round " + round);
                     roundTitle.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
                     
                     roundBox = new VBox(10);
@@ -119,10 +174,12 @@ public class TournoiDetailController {
                 
                 if (roundBox != null) {
                     roundBox.getChildren().add(buildMatchRow(
-                        rs.getString("team1_name"), 
-                        rs.getString("team2_name"), 
+                        rs.getString("team1_name"),
+                        rs.getString("team2_name"),
                         rs.getString("status"),
-                        rs.getTimestamp("scheduled_at")
+                        rs.getTimestamp("scheduled_at"),
+                        rs.getString("score"),
+                        rs.getString("winner_name")
                     ));
                 }
             }
@@ -163,40 +220,78 @@ public class TournoiDetailController {
         }
     }
 
-    private HBox buildMatchRow(String t1, String t2, String status, Timestamp date) {
+    private HBox buildMatchRow(String t1, String t2, String status, Timestamp date, String score, String winner) {
         HBox row = new HBox(15);
         row.setAlignment(Pos.CENTER_LEFT);
         row.setPadding(new Insets(12, 20, 12, 20));
-        row.setStyle("-fx-background-color: #141A23; -fx-background-radius: 12;");
+        row.setStyle("-fx-background-color: #141A23; -fx-background-radius: 12; " +
+                     "-fx-border-color: #2A3441; -fx-border-radius: 12; -fx-border-width: 1;");
+
+        // Teams section
+        VBox teamsBox = new VBox(4);
+        HBox teamsRow = new HBox(10);
+        teamsRow.setAlignment(Pos.CENTER_LEFT);
 
         Label team1 = new Label(nvl(t1, "À déterminer"));
-        team1.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-        
+        team1.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;");
+
         Label vs = new Label("VS");
-        vs.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 11px;");
-        
+        vs.setStyle("-fx-text-fill: #6B7280; -fx-font-size: 11px; -fx-font-weight: bold;");
+
         Label team2 = new Label(nvl(t2, "À déterminer"));
-        team2.setStyle("-fx-text-fill: white; -fx-font-weight: bold;");
-        
-        Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
-        
-        String st = nvl(status, "PROGRAMMÉ").toUpperCase();
-        Label statusLabel = new Label(st);
+        team2.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px;");
+
+        teamsRow.getChildren().addAll(team1, vs, team2);
+
+        Label dateLabel = new Label("📅 " + (date != null ? date.toLocalDateTime().format(FMT_SHORT) : "--"));
+        dateLabel.setStyle("-fx-text-fill: #6B7280; -fx-font-size: 11px;");
+
+        teamsBox.getChildren().addAll(teamsRow, dateLabel);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // Right section: score + winner + status
+        HBox rightBox = new HBox(10);
+        rightBox.setAlignment(Pos.CENTER_RIGHT);
+
+        // Score badge (if available)
+        if (score != null && !score.isBlank()) {
+            Label scoreLabel = new Label(score);
+            scoreLabel.setStyle("-fx-background-color: #1E2633; -fx-text-fill: #FBBF24; " +
+                                "-fx-font-weight: bold; -fx-font-size: 13px; " +
+                                "-fx-padding: 4 12; -fx-background-radius: 8;");
+            rightBox.getChildren().add(scoreLabel);
+        }
+
+        // Winner label (if available)
+        if (winner != null && !winner.isBlank()) {
+            Label winnerLabel = new Label("🏆 " + winner);
+            winnerLabel.setStyle("-fx-text-fill: #FBBF24; -fx-font-size: 11px; -fx-font-weight: bold;");
+            rightBox.getChildren().add(winnerLabel);
+        }
+
+        // Status badge
+        String st = nvl(status, "SCHEDULED").toUpperCase();
         String badgeColor = switch (st) {
-            case "ONGOING", "EN_COURS" -> "#F59E0B";
-            case "COMPLETED", "TERMINÉ" -> "#4ADE80";
-            default -> "#3B82F6";
+            case "IN_PROGRESS" -> "#F59E0B";
+            case "COMPLETED"   -> "#4ADE80";
+            case "CANCELLED"   -> "#FF4D4D";
+            default            -> "#3B82F6";   // SCHEDULED
         };
-        statusLabel.setStyle("-fx-background-color: #1E2633; -fx-text-fill: " + badgeColor + "; -fx-padding: 4 8; -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4;");
+        String badgeText = switch (st) {
+            case "IN_PROGRESS" -> "EN COURS";
+            case "COMPLETED"   -> "TERMINÉ";
+            case "CANCELLED"   -> "ANNULÉ";
+            default            -> "PROGRAMMÉ";
+        };
+        Label statusLabel = new Label("● " + badgeText);
+        statusLabel.setStyle("-fx-background-color: transparent; -fx-text-fill: " + badgeColor +
+                             "; -fx-padding: 4 8; -fx-font-size: 10px; -fx-font-weight: bold; " +
+                             "-fx-background-radius: 4;");
+        rightBox.getChildren().add(statusLabel);
 
-        VBox info = new VBox(2);
-        HBox teamsRow = new HBox(10, team1, vs, team2);
-        teamsRow.setAlignment(Pos.CENTER_LEFT);
-        Label dateLabel = new Label(date != null ? date.toLocalDateTime().format(FMT_SHORT) : "--");
-        dateLabel.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 11px;");
-        info.getChildren().addAll(teamsRow, dateLabel);
-
-        row.getChildren().addAll(info, spacer, statusLabel);
+        row.getChildren().addAll(teamsBox, spacer, rightBox);
         return row;
     }
 

@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox stylesheets="@../../css/main.css" spacing="20" style="-fx-background-color: -carthage-base; -fx-padding: 30;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.GameManagementController">
+<VBox stylesheets="@../../css/main.css" spacing="20" style="-fx-background-color: -carthage-base; -fx-padding: 30;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.GameManagementController">
     
     <!-- Top Header Bar -->
     <HBox alignment="CENTER_LEFT" spacing="20">

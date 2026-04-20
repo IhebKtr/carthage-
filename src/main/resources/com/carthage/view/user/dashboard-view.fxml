@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
-<VBox stylesheets="@../../css/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.user.DashboardController" spacing="30">
+<VBox stylesheets="@../../css/main.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.user.DashboardController" spacing="30">
     
     <Label text="Dashboard Overview" styleClass="header-title" />
     <Label text="Welcome to the Carthage Management System. Here is what is happening today." styleClass="sub-header" style="-fx-padding: -20 0 0 0;" />

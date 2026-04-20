@@ -3,6 +3,7 @@ package com.carthage.controllers.admin;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -74,5 +75,20 @@ public class AdminMainLayoutController {
     @FXML
     private void showJeux() {
         loadView("/com/carthage/view/admin/games-view.fxml");
+    }
+
+    @FXML
+    public void onLogoutClicked() {
+        com.carthage.utils.SessionContext.getInstance().cleanSession();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/carthage/view/user/login-view.fxml"));
+            Parent root = loader.load();
+            javafx.stage.Stage stage = (javafx.stage.Stage) contentArea.getScene().getWindow();
+            stage.setTitle("Carthage Arena – Connexion");
+            stage.setScene(new javafx.scene.Scene(root, 1100, 700));
+            stage.centerOnScreen();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

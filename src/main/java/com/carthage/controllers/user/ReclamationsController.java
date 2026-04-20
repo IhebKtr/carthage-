@@ -28,10 +28,15 @@ public class ReclamationsController {
     @FXML private ComboBox<String> formCategory;
     @FXML private ComboBox<String> formPriority;
     @FXML private TextArea formMessage;
+    @FXML private Label errorLabel;
+    @FXML private Button micBtn;
 
     private Connection connection;
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private boolean isInitialized = false;
+    
+    private final com.carthage.services.SpeechService speechService = new com.carthage.services.SpeechService();
+    private boolean isListening = false;
 
     @FXML
     public void initialize() {
@@ -52,7 +57,7 @@ public class ReclamationsController {
         if (user == null) return;
 
         String sql =
-            "SELECT r.subject, r.message, r.status, r.priority, r.category, r.created_at, " +
+            "SELECT HEX(r.id) AS id, r.subject, r.message, r.status, r.priority, r.category, r.created_at, " +
             "  (SELECT COUNT(*) FROM reclamation_response rr WHERE rr.reclamation_id = r.id) AS reply_count " +
             "FROM reclamation r " +
             "WHERE r.author_id = UNHEX(REPLACE(?, '-', '')) " +
@@ -64,6 +69,7 @@ public class ReclamationsController {
             boolean any = false;
             while (rs.next()) {
                 reclamationsList.getChildren().add(buildCard(
+                    rs.getString("id"),
                     rs.getString("subject"),
                     rs.getString("message"),
                     rs.getString("status"),
@@ -106,9 +112,47 @@ public class ReclamationsController {
             loader.setController(this);
             Node form = loader.load();
             
-            // Clear selections
+            // Clear selections and errors
+            if (formSubject != null) {
+                formSubject.clear();
+                formSubject.setStyle("-fx-control-inner-background: #111827; -fx-text-fill: white; -fx-prompt-text-fill: #4B5563;");
+            }
+            if (formMessage != null) {
+                formMessage.clear();
+                formMessage.setStyle("-fx-control-inner-background: #111827; -fx-text-fill: white; -fx-prompt-text-fill: #4B5563;");
+            }
             if (formCategory != null) formCategory.getSelectionModel().select("OTHER");
             if (formPriority != null) formPriority.getSelectionModel().select("NORMAL");
+            if (errorLabel != null) {
+                errorLabel.setVisible(false);
+                errorLabel.setManaged(false);
+            }
+            
+            // Initialize Speech Service for the new form
+            if (micBtn != null) {
+                micBtn.setText("⏳ Chargement...");
+                speechService.initModel(new com.carthage.services.SpeechService.SpeechCallback() {
+                    @Override
+                    public void onSpeechRecognized(String text) {
+                        if (text != null && !text.isEmpty()) {
+                            String current = formMessage.getText();
+                            formMessage.setText(current + (current.isEmpty() ? "" : " ") + text);
+                            formMessage.positionCaret(formMessage.getText().length());
+                        }
+                    }
+                    @Override
+                    public void onStatusUpdate(String status) {
+                        if (micBtn != null) micBtn.setText(status.equals("Prêt !") ? "🎤 Dictée" : "⏳ " + status);
+                    }
+                    @Override
+                    public void onError(String error) {
+                        if (micBtn != null) {
+                            micBtn.setText("❌ Erreur");
+                            micBtn.setStyle("-fx-text-fill: #FF4D4D; -fx-border-color: #FF4D4D; -fx-background-color: transparent; -fx-border-radius: 12;");
+                        }
+                    }
+                });
+            }
             
             listView.setVisible(false);
             contentStack.getChildren().add(form);
@@ -118,6 +162,7 @@ public class ReclamationsController {
     }
 
     @FXML public void onCancel() {
+        if (isListening) handleToggleDictation(); // Stop listening
         if (contentStack.getChildren().size() > 1) {
             contentStack.getChildren().remove(contentStack.getChildren().size() - 1);
         }
@@ -131,9 +176,34 @@ public class ReclamationsController {
         String priority = formPriority.getValue();
         String message = formMessage.getText();
 
-        if (subject == null || subject.isBlank() || message == null || message.isBlank()) {
-            showAlert("Erreur", "Veuillez remplir les champs obligatoires (*)");
+        boolean hasError = false;
+        
+        // Reset styles
+        formSubject.setStyle("-fx-control-inner-background: #111827; -fx-text-fill: white; -fx-prompt-text-fill: #4B5563;");
+        formMessage.setStyle("-fx-control-inner-background: #111827; -fx-text-fill: white; -fx-prompt-text-fill: #4B5563;");
+
+        if (subject == null || subject.isBlank()) {
+            formSubject.setStyle("-fx-control-inner-background: #111827; -fx-text-fill: white; -fx-prompt-text-fill: #4B5563; -fx-border-color: #FF4D4D; -fx-border-radius: 8; -fx-border-width: 1.5;");
+            hasError = true;
+        }
+        
+        if (message == null || message.isBlank()) {
+            formMessage.setStyle("-fx-control-inner-background: #111827; -fx-text-fill: white; -fx-prompt-text-fill: #4B5563; -fx-border-color: #FF4D4D; -fx-border-radius: 8; -fx-border-width: 1.5;");
+            hasError = true;
+        }
+        
+        if (hasError) {
+            if (errorLabel != null) {
+                errorLabel.setText("Veuillez remplir les champs obligatoires en rouge.");
+                errorLabel.setVisible(true);
+                errorLabel.setManaged(true);
+            }
             return;
+        }
+        
+        if (errorLabel != null) {
+            errorLabel.setVisible(false);
+            errorLabel.setManaged(false);
         }
 
         User user = SessionContext.getInstance().getCurrentUser();
@@ -151,6 +221,7 @@ public class ReclamationsController {
             ps.setString(6, message);
             ps.executeUpdate();
             
+            if (isListening) handleToggleDictation(); // Stop listening
             onCancel(); // Success, go back to list
         } catch (SQLException e) {
             e.printStackTrace();
@@ -160,7 +231,7 @@ public class ReclamationsController {
 
     // --- UI Helpers ---
 
-    private HBox buildCard(String subject, String message, String status, String priority,
+    private HBox buildCard(String idStr, String subject, String message, String status, String priority,
                             String category, Timestamp createdAt, int replies) {
         HBox card = new HBox(14);
         card.setAlignment(Pos.CENTER_LEFT);
@@ -168,6 +239,7 @@ public class ReclamationsController {
         card.setStyle("-fx-background-color: #141A23; -fx-background-radius: 12px; -fx-cursor: hand;");
         card.setOnMouseEntered(e -> card.setStyle("-fx-background-color: #1E2633; -fx-background-radius: 12px; -fx-cursor: hand;"));
         card.setOnMouseExited (e -> card.setStyle("-fx-background-color: #141A23; -fx-background-radius: 12px; -fx-cursor: hand;"));
+        card.setOnMouseClicked(e -> openDetails(idStr));
 
         Label iconLabel = new Label("📋");
         iconLabel.setStyle("-fx-font-size: 22px;");
@@ -215,5 +287,57 @@ public class ReclamationsController {
         alert.setHeaderText(null);
         alert.setContentText(msg);
         alert.show();
+    }
+
+    public void openDetails(String idStr) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/carthage/view/user/reclamation-details-view.fxml"));
+            Node detailsView = loader.load();
+            
+            UserReclamationDetailsController detailsController = loader.getController();
+            detailsController.setReclamationAndParentController(UUID.fromString(
+                idStr.replaceFirst("(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5")
+            ), this);
+            
+            listView.setVisible(false);
+            contentStack.getChildren().add(detailsView);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible d'ouvrir les détails : " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleToggleDictation() {
+        if (!isListening) {
+            isListening = true;
+            if (micBtn != null) {
+                micBtn.setStyle("-fx-background-color: rgba(229,9,20,0.2); -fx-text-fill: #FF4D4D; -fx-border-color: #FF4D4D; -fx-border-radius: 12;");
+                micBtn.setText("🔴 Écoute...");
+            }
+            speechService.startListening(new com.carthage.services.SpeechService.SpeechCallback() {
+                @Override
+                public void onSpeechRecognized(String text) {
+                    if (text != null && !text.isEmpty()) {
+                        String current = formMessage.getText();
+                        formMessage.setText(current + (current.isEmpty() ? "" : " ") + text);
+                        formMessage.positionCaret(formMessage.getText().length());
+                    }
+                }
+                @Override
+                public void onStatusUpdate(String status) {}
+                @Override
+                public void onError(String error) {
+                    handleToggleDictation();
+                }
+            });
+        } else {
+            isListening = false;
+            speechService.stopListening();
+            if (micBtn != null) {
+                micBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-border-color: #4B5563; -fx-border-radius: 12;");
+                micBtn.setText("🎤 Dictée");
+            }
+        }
     }
 }

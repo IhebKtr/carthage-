@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,8 +14,19 @@ public class MainLayoutController {
 
     @FXML private StackPane contentArea;
     @FXML private Button btnDashboard, btnTournois, btnBoutique, btnEquipe, btnProfil, btnReclamations, btnParametres;
+    @FXML private VBox chatOverlay;
 
     private Button activeButton;
+    private boolean chatVisible = false;
+
+    @FXML
+    public void onChatToggle() {
+        chatVisible = !chatVisible;
+        if (chatOverlay != null) {
+            chatOverlay.setVisible(chatVisible);
+            chatOverlay.setManaged(chatVisible);
+        }
+    }
 
     @FXML
     public void initialize() {

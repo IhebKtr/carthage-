@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
-<StackPane stylesheets="@../../css/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.user.SignupController">
+<StackPane stylesheets="@../../css/main.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.user.SignupController">
 
     <!-- Overall container: centered panel like the image -->
     <VBox alignment="CENTER" style="-fx-background-color: -carthage-base;">

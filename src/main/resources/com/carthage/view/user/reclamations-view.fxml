@@ -4,7 +4,7 @@
 <?import javafx.geometry.Insets?>
 
 <StackPane fx:id="contentStack" 
-           xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.carthage.controllers.user.ReclamationsController">
 
     <!-- View 1: List View -->
