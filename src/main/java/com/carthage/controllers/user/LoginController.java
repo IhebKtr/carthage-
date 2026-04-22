@@ -16,9 +16,12 @@ import java.io.IOException;
 
 public class LoginController {
 
-    @FXML private TextField emailField;
-    @FXML private PasswordField passwordField;
-    @FXML private Label errorLabel;
+    @FXML
+    private TextField emailField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private Label errorLabel;
 
     private final UserService userService = new UserService();
 
@@ -39,7 +42,7 @@ public class LoginController {
 
             // Route based on role
             boolean isAdmin = user.getRoles() != null &&
-                              user.getRoles().stream().anyMatch(r -> r.toUpperCase().contains("ADMIN"));
+                    user.getRoles().stream().anyMatch(r -> r.toUpperCase().contains("ADMIN"));
 
             if (isAdmin) {
                 loadScene("/com/carthage/view/admin/main-layout-view.fxml", "Carthage Arena – Admin");
@@ -55,6 +58,11 @@ public class LoginController {
     @FXML
     public void onNavigateToSignUp() {
         loadScene("/com/carthage/view/user/signup-view.fxml", "Carthage Arena – Inscription");
+    }
+
+    @FXML
+    public void onForgotPasswordClicked() {
+        loadScene("/com/carthage/view/user/forgot-password-view.fxml", "Carthage Arena – Mot de passe oublié");
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
