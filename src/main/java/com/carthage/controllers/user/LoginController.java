@@ -28,6 +28,12 @@ public class LoginController {
     @FXML
     public void initialize() {
         errorLabel.setVisible(false);
+
+        // Enter on the email field → jump to the password field.
+        emailField.setOnAction(e -> passwordField.requestFocus());
+
+        // Enter on the password field → submit (same as clicking "Sign In").
+        passwordField.setOnAction(e -> onSignInClicked());
     }
 
     @FXML

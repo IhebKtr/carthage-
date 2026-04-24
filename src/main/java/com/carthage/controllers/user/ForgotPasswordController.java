@@ -31,6 +31,9 @@ public class ForgotPasswordController {
     public void initialize() {
         errorLabel.setVisible(false);
         successLabel.setVisible(false);
+
+        // Enter on the email field → send the reset code (same as the button).
+        emailField.setOnAction(e -> onSendCodeClicked());
     }
 
     @FXML

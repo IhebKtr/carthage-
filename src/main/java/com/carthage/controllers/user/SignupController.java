@@ -54,6 +54,22 @@ public class SignupController {
             licenceContainer.setVisible(arbitre);
             licenceContainer.setManaged(arbitre);
         });
+
+        // ── Enter-key navigation ──
+        // Each text field forwards focus; the last field on the form submits.
+        pseudoField.setOnAction(e -> emailField.requestFocus());
+        emailField.setOnAction(e -> passwordField.requestFocus());
+        passwordField.setOnAction(e -> confirmPasswordField.requestFocus());
+        confirmPasswordField.setOnAction(e -> {
+            // If Arbitre is selected, Enter on confirm jumps to the licence field;
+            // otherwise it submits.
+            if (arbitreToggle.isSelected()) {
+                licenceField.requestFocus();
+            } else {
+                onSignUpClicked();
+            }
+        });
+        licenceField.setOnAction(e -> onSignUpClicked());
     }
 
     @FXML

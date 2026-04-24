@@ -39,6 +39,12 @@ public class ResetPasswordController {
     public void initialize() {
         errorLabel.setVisible(false);
         successLabel.setVisible(false);
+
+        // Enter-key navigation: walk forward through the form, last field submits.
+        emailField.setOnAction(e -> codeField.requestFocus());
+        codeField.setOnAction(e -> passwordField.requestFocus());
+        passwordField.setOnAction(e -> confirmPasswordField.requestFocus());
+        confirmPasswordField.setOnAction(e -> onResetClicked());
     }
 
     public void setEmail(String email) {
