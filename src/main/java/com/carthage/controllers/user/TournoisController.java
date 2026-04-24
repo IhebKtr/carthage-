@@ -48,9 +48,10 @@ public class TournoisController {
 
         // 1. Base Query
         StringBuilder sql = new StringBuilder(
-            "SELECT DISTINCT HEX(t.id) as hex_id, t.id, t.nom, t.date_debut, t.nb_equipes_max, t.prize_pool, t.status, t.type, " +
+            "SELECT DISTINCT HEX(t.id) as hex_id, t.id, t.nom, t.date_debut, t.nb_equipes_max, t.prize_pool, t.status, t.type, g.image_url, " +
             "  (SELECT COUNT(*) FROM tournoi_team tt2 WHERE tt2.tournoi_id = t.id) AS current_teams " +
-            "FROM tournoi t "
+            "FROM tournoi t " +
+            "LEFT JOIN game g ON t.game_id = g.id "
         );
 
         // 2. Joins for filtering
@@ -92,7 +93,8 @@ public class TournoisController {
                     rs.getInt("current_teams"),
                     rs.getInt("prize_pool"),
                     rs.getString("type"),
-                    rs.getString("status")
+                    rs.getString("status"),
+                    rs.getString("image_url")
                 ));
             }
             if (tournoisGrid.getChildren().isEmpty()) {
@@ -113,7 +115,7 @@ public class TournoisController {
     }
 
     private VBox buildCard(UUID id, String nom, Timestamp dateDebut, int maxTeams, int currentTeams,
-                           int prizePool, String type, String status) {
+                           int prizePool, String type, String status, String imageUrl) {
         VBox card = new VBox(0);
         card.setPrefWidth(300);
         card.setStyle("-fx-background-color: #141A23; -fx-background-radius: 12px; -fx-cursor: hand;");
@@ -123,12 +125,30 @@ public class TournoisController {
         // ── Banner ──
         StackPane banner = new StackPane();
         banner.setPrefHeight(110);
+        banner.setStyle("-fx-background-radius: 12px 12px 0 0; -fx-background-color: #141A23;");
+        
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            try {
+                javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(new javafx.scene.image.Image(imageUrl, true));
+                iv.setFitWidth(300); 
+                iv.setFitHeight(110); 
+                iv.setPreserveRatio(false);
+                javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(300, 110);
+                clip.setArcWidth(24); 
+                clip.setArcHeight(24);
+                iv.setClip(clip);
+                banner.getChildren().add(iv);
+            } catch (Exception e) {}
+        }
+
+        Region overlay = new Region();
         String bannerGrad = "VALORANT".equalsIgnoreCase(type)
             ? "linear-gradient(to bottom, rgba(229,9,20,0.45), #141A23)"
             : "ONGOING".equalsIgnoreCase(status)
             ? "linear-gradient(to bottom, rgba(255,102,0,0.45), #141A23)"
             : "linear-gradient(to bottom, rgba(42,52,65,0.9), #141A23)";
-        banner.setStyle("-fx-background-color: " + bannerGrad + "; -fx-background-radius: 12px 12px 0 0;");
+        overlay.setStyle("-fx-background-color: " + bannerGrad + "; -fx-background-radius: 12px 12px 0 0;");
+        banner.getChildren().add(overlay);
 
         // Status badge color
         String statusColor = switch (status != null ? status.toUpperCase() : "UPCOMING") {
@@ -178,7 +198,7 @@ public class TournoisController {
         btn.setStyle("-fx-background-color: #1E2633; -fx-text-fill: white;" +
             " -fx-background-radius: 20px; -fx-padding: 6 14; -fx-cursor: hand; -fx-font-size: 12px;");
         btn.setOnAction(e -> {
-            MainLayoutController mlc = (MainLayoutController) card.getScene().getRoot().getUserData();
+            MainLayoutController mlc = (MainLayoutController) card.getScene().lookup("#contentArea").getUserData();
             mlc.loadTournoiDetail(id);
         });
 
