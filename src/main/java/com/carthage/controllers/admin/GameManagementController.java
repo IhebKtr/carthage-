@@ -6,7 +6,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -99,7 +98,7 @@ public class GameManagementController {
         // Stats Box
         HBox statsBox = new HBox(10);
         statsBox.setAlignment(Pos.CENTER);
-        
+
         VBox tournoiStat = new VBox(5);
         tournoiStat.setAlignment(Pos.CENTER);
         tournoiStat.getStyleClass().add("stat-box-mini");
@@ -130,7 +129,7 @@ public class GameManagementController {
         btnEdit.getStyleClass().addAll("btn-outline");
         Button btnDelete = new Button("Supprimer");
         btnDelete.getStyleClass().addAll("btn-outline", "btn-delete");
-        
+
         HBox.setHgrow(btnEdit, Priority.ALWAYS);
         HBox.setHgrow(btnDelete, Priority.ALWAYS);
         btnEdit.setMaxWidth(Double.MAX_VALUE);
