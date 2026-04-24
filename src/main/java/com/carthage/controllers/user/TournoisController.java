@@ -122,32 +122,42 @@ public class TournoisController {
         card.setOnMouseEntered(e -> card.setStyle("-fx-background-color: #1E2633; -fx-background-radius: 12px; -fx-cursor: hand;"));
         card.setOnMouseExited(e  -> card.setStyle("-fx-background-color: #141A23; -fx-background-radius: 12px; -fx-cursor: hand;"));
 
-        // ── Banner ──
+        // ── Banner ── (image is the hero — keep it clear and visible)
+        final double BANNER_W = 300;
+        final double BANNER_H = 170;
         StackPane banner = new StackPane();
-        banner.setPrefHeight(110);
-        banner.setStyle("-fx-background-radius: 12px 12px 0 0; -fx-background-color: #141A23;");
-        
+        banner.setPrefHeight(BANNER_H);
+        banner.setMinHeight(BANNER_H);
+        banner.setStyle("-fx-background-radius: 12px 12px 0 0; -fx-background-color: #1E2633;");
+
         if (imageUrl != null && !imageUrl.isBlank()) {
             try {
-                javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(new javafx.scene.image.Image(imageUrl, true));
-                iv.setFitWidth(300); 
-                iv.setFitHeight(110); 
+                javafx.scene.image.Image img = new javafx.scene.image.Image(imageUrl, BANNER_W * 2, BANNER_H * 2, true, true, true);
+                javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
+                iv.setFitWidth(BANNER_W);
+                iv.setFitHeight(BANNER_H);
                 iv.setPreserveRatio(false);
-                javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(300, 110);
-                clip.setArcWidth(24); 
+                iv.setSmooth(true);
+                iv.setCache(true);
+                javafx.scene.shape.Rectangle clip = new javafx.scene.shape.Rectangle(BANNER_W, BANNER_H);
+                clip.setArcWidth(24);
                 clip.setArcHeight(24);
                 iv.setClip(clip);
                 banner.getChildren().add(iv);
             } catch (Exception e) {}
         }
 
+        // Light bottom-only vignette: keeps the image clear while ensuring
+        // badge & status text remain readable. Top 60% of the image is untouched.
         Region overlay = new Region();
-        String bannerGrad = "VALORANT".equalsIgnoreCase(type)
-            ? "linear-gradient(to bottom, rgba(229,9,20,0.45), #141A23)"
+        String accent = "VALORANT".equalsIgnoreCase(type)
+            ? "rgba(229,9,20,0.55)"
             : "ONGOING".equalsIgnoreCase(status)
-            ? "linear-gradient(to bottom, rgba(255,102,0,0.45), #141A23)"
-            : "linear-gradient(to bottom, rgba(42,52,65,0.9), #141A23)";
+            ? "rgba(255,102,0,0.55)"
+            : "rgba(20,26,35,0.75)";
+        String bannerGrad = "linear-gradient(to bottom, transparent 0%, transparent 55%, " + accent + " 100%)";
         overlay.setStyle("-fx-background-color: " + bannerGrad + "; -fx-background-radius: 12px 12px 0 0;");
+        overlay.setMouseTransparent(true);
         banner.getChildren().add(overlay);
 
         // Status badge color
@@ -163,11 +173,14 @@ public class TournoisController {
         };
         Label statusBadge = new Label(statusText);
         statusBadge.setStyle("-fx-background-color: " + statusColor +
-            "; -fx-text-fill: white; -fx-font-size: 9px; -fx-font-weight: bold; -fx-background-radius: 4px; -fx-padding: 2 7;");
+            "; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold;" +
+            " -fx-background-radius: 4px; -fx-padding: 3 8;" +
+            " -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 4, 0.2, 0, 1);");
 
         Label typeBadge = new Label(type != null ? type.toUpperCase() : "—");
-        typeBadge.setStyle("-fx-background-color: #1E2633; -fx-text-fill: #9CA3AF;" +
-            " -fx-font-size: 9px; -fx-background-radius: 4px; -fx-padding: 2 7;");
+        typeBadge.setStyle("-fx-background-color: rgba(20,26,35,0.85); -fx-text-fill: #E5E7EB;" +
+            " -fx-font-size: 10px; -fx-font-weight: bold; -fx-background-radius: 4px; -fx-padding: 3 8;" +
+            " -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.45), 4, 0.2, 0, 1);");
 
         HBox badges = new HBox(6, statusBadge, typeBadge);
         badges.setAlignment(Pos.TOP_LEFT);
