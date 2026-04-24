@@ -199,6 +199,147 @@ public class UserService {
         }
     }
 
+    // ─── UPDATE PROFILE ──────────────────────────────────────────────────────
+
+    /**
+     * Updates the username, nickname, email, and (optionally) the password of
+     * an existing user. All password-related fields must be provided together
+     * if a password change is requested.
+     *
+     * Roles, balance, status, is_verified, discord_id, created_at and id are
+     * intentionally NOT writable here.
+     *
+     * @param userId           id of the user to update (required)
+     * @param username         new username (required, non-blank, 3..32 chars)
+     * @param nickname         new nickname (optional, max 32 chars; falls back to username if blank)
+     * @param email            new email (required, must match the same regex as register())
+     * @param currentPassword  current plain-text password — required iff newPassword is provided
+     * @param newPassword      new plain-text password (>= 6 chars) — optional
+     * @return the updated User reflecting the new values
+     * @throws AuthException on any validation, uniqueness, or DB error
+     */
+    public User updateProfile(UUID userId,
+                              String username,
+                              String nickname,
+                              String email,
+                              String currentPassword,
+                              String newPassword) throws AuthException {
+
+        // ── Basic argument validation ──
+        if (userId == null) throw new AuthException("Utilisateur invalide.");
+
+        String trimmedUsername = username == null ? "" : username.trim();
+        String trimmedNickname = nickname == null ? "" : nickname.trim();
+        String trimmedEmail    = email == null ? "" : email.trim();
+
+        if (trimmedUsername.isBlank())                throw new AuthException("Le pseudo ne peut pas être vide.");
+        if (trimmedUsername.length() < 3 || trimmedUsername.length() > 32)
+            throw new AuthException("Le pseudo doit contenir entre 3 et 32 caractères.");
+        if (!trimmedNickname.isBlank() && trimmedNickname.length() > 32)
+            throw new AuthException("Le nickname ne peut pas dépasser 32 caractères.");
+        if (trimmedEmail.isBlank())                   throw new AuthException("L'email ne peut pas être vide.");
+        if (!trimmedEmail.matches("^[\\w.+-]+@[\\w-]+\\.[\\w.]+$"))
+            throw new AuthException("Format d'email invalide.");
+
+        // ── Password change is optional but, if requested, fully validated ──
+        boolean wantsPasswordChange =
+                (currentPassword != null && !currentPassword.isEmpty()) ||
+                (newPassword != null && !newPassword.isEmpty());
+
+        if (wantsPasswordChange) {
+            if (currentPassword == null || currentPassword.isEmpty())
+                throw new AuthException("Veuillez saisir votre mot de passe actuel.");
+            if (newPassword == null || newPassword.length() < 6)
+                throw new AuthException("Le nouveau mot de passe doit contenir au moins 6 caractères.");
+            if (currentPassword.equals(newPassword))
+                throw new AuthException("Le nouveau mot de passe doit être différent de l'ancien.");
+        }
+
+        // Nickname is optional on UPDATE: a blank field means "no nickname" and is
+        // persisted as SQL NULL. (Unlike register(), we do NOT silently fall back
+        // to username — that would prevent the user from ever clearing it.)
+        String finalNickname = trimmedNickname.isBlank() ? null : trimmedNickname;
+
+        try {
+            // ── Load the current row (need stored hash for password verification + current email) ──
+            String storedHash;
+            String currentEmail;
+            String selectSql = "SELECT email, password FROM user WHERE id = UNHEX(REPLACE(?, '-', ''))";
+            try (PreparedStatement ps = connection.prepareStatement(selectSql)) {
+                ps.setString(1, userId.toString());
+                ResultSet rs = ps.executeQuery();
+                if (!rs.next()) throw new AuthException("Compte introuvable.");
+                currentEmail = rs.getString("email");
+                storedHash   = rs.getString("password");
+            }
+
+            // ── Verify current password if a change was requested ──
+            if (wantsPasswordChange) {
+                String normalizedHash = storedHash != null && storedHash.startsWith("$2y$")
+                        ? "$2a$" + storedHash.substring(4)
+                        : storedHash;
+                if (normalizedHash == null || !BCrypt.checkpw(currentPassword, normalizedHash)) {
+                    throw new AuthException("Mot de passe actuel incorrect.");
+                }
+            }
+
+            // ── If email changed, ensure it is not already used by another account ──
+            if (!trimmedEmail.equalsIgnoreCase(currentEmail)) {
+                String dupSql = "SELECT COUNT(*) FROM user WHERE email = ? AND id != UNHEX(REPLACE(?, '-', ''))";
+                try (PreparedStatement ps = connection.prepareStatement(dupSql)) {
+                    ps.setString(1, trimmedEmail);
+                    ps.setString(2, userId.toString());
+                    ResultSet rs = ps.executeQuery();
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        throw new AuthException("Cet email est déjà utilisé.");
+                    }
+                }
+            }
+
+            // ── Persist ──
+            String newHash = wantsPasswordChange
+                    ? BCrypt.hashpw(newPassword, BCrypt.gensalt(12))
+                    : null;
+
+            String updateSql = wantsPasswordChange
+                    ? "UPDATE user SET username = ?, nickname = ?, email = ?, password = ? " +
+                      "WHERE id = UNHEX(REPLACE(?, '-', ''))"
+                    : "UPDATE user SET username = ?, nickname = ?, email = ? " +
+                      "WHERE id = UNHEX(REPLACE(?, '-', ''))";
+
+            try (PreparedStatement ps = connection.prepareStatement(updateSql)) {
+                ps.setString(1, trimmedUsername);
+                if (finalNickname == null) {
+                    ps.setNull(2, java.sql.Types.VARCHAR);
+                } else {
+                    ps.setString(2, finalNickname);
+                }
+                ps.setString(3, trimmedEmail);
+                if (wantsPasswordChange) {
+                    ps.setString(4, newHash);
+                    ps.setString(5, userId.toString());
+                } else {
+                    ps.setString(4, userId.toString());
+                }
+                int affected = ps.executeUpdate();
+                if (affected == 0) throw new AuthException("Aucune mise à jour effectuée.");
+            }
+
+            // ── Return a fresh in-memory snapshot for the caller (SessionContext) ──
+            User updated = new User();
+            updated.setId(userId);
+            updated.setUsername(trimmedUsername);
+            updated.setNickname(finalNickname);
+            updated.setEmail(trimmedEmail);
+            updated.setPassword(wantsPasswordChange ? newHash : storedHash);
+            return updated;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new AuthException("Erreur de connexion à la base de données : " + e.getMessage());
+        }
+    }
+
     // ─── Inner exception ─────────────────────────────────────────────────────
 
     public static class AuthException extends Exception {
