@@ -39,7 +39,7 @@
             <ToggleButton text="Réclamations" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showReclamations"/>
             <ToggleButton text="Tournois" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showTournois"/>
             <ToggleButton text="Jeux" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showJeux"/>
-            <ToggleButton text="Boutique" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup"/>
+            <ToggleButton text="Boutique" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showBoutique"/>
             <ToggleButton text="Rapports" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup"/>
             <ToggleButton text="Paramètres" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup"/>
         </VBox>

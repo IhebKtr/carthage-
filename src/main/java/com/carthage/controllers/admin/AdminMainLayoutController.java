@@ -75,4 +75,9 @@ public class AdminMainLayoutController {
     private void showJeux() {
         loadView("/com/carthage/view/admin/games-view.fxml");
     }
+
+    @FXML
+    private void showBoutique() {
+        loadView("/com/carthage/view/admin/skins-view.fxml");
+    }
 }

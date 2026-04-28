@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Rectangle?>
+
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.carthage.controllers.admin.SkinDialogController"
+           style="-fx-background-color: transparent;">
+
+    <!-- Background dim -->
+    <Rectangle width="1000" height="800" fill="rgba(0,0,0,0.5)" />
+
+    <!-- Dialog Box -->
+    <VBox maxWidth="500" spacing="20" styleClass="glass-panel" style="-fx-background-color: #1A212D;">
+        <padding>
+            <Insets top="25" right="30" bottom="25" left="30"/>
+        </padding>
+
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT">
+            <Label fx:id="titleLabel" text="Ajouter un Skin" styleClass="header-title" style="-fx-font-size: 22px;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="✕" onAction="#onCancel" style="-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-font-size: 16px; -fx-cursor: hand;"/>
+        </HBox>
+
+        <Label fx:id="errorLabel" styleClass="feedback-error" visible="false" managed="false"/>
+
+        <!-- Form Grid -->
+        <GridPane hgap="15" vgap="15">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="50"/>
+                <ColumnConstraints percentWidth="50"/>
+            </columnConstraints>
+
+            <!-- Name -->
+            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <Label text="Nom" styleClass="form-label"/>
+                <TextField fx:id="nameField" styleClass="rounded-input" promptText="Ex: Vandal Prime"/>
+            </VBox>
+
+            <!-- Game -->
+            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                <Label text="Jeu" styleClass="form-label"/>
+                <ComboBox fx:id="gameCombo" styleClass="rounded-input" maxWidth="Infinity"/>
+            </VBox>
+
+            <!-- Description (Spans 2 columns) -->
+            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2">
+                <Label text="Description" styleClass="form-label"/>
+                <TextArea fx:id="descField" styleClass="rounded-input" prefRowCount="2" promptText="Description du skin..."/>
+            </VBox>
+
+            <!-- Price -->
+            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                <Label text="Prix (PC)" styleClass="form-label"/>
+                <TextField fx:id="priceField" styleClass="rounded-input" promptText="Ex: 1500"/>
+            </VBox>
+
+            <!-- Rarity -->
+            <VBox spacing="5" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                <Label text="Rareté" styleClass="form-label"/>
+                <ComboBox fx:id="rarityCombo" styleClass="rounded-input" maxWidth="Infinity"/>
+            </VBox>
+
+            <!-- Image URL (Spans 2 columns) -->
+            <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
+                <Label text="URL de l'image" styleClass="form-label"/>
+                <TextField fx:id="imageField" styleClass="rounded-input" promptText="https://..."/>
+            </VBox>
+        </GridPane>
+
+        <!-- Actions -->
+        <HBox spacing="10" alignment="CENTER_RIGHT" style="-fx-padding: 10 0 0 0;">
+            <Button text="Annuler" styleClass="btn-outline" onAction="#onCancel"/>
+            <Button text="Enregistrer" styleClass="button-primary" onAction="#onSave"/>
+        </HBox>
+    </VBox>
+</StackPane>
