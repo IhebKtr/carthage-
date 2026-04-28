@@ -85,4 +85,45 @@ public class GameService {
                             hex.substring(20);
         return UUID.fromString(withDashes);
     }
+
+    public void create(Game game) {
+        String sql = "INSERT INTO game (id, name, description, type, status, image_url, created_at) VALUES (UNHEX(?), ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, game.getId().toString().replace("-", ""));
+            ps.setString(2, game.getName());
+            ps.setString(3, game.getDescription());
+            ps.setString(4, game.getType().name());
+            ps.setString(5, game.getStatus().name());
+            ps.setString(6, game.getImageUrl());
+            ps.setTimestamp(7, java.sql.Timestamp.valueOf(game.getCreatedAt()));
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void update(Game game) {
+        String sql = "UPDATE game SET name = ?, description = ?, type = ?, status = ?, image_url = ? WHERE id = UNHEX(?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, game.getName());
+            ps.setString(2, game.getDescription());
+            ps.setString(3, game.getType().name());
+            ps.setString(4, game.getStatus().name());
+            ps.setString(5, game.getImageUrl());
+            ps.setString(6, game.getId().toString().replace("-", ""));
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void delete(UUID id) {
+        String sql = "DELETE FROM game WHERE id = UNHEX(?)";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, id.toString().replace("-", ""));
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }
