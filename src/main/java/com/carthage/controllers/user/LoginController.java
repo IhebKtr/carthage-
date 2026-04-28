@@ -1,8 +1,10 @@
 package com.carthage.controllers.user;
 
 import com.carthage.entity.User;
+import com.carthage.services.DiscordOAuthService;
 import com.carthage.services.UserService;
 import com.carthage.utils.SessionContext;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -45,16 +47,7 @@ public class LoginController {
         try {
             User user = userService.login(email, password);
             SessionContext.getInstance().setCurrentUser(user);
-
-            // Route based on role
-            boolean isAdmin = user.getRoles() != null &&
-                    user.getRoles().stream().anyMatch(r -> r.toUpperCase().contains("ADMIN"));
-
-            if (isAdmin) {
-                loadScene("/com/carthage/view/admin/main-layout-view.fxml", "Carthage Arena – Admin");
-            } else {
-                loadScene("/com/carthage/view/user/main-layout-view.fxml", "Carthage Arena – Dashboard");
-            }
+            routeByRole(user);
 
         } catch (UserService.AuthException e) {
             showError(e.getMessage());
@@ -71,6 +64,43 @@ public class LoginController {
         loadScene("/com/carthage/view/user/forgot-password-view.fxml", "Carthage Arena – Mot de passe oublié");
     }
 
+    @FXML
+    public void onDiscordSignInClicked() {
+        clearError();
+
+        Task<User> task = new Task<>() {
+            @Override
+            protected User call() throws Exception {
+                DiscordOAuthService discordOAuthService = new DiscordOAuthService();
+                DiscordOAuthService.DiscordIdentity identity = discordOAuthService.authenticate();
+                return userService.loginOrRegisterWithDiscord(identity);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            User user = task.getValue();
+            SessionContext.getInstance().setCurrentUser(user);
+            routeByRole(user);
+        });
+
+        task.setOnFailed(e -> {
+            Throwable ex = task.getException();
+            if (ex instanceof UserService.AuthException ||
+                    ex instanceof DiscordOAuthService.OAuthException ||
+                    ex instanceof IllegalStateException) {
+                showError(ex.getMessage());
+            } else if (ex != null) {
+                showError("Erreur Discord OAuth : " + ex.getMessage());
+            } else {
+                showError("Erreur Discord OAuth inattendue.");
+            }
+        });
+
+        Thread t = new Thread(task, "discord-oauth-signin");
+        t.setDaemon(true);
+        t.start();
+    }
+
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
     private void showError(String message) {
@@ -80,6 +110,17 @@ public class LoginController {
 
     private void clearError() {
         errorLabel.setVisible(false);
+    }
+
+    private void routeByRole(User user) {
+        boolean isAdmin = user.getRoles() != null &&
+                user.getRoles().stream().anyMatch(r -> r.toUpperCase().contains("ADMIN"));
+
+        if (isAdmin) {
+            loadScene("/com/carthage/view/admin/main-layout-view.fxml", "Carthage Arena – Admin");
+        } else {
+            loadScene("/com/carthage/view/user/main-layout-view.fxml", "Carthage Arena – Dashboard");
+        }
     }
 
     private void loadScene(String fxmlPath, String title) {

@@ -35,6 +35,12 @@
 
             <VBox alignment="CENTER" spacing="10" style="-fx-padding: 10 0 0 0;">
                 <Button text="Sign In" onAction="#onSignInClicked" styleClass="button-primary" prefWidth="180" />
+                <HBox alignment="CENTER" spacing="10">
+                    <Separator HBox.hgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: #2A3441 transparent transparent transparent;"/>
+                    <Label text="ou continuer avec" style="-fx-text-fill: #6b7280; -fx-font-size: 12px;"/>
+                    <Separator HBox.hgrow="ALWAYS" style="-fx-background-color: transparent; -fx-border-color: #2A3441 transparent transparent transparent;"/>
+                </HBox>
+                <Button text="Discord" onAction="#onDiscordSignInClicked" styleClass="button-discord" prefWidth="180" />
                 <Button text="Mot de passe oublié ?" onAction="#onForgotPasswordClicked" style="-fx-background-color: transparent; -fx-text-fill: -carthage-accent; -fx-cursor: hand; -fx-padding: 0; -fx-font-size: 11px;" />
                 <HBox alignment="CENTER" spacing="5">
                     <Label text="Don't have an account?" styleClass="text-muted" />

@@ -2,6 +2,7 @@ package com.carthage.services;
 
 import com.carthage.entity.User;
 import com.carthage.entity.enums.AccountStatus;
+import com.carthage.services.DiscordOAuthService.DiscordIdentity;
 import com.carthage.utils.DatabaseConnection;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -59,38 +60,55 @@ public class UserService {
             if (status == AccountStatus.BANNED) {
                 throw new AuthException("Votre compte a été banni.");
             }
-
-            User user = new User();
-            // HEX() returns hex string without dashes; reformat as UUID
-            String hexId = rs.getString("id");
-            user.setId(hexToUUID(hexId));
-            user.setEmail(rs.getString("email"));
-            user.setUsername(rs.getString("username"));
-            user.setNickname(rs.getString("nickname"));
-            user.setPassword(storedPassword);
-            String rolesRaw = rs.getString("roles");
-            if (rolesRaw != null && !rolesRaw.isBlank()) {
-                // Roles are stored as a JSON array string e.g. ["ROLE_USER","ROLE_ADMIN"]
-                // Strip the brackets and quotes before splitting
-                String stripped = rolesRaw.trim()
-                        .replaceAll("^\\[|\\]$", "")  // remove leading [ and trailing ]
-                        .replaceAll("\"", "");          // remove all quotes
-                if (!stripped.isBlank()) {
-                    user.setRoles(Arrays.asList(stripped.split(",")));
-                }
-            }
-            user.setBalance(rs.getInt("balance"));
-            user.setStatus(status);
-            user.setIsVerified(rs.getBoolean("is_verified"));
-            user.setDiscordId(rs.getString("discord_id"));
-            Timestamp createdAt = rs.getTimestamp("created_at");
-            if (createdAt != null) user.setCreatedAt(createdAt.toLocalDateTime());
-
-            return user;
+            return mapUser(rs);
 
         } catch (SQLException e) {
             e.printStackTrace();
             throw new AuthException("Erreur de connexion à la base de données : " + e.getMessage());
+        }
+    }
+
+    public User loginOrRegisterWithDiscord(DiscordIdentity identity) throws AuthException {
+        if (identity == null) throw new AuthException("Profil Discord invalide.");
+
+        String discordId = identity.discordId().trim();
+        String email = identity.email().trim();
+        String username = identity.username().trim();
+        boolean verifiedEmail = identity.emailVerified();
+
+        if (discordId.isBlank()) throw new AuthException("Identifiant Discord manquant.");
+        if (email.isBlank()) throw new AuthException("Email Discord manquant.");
+        if (!email.matches("^[\\w.+-]+@[\\w-]+\\.[\\w.]+$")) throw new AuthException("Email Discord invalide.");
+        if (!verifiedEmail) throw new AuthException("Votre email Discord doit être vérifié.");
+        if (username.isBlank()) username = "discord_user";
+
+        try {
+            User byDiscord = findUserByDiscordId(discordId);
+            if (byDiscord != null) {
+                if (byDiscord.getStatus() == AccountStatus.BANNED) {
+                    throw new AuthException("Votre compte a été banni.");
+                }
+                return byDiscord;
+            }
+
+            User byEmail = findUserByEmail(email);
+            if (byEmail != null) {
+                if (byEmail.getStatus() == AccountStatus.BANNED) {
+                    throw new AuthException("Votre compte a été banni.");
+                }
+                if (byEmail.getDiscordId() != null && !byEmail.getDiscordId().isBlank() &&
+                        !byEmail.getDiscordId().equals(discordId)) {
+                    throw new AuthException("Cet email est déjà lié à un autre compte Discord.");
+                }
+                linkDiscordToUser(byEmail.getId(), discordId, verifiedEmail);
+                return loadUserById(byEmail.getId());
+            }
+
+            User created = createUserFromDiscord(email, username, discordId, verifiedEmail);
+            return loadUserById(created.getId());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new AuthException("Erreur base de données : " + e.getMessage());
         }
     }
 
@@ -364,5 +382,104 @@ public class UserService {
                             hex.substring(16, 20) + "-" +
                             hex.substring(20);
         return UUID.fromString(withDashes);
+    }
+
+    private User loadUserById(UUID userId) throws SQLException, AuthException {
+        String sql = "SELECT HEX(id) as id, email, username, nickname, password, roles, balance, status, is_verified, discord_id, created_at " +
+                "FROM user WHERE id = UNHEX(REPLACE(?, '-', ''))";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, userId.toString());
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) {
+                throw new AuthException("Compte introuvable.");
+            }
+            return mapUser(rs);
+        }
+    }
+
+    private User findUserByDiscordId(String discordId) throws SQLException {
+        String sql = "SELECT HEX(id) as id, email, username, nickname, password, roles, balance, status, is_verified, discord_id, created_at " +
+                "FROM user WHERE discord_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, discordId);
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) return null;
+            return mapUser(rs);
+        }
+    }
+
+    private User findUserByEmail(String email) throws SQLException {
+        String sql = "SELECT HEX(id) as id, email, username, nickname, password, roles, balance, status, is_verified, discord_id, created_at " +
+                "FROM user WHERE email = ?";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (!rs.next()) return null;
+            return mapUser(rs);
+        }
+    }
+
+    private void linkDiscordToUser(UUID userId, String discordId, boolean verifiedEmail) throws SQLException {
+        String sql = "UPDATE user SET discord_id = ?, is_verified = ? WHERE id = UNHEX(REPLACE(?, '-', ''))";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, discordId);
+            ps.setBoolean(2, verifiedEmail);
+            ps.setString(3, userId.toString());
+            ps.executeUpdate();
+        }
+    }
+
+    private User createUserFromDiscord(String email, String username, String discordId, boolean verifiedEmail) throws SQLException {
+        UUID newId = UUID.randomUUID();
+        String role = "ROLE_USER";
+        String rolesJson = "[\"" + role + "\"]";
+        String safeUsername = username.length() > 32 ? username.substring(0, 32) : username;
+        String randomPasswordHash = BCrypt.hashpw(UUID.randomUUID().toString(), BCrypt.gensalt(12));
+
+        String insertSql = "INSERT INTO user (id, email, username, nickname, password, roles, balance, status, is_verified, discord_id, created_at) " +
+                "VALUES (UNHEX(REPLACE(?, '-', '')), ?, ?, ?, ?, ?, 0, 'ACTIVE', ?, ?, ?)";
+        try (PreparedStatement ps = connection.prepareStatement(insertSql)) {
+            ps.setString(1, newId.toString());
+            ps.setString(2, email);
+            ps.setString(3, safeUsername);
+            ps.setString(4, safeUsername);
+            ps.setString(5, randomPasswordHash);
+            ps.setString(6, rolesJson);
+            ps.setBoolean(7, verifiedEmail);
+            ps.setString(8, discordId);
+            ps.setTimestamp(9, Timestamp.valueOf(LocalDateTime.now()));
+            ps.executeUpdate();
+        }
+
+        User created = new User();
+        created.setId(newId);
+        return created;
+    }
+
+    private User mapUser(ResultSet rs) throws SQLException {
+        User user = new User();
+        String hexId = rs.getString("id");
+        user.setId(hexToUUID(hexId));
+        user.setEmail(rs.getString("email"));
+        user.setUsername(rs.getString("username"));
+        user.setNickname(rs.getString("nickname"));
+        user.setPassword(rs.getString("password"));
+        String rolesRaw = rs.getString("roles");
+        if (rolesRaw != null && !rolesRaw.isBlank()) {
+            String stripped = rolesRaw.trim()
+                    .replaceAll("^\\[|\\]$", "")
+                    .replaceAll("\"", "");
+            if (!stripped.isBlank()) {
+                user.setRoles(Arrays.asList(stripped.split(",")));
+            }
+        }
+        user.setBalance(rs.getInt("balance"));
+        String statusStr = rs.getString("status");
+        user.setStatus(statusStr == null ? AccountStatus.ACTIVE : AccountStatus.valueOf(statusStr.toUpperCase()));
+        user.setIsVerified(rs.getBoolean("is_verified"));
+        user.setDiscordId(rs.getString("discord_id"));
+        Timestamp createdAt = rs.getTimestamp("created_at");
+        if (createdAt != null) user.setCreatedAt(createdAt.toLocalDateTime());
+        return user;
     }
 }
