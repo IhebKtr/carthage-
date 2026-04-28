@@ -5,6 +5,7 @@ import com.carthage.utils.DatabaseConnection;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 
@@ -211,7 +212,25 @@ public class TournoisController {
         btn.setStyle("-fx-background-color: #1E2633; -fx-text-fill: white;" +
             " -fx-background-radius: 20px; -fx-padding: 6 14; -fx-cursor: hand; -fx-font-size: 12px;");
         btn.setOnAction(e -> {
-            MainLayoutController mlc = (MainLayoutController) card.getScene().lookup("#contentArea").getUserData();
+            Scene scene = card.getScene();
+            if (scene == null) {
+                showError("Impossible d'ouvrir les détails: vue non initialisée.");
+                return;
+            }
+
+            Object userData = null;
+            Pane contentArea = (Pane) scene.lookup("#contentArea");
+            if (contentArea != null) {
+                userData = contentArea.getUserData();
+            }
+            if (userData == null && scene.getRoot() != null) {
+                userData = scene.getRoot().getUserData();
+            }
+
+            if (!(userData instanceof MainLayoutController mlc)) {
+                showError("Impossible d'ouvrir les détails: contrôleur principal introuvable.");
+                return;
+            }
             mlc.loadTournoiDetail(id);
         });
 
