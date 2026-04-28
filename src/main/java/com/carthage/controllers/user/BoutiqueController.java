@@ -15,36 +15,44 @@ public class BoutiqueController {
 
     @FXML private FlowPane skinsGrid;
     @FXML private TextField searchField;
-    @FXML private ToggleButton btnAll, btnVal, btnLol, btnCs;
+    @FXML private ComboBox<String> sortCombo;
+    @FXML private ComboBox<String> gameCombo;
 
     private Connection connection;
-    private String activeGame = null; // null = all
+    private final com.carthage.services.GameService gameService = new com.carthage.services.GameService();
 
     @FXML
     public void initialize() {
         connection = DatabaseConnection.getInstance().getConnection();
-        loadSkins();
-        searchField.textProperty().addListener((obs, old, val) -> loadSkins());
-    }
-
-    @FXML public void onFilterAll()     { activeGame = null;       updateToggle(btnAll); loadSkins(); }
-    @FXML public void onFilterValorant(){ activeGame = "Valorant"; updateToggle(btnVal); loadSkins(); }
-    @FXML public void onFilterLoL()    { activeGame = "League";   updateToggle(btnLol); loadSkins(); }
-    @FXML public void onFilterCS2()    { activeGame = "Counter";  updateToggle(btnCs);  loadSkins(); }
-
-    private void updateToggle(ToggleButton active) {
-        for (ToggleButton b : new ToggleButton[]{btnAll, btnVal, btnLol, btnCs}) {
-            b.getStyleClass().removeAll("filter-toggle-active");
-            if (!b.getStyleClass().contains("filter-toggle")) b.getStyleClass().add("filter-toggle");
+        
+        if (gameCombo != null) {
+            gameCombo.getItems().add("Tous les Jeux");
+            for (com.carthage.entity.Game game : gameService.getAllGames()) {
+                gameCombo.getItems().add(game.getName());
+            }
+            gameCombo.setValue("Tous les Jeux");
+            gameCombo.valueProperty().addListener((obs, old, val) -> loadSkins());
         }
-        active.getStyleClass().removeAll("filter-toggle");
-        if (!active.getStyleClass().contains("filter-toggle-active")) active.getStyleClass().add("filter-toggle-active");
+        
+        if (sortCombo != null) {
+            sortCombo.getItems().addAll("Prix: Décroissant", "Prix: Croissant", "Nom: A-Z", "Nom: Z-A");
+            sortCombo.setValue("Prix: Décroissant");
+            sortCombo.valueProperty().addListener((obs, old, val) -> loadSkins());
+        }
+        
+        loadSkins();
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, old, val) -> loadSkins());
+        }
     }
 
     private void loadSkins() {
         skinsGrid.getChildren().clear();
-        String search = searchField.getText();
+        String search = searchField != null ? searchField.getText() : null;
         boolean hasSearch = search != null && !search.isBlank();
+        
+        String selectedGame = gameCombo != null ? gameCombo.getValue() : null;
+        boolean hasGameFilter = selectedGame != null && !"Tous les Jeux".equals(selectedGame);
 
         // Doctrine snake_case columns: skin.name, skin.price, skin.rarity, skin.image_url
         // game.name joined via skin.game_id
@@ -52,14 +60,24 @@ public class BoutiqueController {
             "SELECT s.id, s.name, s.price, s.rarity, s.image_url, g.name AS game_name " +
             "FROM skin s LEFT JOIN game g ON s.game_id = g.id WHERE 1=1"
         );
-        if (activeGame != null) sql.append(" AND g.name LIKE ?");
-        if (hasSearch)          sql.append(" AND s.name LIKE ?");
-        sql.append(" ORDER BY s.price DESC LIMIT 24");
+        if (hasGameFilter) sql.append(" AND g.name LIKE ?");
+        if (hasSearch)     sql.append(" AND s.name LIKE ?");
+        
+        if (sortCombo != null && sortCombo.getValue() != null) {
+            String sortOption = sortCombo.getValue();
+            if ("Prix: Croissant".equals(sortOption)) sql.append(" ORDER BY s.price ASC");
+            else if ("Nom: A-Z".equals(sortOption)) sql.append(" ORDER BY s.name ASC");
+            else if ("Nom: Z-A".equals(sortOption)) sql.append(" ORDER BY s.name DESC");
+            else sql.append(" ORDER BY s.price DESC");
+        } else {
+            sql.append(" ORDER BY s.price DESC");
+        }
+        sql.append(" LIMIT 24");
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int i = 1;
-            if (activeGame != null) ps.setString(i++, "%" + activeGame + "%");
-            if (hasSearch)          ps.setString(i, "%" + search + "%");
+            if (hasGameFilter) ps.setString(i++, "%" + selectedGame + "%");
+            if (hasSearch)     ps.setString(i++, "%" + search + "%");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 java.util.UUID skinId = com.carthage.utils.UUIDUtils.fromBytes(rs.getBytes("id"));
@@ -156,13 +174,42 @@ public class BoutiqueController {
         priceRow.getChildren().addAll(priceLabel, insuffLabel);
 
         // Buy button
-        Button buyBtn = new Button("Points Insuffisants");
+        Button buyBtn = new Button();
         buyBtn.setMaxWidth(Double.MAX_VALUE);
-        buyBtn.setStyle("-fx-background-color: #0B0E14; -fx-text-fill: #6b7280;" +
-            " -fx-background-radius: 8px; -fx-padding: 7 0; -fx-cursor: not-allowed;");
+        com.carthage.entity.User user = com.carthage.utils.SessionContext.getInstance().getCurrentUser();
+        
+        if (user == null) {
+            buyBtn.setText("Non Connecté");
+            buyBtn.setStyle("-fx-background-color: #0B0E14; -fx-text-fill: #6b7280; -fx-background-radius: 8px; -fx-padding: 7 0; -fx-cursor: not-allowed;");
+            insuffLabel.setVisible(false);
+            insuffLabel.setManaged(false);
+        } else if (user.getBalance() >= price) {
+            buyBtn.setText("Acheter");
+            buyBtn.setStyle("-fx-background-color: -carthage-accent; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 7 0; -fx-cursor: hand;");
+            buyBtn.setOnAction(evt -> handlePurchase(id, name, price, user));
+            insuffLabel.setVisible(false);
+            insuffLabel.setManaged(false);
+        } else {
+            buyBtn.setText("Points Insuffisants");
+            buyBtn.setStyle("-fx-background-color: #0B0E14; -fx-text-fill: #6b7280; -fx-background-radius: 8px; -fx-padding: 7 0; -fx-cursor: not-allowed;");
+            insuffLabel.setVisible(true);
+            insuffLabel.setManaged(true);
+        }
 
         body.getChildren().addAll(nameLabel, rarityBadge, priceRow, buyBtn);
         card.getChildren().addAll(imgPane, body);
         return card;
+    }
+
+    private void handlePurchase(java.util.UUID skinId, String skinName, int price, com.carthage.entity.User user) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Voulez-vous acheter " + skinName + " pour " + price + " PC ?");
+        confirm.showAndWait().ifPresent(res -> {
+            if (res == ButtonType.OK) {
+                user.setBalance(user.getBalance() - price);
+                Alert success = new Alert(Alert.AlertType.INFORMATION, "Achat réussi !");
+                success.showAndWait();
+                loadSkins();
+            }
+        });
     }
 }

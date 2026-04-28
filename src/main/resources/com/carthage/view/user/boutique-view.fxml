@@ -15,15 +15,13 @@
 
     <!-- Filter Bar -->
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <ToggleButton fx:id="btnAll" text="Tous les Jeux" styleClass="filter-toggle-active" onAction="#onFilterAll"/>
-        <ToggleButton fx:id="btnVal" text="Valorant" styleClass="filter-toggle" onAction="#onFilterValorant"/>
-        <ToggleButton fx:id="btnLol" text="League of Legends" styleClass="filter-toggle" onAction="#onFilterLoL"/>
-        <ToggleButton fx:id="btnCs"  text="CS2" styleClass="filter-toggle" onAction="#onFilterCS2"/>
+        <ComboBox fx:id="gameCombo" promptText="Tous les Jeux" styleClass="filter-toggle"
+                  style="-fx-background-radius: 20px; -fx-padding: 5 10;"/>
 
         <Region HBox.hgrow="ALWAYS"/>
 
-        <Button text="Trier par  ↕" styleClass="filter-toggle"
-                style="-fx-background-radius: 20px; -fx-padding: 8 18;"/>
+        <ComboBox fx:id="sortCombo" promptText="Trier par  ↕" styleClass="filter-toggle"
+                  style="-fx-background-radius: 20px; -fx-padding: 5 10;"/>
         <TextField fx:id="searchField" promptText="🔍  Rechercher des skins..."
                    style="-fx-background-color: #141A23; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280;
                           -fx-background-radius: 20px; -fx-padding: 9 16 9 16; -fx-font-size: 13px;"
