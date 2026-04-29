@@ -35,7 +35,7 @@ public class UserService {
         if (email == null || email.isBlank()) throw new AuthException("Veuillez entrer votre email.");
         if (plainPassword == null || plainPassword.isBlank()) throw new AuthException("Veuillez entrer votre mot de passe.");
 
-        String sql = "SELECT HEX(id) as id, email, username, nickname, password, roles, balance, status, is_verified, discord_id, created_at " +
+        String sql = "SELECT HEX(id) as id, email, username, nickname, password, roles, balance, status, is_verified, discord_id, two_factor_secret, is_two_factor_enabled, created_at " +
                      "FROM user WHERE email = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, email.trim());
@@ -385,7 +385,7 @@ public class UserService {
     }
 
     private User loadUserById(UUID userId) throws SQLException, AuthException {
-        String sql = "SELECT HEX(id) as id, email, username, nickname, password, roles, balance, status, is_verified, discord_id, created_at " +
+        String sql = "SELECT HEX(id) as id, email, username, nickname, password, roles, balance, status, is_verified, discord_id, two_factor_secret, is_two_factor_enabled, created_at " +
                 "FROM user WHERE id = UNHEX(REPLACE(?, '-', ''))";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, userId.toString());
@@ -398,7 +398,7 @@ public class UserService {
     }
 
     private User findUserByDiscordId(String discordId) throws SQLException {
-        String sql = "SELECT HEX(id) as id, email, username, nickname, password, roles, balance, status, is_verified, discord_id, created_at " +
+        String sql = "SELECT HEX(id) as id, email, username, nickname, password, roles, balance, status, is_verified, discord_id, two_factor_secret, is_two_factor_enabled, created_at " +
                 "FROM user WHERE discord_id = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, discordId);
@@ -409,7 +409,7 @@ public class UserService {
     }
 
     private User findUserByEmail(String email) throws SQLException {
-        String sql = "SELECT HEX(id) as id, email, username, nickname, password, roles, balance, status, is_verified, discord_id, created_at " +
+        String sql = "SELECT HEX(id) as id, email, username, nickname, password, roles, balance, status, is_verified, discord_id, two_factor_secret, is_two_factor_enabled, created_at " +
                 "FROM user WHERE email = ?";
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, email);
@@ -426,6 +426,18 @@ public class UserService {
             ps.setBoolean(2, verifiedEmail);
             ps.setString(3, userId.toString());
             ps.executeUpdate();
+        }
+    }
+
+    public void update2FASettings(UUID userId, String secret, boolean isEnabled) throws AuthException {
+        String sql = "UPDATE user SET two_factor_secret = ?, is_two_factor_enabled = ? WHERE id = UNHEX(REPLACE(?, '-', ''))";
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setString(1, secret);
+            ps.setBoolean(2, isEnabled);
+            ps.setString(3, userId.toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new AuthException("Erreur lors de la mise à jour des paramètres 2FA.");
         }
     }
 
@@ -478,6 +490,8 @@ public class UserService {
         user.setStatus(statusStr == null ? AccountStatus.ACTIVE : AccountStatus.valueOf(statusStr.toUpperCase()));
         user.setIsVerified(rs.getBoolean("is_verified"));
         user.setDiscordId(rs.getString("discord_id"));
+        user.setTwoFactorSecret(rs.getString("two_factor_secret"));
+        user.setIsTwoFactorEnabled(rs.getBoolean("is_two_factor_enabled"));
         Timestamp createdAt = rs.getTimestamp("created_at");
         if (createdAt != null) user.setCreatedAt(createdAt.toLocalDateTime());
         return user;

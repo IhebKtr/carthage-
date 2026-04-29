@@ -12,6 +12,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+import com.carthage.services.TwoFactorAuthService;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -24,8 +34,14 @@ public class LoginController {
     private PasswordField passwordField;
     @FXML
     private Label errorLabel;
+    @FXML
+    private VBox twoFactorBox;
+    @FXML
+    private TextField twoFactorCodeField;
 
+    private User pendingUser;
     private final UserService userService = new UserService();
+    private final TwoFactorAuthService twoFactorAuthService = new TwoFactorAuthService();
 
     @FXML
     public void initialize() {
@@ -36,22 +52,50 @@ public class LoginController {
 
         // Enter on the password field → submit (same as clicking "Sign In").
         passwordField.setOnAction(e -> onSignInClicked());
+
+        // Enter on the 2FA field → submit.
+        if (twoFactorCodeField != null) {
+            twoFactorCodeField.setOnAction(e -> onSignInClicked());
+        }
     }
 
     @FXML
     public void onSignInClicked() {
         clearError();
+        
+        if (pendingUser != null) {
+            String code = twoFactorCodeField.getText();
+            if (twoFactorAuthService.verifyCode(pendingUser.getTwoFactorSecret(), code)) {
+                completeLogin(pendingUser);
+            } else {
+                showError("Code 2FA incorrect.");
+            }
+            return;
+        }
+
         String email = emailField.getText();
         String password = passwordField.getText();
 
         try {
             User user = userService.login(email, password);
-            SessionContext.getInstance().setCurrentUser(user);
-            routeByRole(user);
-
+            if (user.isTwoFactorEnabled()) {
+                pendingUser = user;
+                twoFactorBox.setVisible(true);
+                twoFactorBox.setManaged(true);
+                emailField.setDisable(true);
+                passwordField.setDisable(true);
+                twoFactorCodeField.requestFocus();
+            } else {
+                completeLogin(user);
+            }
         } catch (UserService.AuthException e) {
             showError(e.getMessage());
         }
+    }
+
+    private void completeLogin(User user) {
+        SessionContext.getInstance().setCurrentUser(user);
+        routeByRole(user);
     }
 
     @FXML
@@ -79,8 +123,9 @@ public class LoginController {
 
         task.setOnSucceeded(e -> {
             User user = task.getValue();
-            SessionContext.getInstance().setCurrentUser(user);
-            routeByRole(user);
+            // Since this is OAuth, we can trust Discord and bypass 2FA,
+            // or require it if preferred. Bypassing for now as typical for OAuth.
+            completeLogin(user);
         });
 
         task.setOnFailed(e -> {

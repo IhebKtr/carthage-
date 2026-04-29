@@ -60,6 +60,20 @@
     <Label fx:id="messageLabel" text="" wrapText="true"
            style="-fx-text-fill: #F87171; -fx-font-size: 12px;" />
 
+    <!-- 2FA Section -->
+    <VBox spacing="10" style="-fx-padding: 8 0 0 0; -fx-border-color: transparent transparent #2A3441 transparent; -fx-border-width: 0 0 1 0;" />
+    <VBox spacing="12">
+        <Label text="Authentification à deux facteurs (2FA)" style="-fx-text-fill: #9CA3AF; -fx-font-size: 12px; -fx-font-weight: bold;" />
+        <Button fx:id="enable2FaButton" text="Activer 2FA" styleClass="btn-outline" onAction="#handleEnable2FA" />
+        <VBox fx:id="twoFaBox" spacing="10" managed="false" visible="false">
+            <ImageView fx:id="qrCodeImageView" fitWidth="150" fitHeight="150" preserveRatio="true"/>
+            <HBox spacing="10">
+                <TextField fx:id="twoFaCodeField" promptText="Code à 6 chiffres" styleClass="rounded-input" HBox.hgrow="ALWAYS"/>
+                <Button text="Valider" styleClass="button-solid-red" onAction="#handleVerify2FA"/>
+            </HBox>
+        </VBox>
+    </VBox>
+
     <Region VBox.vgrow="ALWAYS" />
 
     <!-- Actions -->

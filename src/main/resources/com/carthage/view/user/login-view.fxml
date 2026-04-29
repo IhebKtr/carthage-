@@ -30,6 +30,11 @@
                 <PasswordField fx:id="passwordField" promptText="Password" />
             </VBox>
 
+            <VBox fx:id="twoFactorBox" spacing="10" managed="false" visible="false">
+                <Label text="Two-Factor Authentication Required" style="-fx-text-fill: -carthage-accent;" />
+                <TextField fx:id="twoFactorCodeField" promptText="6-digit TOTP code" />
+            </VBox>
+
             <!-- Error feedback -->
             <Label fx:id="errorLabel" wrapText="true" maxWidth="320" styleClass="feedback-error" />
 

@@ -9,7 +9,12 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
+import javafx.scene.control.Button;
 import javafx.stage.Stage;
+
+import com.carthage.services.TwoFactorAuthService;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -31,8 +36,14 @@ public class ProfilEditController {
     @FXML private PasswordField newPasswordField;
     @FXML private PasswordField confirmPasswordField;
     @FXML private Label messageLabel;
+    @FXML private Button enable2FaButton;
+    @FXML private VBox twoFaBox;
+    @FXML private ImageView qrCodeImageView;
+    @FXML private TextField twoFaCodeField;
 
     private final UserService userService = new UserService();
+    private final TwoFactorAuthService twoFactorAuthService = new TwoFactorAuthService();
+    private String temp2FaSecret;
     private User user;
     private Consumer<User> onSaved;
 
@@ -63,6 +74,11 @@ public class ProfilEditController {
             usernameField.setText(originalUsername);
             nicknameField.setText(originalNickname);
             emailField.setText(originalEmail);
+            
+            if (user.isTwoFactorEnabled()) {
+                enable2FaButton.setText("2FA Activé");
+                enable2FaButton.setDisable(true);
+            }
         }
     }
 
@@ -196,5 +212,47 @@ public class ProfilEditController {
 
     private void clearMessage() {
         messageLabel.setText("");
+    }
+
+    @FXML
+    private void handleEnable2FA() {
+        if (user == null || user.getEmail() == null) return;
+        temp2FaSecret = twoFactorAuthService.generateSecret();
+        javafx.scene.image.Image qrImage = twoFactorAuthService.generateQrCodeImage(temp2FaSecret, user.getEmail());
+        qrCodeImageView.setImage(qrImage);
+        
+        enable2FaButton.setManaged(false);
+        enable2FaButton.setVisible(false);
+        twoFaBox.setManaged(true);
+        twoFaBox.setVisible(true);
+    }
+
+    @FXML
+    private void handleVerify2FA() {
+        clearMessage();
+        String code = twoFaCodeField.getText();
+        if (twoFactorAuthService.verifyCode(temp2FaSecret, code)) {
+            try {
+                userService.update2FASettings(user.getId(), temp2FaSecret, true);
+                user.setTwoFactorSecret(temp2FaSecret);
+                user.setIsTwoFactorEnabled(true);
+                showSuccess("2FA activé avec succès.");
+                twoFaBox.setManaged(false);
+                twoFaBox.setVisible(false);
+                enable2FaButton.setText("2FA Activé");
+                enable2FaButton.setDisable(true);
+                enable2FaButton.setManaged(true);
+                enable2FaButton.setVisible(true);
+            } catch (UserService.AuthException e) {
+                showError(e.getMessage());
+            }
+        } else {
+            showError("Code 2FA incorrect.");
+        }
+    }
+
+    private void showSuccess(String msg) {
+        messageLabel.setStyle("-fx-text-fill: #10B981; -fx-font-size: 12px;");
+        messageLabel.setText(msg);
     }
 }
