@@ -2,6 +2,7 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
 
 <VBox stylesheets="@../../css/main.css" spacing="18"
       style="-fx-background-color: #141A23; -fx-padding: 28; -fx-border-color: #2A3441; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 1;"

@@ -225,6 +225,9 @@ public class ProfilEditController {
         enable2FaButton.setVisible(false);
         twoFaBox.setManaged(true);
         twoFaBox.setVisible(true);
+        
+        Stage stage = (Stage) twoFaBox.getScene().getWindow();
+        stage.sizeToScene();
     }
 
     @FXML
@@ -243,6 +246,9 @@ public class ProfilEditController {
                 enable2FaButton.setDisable(true);
                 enable2FaButton.setManaged(true);
                 enable2FaButton.setVisible(true);
+                
+                Stage stage = (Stage) twoFaBox.getScene().getWindow();
+                stage.sizeToScene();
             } catch (UserService.AuthException e) {
                 showError(e.getMessage());
             }
