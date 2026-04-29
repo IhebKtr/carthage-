@@ -18,7 +18,10 @@
         <!-- Nom -->
         <VBox spacing="5">
             <Label text="Nom du Jeu" styleClass="form-label" />
-            <TextField fx:id="nameField" styleClass="rounded-input" />
+            <HBox spacing="10">
+                <TextField fx:id="nameField" styleClass="rounded-input" HBox.hgrow="ALWAYS"/>
+                <Button text="RAWG 🔄" onAction="#onFetchRawgData" styleClass="btn-outline"/>
+            </HBox>
         </VBox>
 
         <!-- Description -->
@@ -41,8 +44,11 @@
 
         <!-- Image URL -->
         <VBox spacing="5">
-            <Label text="Image URL" styleClass="form-label" />
-            <TextField fx:id="imageUrlField" promptText="https://..." styleClass="rounded-input" />
+            <Label text="URL de l'image ou Fichier local" styleClass="form-label" />
+            <HBox spacing="10">
+                <TextField fx:id="imageUrlField" promptText="https://..." styleClass="rounded-input" HBox.hgrow="ALWAYS"/>
+                <Button text="Uploader" onAction="#onUploadImage" styleClass="btn-outline"/>
+            </HBox>
         </VBox>
 
     </VBox>

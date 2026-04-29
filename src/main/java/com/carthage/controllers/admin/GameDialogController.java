@@ -6,7 +6,11 @@ import com.carthage.entity.enums.GameType;
 import com.carthage.services.GameService;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.concurrent.Task;
+
+import java.io.File;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -21,6 +25,8 @@ public class GameDialogController {
     @FXML private TextField imageUrlField;
 
     private final GameService gameService = new GameService();
+    private final com.carthage.services.api.CloudinaryService cloudinaryService = new com.carthage.services.api.CloudinaryService();
+    private final com.carthage.services.api.RawgService rawgService = new com.carthage.services.api.RawgService();
     private Runnable onSuccessCallback;
     private Game gameToEdit;
 
@@ -48,6 +54,93 @@ public class GameDialogController {
     @FXML
     public void handleCancel() {
         closeStage();
+    }
+
+    @FXML
+    private void onUploadImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choisir une image pour le jeu");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp", "*.gif")
+        );
+        File selectedFile = fileChooser.showOpenDialog(headerLabel.getScene().getWindow());
+
+        if (selectedFile != null) {
+            imageUrlField.setText("Upload en cours...");
+            imageUrlField.setDisable(true);
+
+            Task<String> uploadTask = new Task<>() {
+                @Override
+                protected String call() {
+                    return cloudinaryService.uploadImage(selectedFile);
+                }
+            };
+
+            uploadTask.setOnSucceeded(e -> {
+                String url = uploadTask.getValue();
+                if (url != null) {
+                    imageUrlField.setText(url);
+                } else {
+                    imageUrlField.setText("");
+                    showAlert("Erreur Cloudinary", "Erreur lors de l'upload de l'image.");
+                }
+                imageUrlField.setDisable(false);
+            });
+
+            uploadTask.setOnFailed(e -> {
+                imageUrlField.setText("");
+                showAlert("Erreur Réseau", "Erreur: " + uploadTask.getException().getMessage());
+                imageUrlField.setDisable(false);
+            });
+
+            new Thread(uploadTask).start();
+        }
+    }
+
+    @FXML
+    private void onFetchRawgData() {
+        String query = nameField.getText();
+        if (query == null || query.trim().isEmpty()) {
+            showAlert("Erreur", "Veuillez entrer le nom du jeu pour rechercher.");
+            return;
+        }
+
+        descField.setText("Recherche en cours sur RAWG...");
+        descField.setDisable(true);
+        
+        Task<com.carthage.services.api.RawgService.RawgGame> fetchTask = new Task<>() {
+            @Override
+            protected com.carthage.services.api.RawgService.RawgGame call() {
+                return rawgService.searchGame(query.trim());
+            }
+        };
+
+        fetchTask.setOnSucceeded(e -> {
+            com.carthage.services.api.RawgService.RawgGame gameInfo = fetchTask.getValue();
+            if (gameInfo != null) {
+                if (gameInfo.getDescription() != null && !gameInfo.getDescription().equals("No description available.")) {
+                    descField.setText(gameInfo.getDescription());
+                } else {
+                    descField.setText("");
+                }
+                if (gameInfo.getBackgroundImage() != null) {
+                    imageUrlField.setText(gameInfo.getBackgroundImage());
+                }
+                nameField.setText(gameInfo.getName());
+            } else {
+                descField.setText("");
+                showAlert("Non trouvé", "Ce jeu n'a pas été trouvé sur RAWG.");
+            }
+            descField.setDisable(false);
+        });
+
+        fetchTask.setOnFailed(e -> {
+            descField.setText("");
+            showAlert("Erreur Réseau", "Impossible de contacter l'API RAWG.");
+            descField.setDisable(false);
+        });
+
+        new Thread(fetchTask).start();
     }
 
     @FXML

@@ -194,8 +194,14 @@ public class SkinManagementController {
         alert.setHeaderText("Confirmation de suppression");
         alert.showAndWait().ifPresent(res -> {
             if (res == ButtonType.OK) {
-                skinService.delete(skin.getId());
-                loadData();
+                boolean success = skinService.delete(skin.getId());
+                if (success) {
+                    loadData();
+                } else {
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR, "Impossible de supprimer ce skin. Il est peut-être lié à d'autres données (ex: commandes, inventaires).");
+                    errorAlert.setHeaderText("Erreur de suppression");
+                    errorAlert.showAndWait();
+                }
             }
         });
     }

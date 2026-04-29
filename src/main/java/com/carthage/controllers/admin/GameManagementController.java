@@ -140,7 +140,9 @@ public class GameManagementController {
         ImageView banner = new ImageView();
         try {
             if (game.getImageUrl() != null && !game.getImageUrl().isEmpty()) {
-                banner.setImage(new Image(game.getImageUrl()));
+                // The 'true' at the end enables background loading
+                Image img = new Image(game.getImageUrl(), true);
+                banner.setImage(img);
             }
         } catch (Exception e) {
             // fallback

@@ -19,7 +19,7 @@
         <StackPane HBox.hgrow="ALWAYS" style="-fx-background-radius: 24; -fx-overflow: hiden;">
             <Region style="-fx-background-color: #1E2633; -fx-background-radius: 24;"/>
             <ImageView fx:id="skinImage" fitWidth="600" fitHeight="400" preserveRatio="true">
-                <Image url="@../../images/valorant-placeholder.jpg"/> <!-- This will be replaced by setImageUrl -->
+                <!-- Image will be set via controller -->
             </ImageView>
             <Region style="-fx-background-color: linear-gradient(to top, rgba(11,14,20,0.8) 0%, transparent 100%); -fx-background-radius: 24;"/>
         </StackPane>
@@ -50,8 +50,11 @@
 
                 <Region prefHeight="20"/>
 
-                <Button fx:id="buyButton" text="🛒 Acheter maintenant" maxWidth="Infinity" styleClass="button-solid-red"
+                <Button fx:id="buyButton" text="🛒 Acheter avec Points" maxWidth="Infinity" styleClass="button-solid-red"
                         style="-fx-padding: 14; -fx-background-radius: 12; -fx-font-size: 15px; -fx-font-weight: bold;" onAction="#onPurchase"/>
+                
+                <Button text="💳 Payer par Carte (Stripe)" maxWidth="Infinity" styleClass="btn-outline"
+                        style="-fx-padding: 14; -fx-background-radius: 12; -fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #6366F1; -fx-border-color: #6366F1;" onAction="#onStripePurchase"/>
                 
                 <Button text="♡ Ajouter aux favoris" maxWidth="Infinity" styleClass="filter-toggle"
                         style="-fx-padding: 12; -fx-background-radius: 12; -fx-font-size: 14px;"/>

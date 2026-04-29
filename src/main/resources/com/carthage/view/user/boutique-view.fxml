@@ -8,10 +8,22 @@
       spacing="20" style="-fx-background-color: transparent;">
 
     <!-- Header -->
-    <VBox spacing="4">
-        <Label text="Boutique de Skins" styleClass="header-title"/>
-        <Label text="Améliorez votre arsenal avec des skins exclusifs." styleClass="sub-header"/>
-    </VBox>
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <VBox spacing="4">
+            <Label text="Boutique de Skins" styleClass="header-title"/>
+            <Label text="Améliorez votre arsenal avec des skins exclusifs." styleClass="sub-header"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+        
+        <HBox spacing="15" alignment="CENTER" style="-fx-background-color: #1E2633; -fx-padding: 10 20; -fx-background-radius: 12; -fx-border-color: #2A3441; -fx-border-radius: 12; -fx-border-width: 1;">
+            <Label text="💎" style="-fx-font-size: 20px;"/>
+            <VBox>
+                <Label text="Vos CP" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
+                <Label fx:id="balanceLabel" text="0" style="-fx-text-fill: #FACC15; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+            </VBox>
+            <Button text="Acheter CP 💳" styleClass="button-solid-red" style="-fx-padding: 8 15; -fx-font-weight: bold;" onAction="#onBuyCps"/>
+        </HBox>
+    </HBox>
 
     <!-- Filter Bar -->
     <HBox spacing="10" alignment="CENTER_LEFT">

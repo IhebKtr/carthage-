@@ -55,7 +55,10 @@
             <!-- Price -->
             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="2">
                 <Label text="Prix (PC)" styleClass="form-label"/>
-                <TextField fx:id="priceField" styleClass="rounded-input" promptText="Ex: 1500"/>
+                <HBox spacing="10">
+                    <TextField fx:id="priceField" styleClass="rounded-input" promptText="Ex: 1500" HBox.hgrow="ALWAYS"/>
+                    <Button text="Skinport 🔄" onAction="#onFetchSkinportPrice" styleClass="btn-outline" prefHeight="35"/>
+                </HBox>
             </VBox>
 
             <!-- Rarity -->
@@ -66,8 +69,11 @@
 
             <!-- Image URL (Spans 2 columns) -->
             <VBox spacing="5" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2">
-                <Label text="URL de l'image" styleClass="form-label"/>
-                <TextField fx:id="imageField" styleClass="rounded-input" promptText="https://..."/>
+                <Label text="URL de l'image ou Fichier local" styleClass="form-label"/>
+                <HBox spacing="10">
+                    <TextField fx:id="imageField" styleClass="rounded-input" promptText="https://..." HBox.hgrow="ALWAYS"/>
+                    <Button text="Uploader" onAction="#onUploadImage" styleClass="btn-outline"/>
+                </HBox>
             </VBox>
         </GridPane>
 

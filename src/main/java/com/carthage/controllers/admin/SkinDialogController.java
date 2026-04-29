@@ -8,8 +8,11 @@ import com.carthage.services.GameService;
 import com.carthage.services.SkinService;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import javafx.util.StringConverter;
+import javafx.concurrent.Task;
 
+import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +31,8 @@ public class SkinDialogController {
 
     private final GameService gameService = new GameService();
     private final SkinService skinService = new SkinService();
+    private final com.carthage.services.api.CloudinaryService cloudinaryService = new com.carthage.services.api.CloudinaryService();
+    private final com.carthage.services.api.SkinportService skinportService = new com.carthage.services.api.SkinportService();
     private Skin currentSkin;
 
     private Runnable onSaveCallback;
@@ -140,6 +145,99 @@ public class SkinDialogController {
             errorLabel.setVisible(true);
             errorLabel.setManaged(true);
         }
+    }
+
+    @FXML
+    private void onUploadImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choisir une image pour le skin");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp", "*.gif")
+        );
+        File selectedFile = fileChooser.showOpenDialog(titleLabel.getScene().getWindow());
+
+        if (selectedFile != null) {
+            imageField.setText("Upload en cours...");
+            imageField.setDisable(true);
+            errorLabel.setVisible(false);
+            errorLabel.setManaged(false);
+
+            Task<String> uploadTask = new Task<>() {
+                @Override
+                protected String call() {
+                    return cloudinaryService.uploadImage(selectedFile);
+                }
+            };
+
+            uploadTask.setOnSucceeded(e -> {
+                String url = uploadTask.getValue();
+                if (url != null) {
+                    imageField.setText(url);
+                } else {
+                    imageField.setText("");
+                    errorLabel.setText("Erreur lors de l'upload de l'image.");
+                    errorLabel.setVisible(true);
+                    errorLabel.setManaged(true);
+                }
+                imageField.setDisable(false);
+            });
+
+            uploadTask.setOnFailed(e -> {
+                imageField.setText("");
+                errorLabel.setText("Erreur réseau: " + uploadTask.getException().getMessage());
+                errorLabel.setVisible(true);
+                errorLabel.setManaged(true);
+                imageField.setDisable(false);
+            });
+
+            new Thread(uploadTask).start();
+        }
+    }
+
+    @FXML
+    private void onFetchSkinportPrice() {
+        String skinName = nameField.getText();
+        if (skinName == null || skinName.trim().isEmpty()) {
+            errorLabel.setText("Veuillez d'abord entrer le nom du skin.");
+            errorLabel.setVisible(true);
+            errorLabel.setManaged(true);
+            return;
+        }
+
+        priceField.setText("Recherche...");
+        priceField.setDisable(true);
+        errorLabel.setVisible(false);
+        errorLabel.setManaged(false);
+
+        Task<com.carthage.services.api.SkinportService.SkinportItem> fetchTask = new Task<>() {
+            @Override
+            protected com.carthage.services.api.SkinportService.SkinportItem call() {
+                return skinportService.searchItem(skinName.trim());
+            }
+        };
+
+        fetchTask.setOnSucceeded(e -> {
+            com.carthage.services.api.SkinportService.SkinportItem item = fetchTask.getValue();
+            if (item != null) {
+                priceField.setText(String.valueOf((int) item.getMinPrice()));
+            } else {
+                priceField.setText("");
+                errorLabel.setText("Skin introuvable (Note: Skinport est limité à CS:GO, Rust, Dota 2, TF2).");
+                errorLabel.setVisible(true);
+                errorLabel.setManaged(true);
+            }
+            priceField.setDisable(false);
+        });
+
+        fetchTask.setOnFailed(e -> {
+            priceField.setText("");
+            errorLabel.setText("Erreur réseau: " + fetchTask.getException().getMessage());
+            errorLabel.setVisible(true);
+            errorLabel.setManaged(true);
+            priceField.setDisable(false);
+        });
+
+        new Thread(fetchTask).start();
     }
 
     @FXML

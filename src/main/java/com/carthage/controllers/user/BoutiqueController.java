@@ -10,6 +10,17 @@ import javafx.scene.layout.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import java.sql.*;
+import com.carthage.entity.User;
+import com.carthage.utils.SessionContext;
+import com.carthage.services.api.StripeService;
+import java.util.Arrays;
+import java.util.List;
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpExchange;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import javafx.application.Platform;
 
 public class BoutiqueController {
 
@@ -20,6 +31,9 @@ public class BoutiqueController {
 
     private Connection connection;
     private final com.carthage.services.GameService gameService = new com.carthage.services.GameService();
+    private final StripeService stripeService = new StripeService();
+    
+    @FXML private Label balanceLabel;
 
     @FXML
     public void initialize() {
@@ -43,6 +57,28 @@ public class BoutiqueController {
         loadSkins();
         if (searchField != null) {
             searchField.textProperty().addListener((obs, old, val) -> loadSkins());
+        }
+        
+        updateBalance();
+    }
+
+    private void updateBalance() {
+        User user = SessionContext.getInstance().getCurrentUser();
+        if (user != null && balanceLabel != null) {
+            // refresh from db to be accurate
+            try (PreparedStatement ps = connection.prepareStatement("SELECT balance FROM user WHERE id = UNHEX(REPLACE(?, '-', ''))")) {
+                ps.setString(1, user.getId().toString());
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    int bal = rs.getInt("balance");
+                    user.setBalance(bal);
+                    balanceLabel.setText(String.valueOf(bal));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else if (balanceLabel != null) {
+            balanceLabel.setText("Non Connecté");
         }
     }
 
@@ -209,6 +245,111 @@ public class BoutiqueController {
                 Alert success = new Alert(Alert.AlertType.INFORMATION, "Achat réussi !");
                 success.showAndWait();
                 loadSkins();
+                updateBalance();
+            }
+        });
+    }
+
+    @FXML
+    public void onBuyCps() {
+        User user = SessionContext.getInstance().getCurrentUser();
+        if (user == null) {
+            Alert a = new Alert(Alert.AlertType.WARNING, "Vous devez être connecté pour acheter des CP.");
+            a.show();
+            return;
+        }
+
+        List<String> packages = Arrays.asList("500 CP (5€)", "1000 CP (10€)", "2500 CP (25€)", "5000 CP (50€)");
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("1000 CP (10€)", packages);
+        dialog.setTitle("Acheter des Carthage Points");
+        dialog.setHeaderText("Choisissez un pack de CP à acheter via Stripe");
+        dialog.setContentText("Pack :");
+
+        dialog.showAndWait().ifPresent(choice -> {
+            int amount = 0;
+            if (choice.startsWith("5000 CP")) amount = 5000;
+            else if (choice.startsWith("2500 CP")) amount = 2500;
+            else if (choice.startsWith("1000 CP")) amount = 1000;
+            else if (choice.startsWith("500 CP")) amount = 500;
+
+            com.carthage.entity.Skin cpItem = new com.carthage.entity.Skin();
+            cpItem.setName(amount + " Carthage Points (CP)");
+            cpItem.setDescription("Achat de points virtuels pour votre compte.");
+            cpItem.setPrice(amount / 100); 
+
+            try {
+                // Create local HTTP server to handle the Stripe redirect
+                HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+                int port = server.getAddress().getPort();
+                String successUrl = "http://localhost:" + port + "/success";
+                String cancelUrl = "http://localhost:" + port + "/cancel";
+
+                final int finalAmount = amount;
+                server.createContext("/success", new HttpHandler() {
+                    @Override
+                    public void handle(HttpExchange exchange) throws java.io.IOException {
+                        String response = "<html><body style='text-align:center; font-family:sans-serif; margin-top:50px;'><h1 style='color:green;'>Paiement Reussi!</h1><p>Les points ont ete ajoutes. Vous pouvez retourner a l'application.</p><p id='msg'>Fermeture automatique dans <span id='timer'>5</span> secondes...</p><script>var count=5; var intv = setInterval(function(){count--; if(count<=0){clearInterval(intv); document.getElementById('msg').innerHTML='<b>Vous pouvez fermer cet onglet en toute sécurité.</b>';} else {document.getElementById('timer').innerText=count;}}, 1000); setTimeout(function(){window.close();}, 5000);</script></body></html>";
+                        exchange.sendResponseHeaders(200, response.length());
+                        OutputStream os = exchange.getResponseBody();
+                        os.write(response.getBytes());
+                        os.close();
+                        
+                        Platform.runLater(() -> {
+                            user.setBalance(user.getBalance() + finalAmount);
+                            try (PreparedStatement ps = connection.prepareStatement("UPDATE user SET balance = ? WHERE id = UNHEX(REPLACE(?, '-', ''))")) {
+                                ps.setInt(1, user.getBalance());
+                                ps.setString(2, user.getId().toString());
+                                ps.executeUpdate();
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                            updateBalance();
+                            Alert a = new Alert(Alert.AlertType.INFORMATION, "Achat réussi ! " + finalAmount + " CP ont été ajoutés à votre compte.");
+                            a.show();
+                        });
+                        new Thread(() -> server.stop(0)).start();
+                    }
+                });
+
+                server.createContext("/cancel", new HttpHandler() {
+                    @Override
+                    public void handle(HttpExchange exchange) throws java.io.IOException {
+                        String response = "<html><body style='text-align:center; font-family:sans-serif; margin-top:50px;'><h1 style='color:red;'>Paiement Annule</h1><p>Vous pouvez retourner a l'application.</p><p id='msg'>Fermeture automatique dans <span id='timer'>5</span> secondes...</p><script>var count=5; var intv = setInterval(function(){count--; if(count<=0){clearInterval(intv); document.getElementById('msg').innerHTML='<b>Vous pouvez fermer cet onglet en toute sécurité.</b>';} else {document.getElementById('timer').innerText=count;}}, 1000); setTimeout(function(){window.close();}, 5000);</script></body></html>";
+                        exchange.sendResponseHeaders(200, response.length());
+                        OutputStream os = exchange.getResponseBody();
+                        os.write(response.getBytes());
+                        os.close();
+                        
+                        Platform.runLater(() -> {
+                            Alert a = new Alert(Alert.AlertType.WARNING, "L'achat a été annulé.");
+                            a.show();
+                        });
+                        new Thread(() -> server.stop(0)).start();
+                    }
+                });
+
+                server.setExecutor(null);
+                server.start();
+
+                String checkoutUrl = stripeService.createCheckoutSession(cpItem, successUrl, cancelUrl);
+                if (checkoutUrl != null) {
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported() && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
+                            java.awt.Desktop.getDesktop().browse(new java.net.URI(checkoutUrl));
+                        } else {
+                            Alert a = new Alert(Alert.AlertType.INFORMATION, "Veuillez ouvrir ce lien:\n" + checkoutUrl);
+                            a.show();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    server.stop(0);
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Impossible d'initialiser Stripe. Vérifiez la clé API.");
+                    a.show();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         });
     }
