@@ -235,7 +235,25 @@ public class TournoiManagementController {
             javafx.stage.Stage stage = new javafx.stage.Stage();
             stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
             stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
-            stage.setScene(new javafx.scene.Scene(root));
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+            // ESC closes the dialog (cancel without saving), with a discard-changes
+            // confirmation if the form is dirty. The undecorated stage has no
+            // window chrome so ESC is the primary keyboard escape.
+            scene.addEventHandler(javafx.scene.input.KeyEvent.KEY_PRESSED, ev -> {
+                if (ev.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+                    if (controller.confirmCloseIfDirty()) {
+                        stage.close();
+                    }
+                    ev.consume();
+                }
+            });
+            // Same guard if the OS sends a close request (e.g. Alt+F4).
+            stage.setOnCloseRequest(ev -> {
+                if (!controller.confirmCloseIfDirty()) {
+                    ev.consume();
+                }
+            });
+            stage.setScene(scene);
             stage.showAndWait();
         } catch (java.io.IOException e) {
             e.printStackTrace();

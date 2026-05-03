@@ -3,7 +3,12 @@ package com.carthage.controllers.user;
 import com.carthage.entity.User;
 import com.carthage.utils.SessionContext;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import java.time.format.DateTimeFormatter;
 
@@ -22,7 +27,14 @@ public class ProfilController {
             usernameLabel.setText("Non connecté");
             return;
         }
+        renderUser(user);
+    }
 
+    /**
+     * Populate every header field from the given user. Extracted so it can be
+     * reused after a successful profile edit without a full view reload.
+     */
+    private void renderUser(User user) {
         // ── Basic info ──
         String name = user.getUsername() != null ? user.getUsername() : "—";
         usernameLabel.setText(name);
@@ -59,6 +71,58 @@ public class ProfilController {
             user.getRoles().stream().anyMatch(r -> r != null && r.toUpperCase().contains(keyword.toUpperCase()));
     }
 
-    @FXML public void onEditProfil() {}
+    @FXML
+    public void onEditProfil() {
+        User user = SessionContext.getInstance().getCurrentUser();
+        if (user == null) return;
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/carthage/view/user/profil-edit-dialog.fxml"));
+            Parent root = loader.load();
+
+            ProfilEditController controller = loader.getController();
+            controller.setUser(user);
+            controller.setOnSaved(updated -> {
+                renderUser(updated);
+                Alert ok = new Alert(Alert.AlertType.INFORMATION, "Profil mis à jour avec succès.");
+                ok.setHeaderText(null);
+                ok.showAndWait();
+            });
+
+            Stage dialog = new Stage();
+            dialog.setTitle("Modifier le Profil");
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initOwner(usernameLabel.getScene().getWindow());
+            Scene scene = new Scene(root);
+            // ESC closes the dialog (cancel without saving), with a discard-changes
+            // confirmation if the form is dirty.
+            scene.addEventHandler(javafx.scene.input.KeyEvent.KEY_PRESSED, ev -> {
+                if (ev.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
+                    if (controller.confirmCloseIfDirty()) {
+                        dialog.close();
+                    }
+                    ev.consume();
+                }
+            });
+            // Same guard if the user clicks the OS window close button.
+            dialog.setOnCloseRequest(ev -> {
+                if (!controller.confirmCloseIfDirty()) {
+                    ev.consume();
+                }
+            });
+            dialog.setScene(scene);
+            dialog.setResizable(false);
+            dialog.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Alert err = new Alert(Alert.AlertType.ERROR,
+                "Impossible d'ouvrir l'éditeur de profil : " + e.getMessage());
+            err.setHeaderText(null);
+            err.showAndWait();
+        }
+    }
+
     @FXML public void onHistorique() {}
 }

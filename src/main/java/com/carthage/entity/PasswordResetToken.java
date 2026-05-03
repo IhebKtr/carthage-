@@ -11,8 +11,10 @@ public class PasswordResetToken {
     private LocalDateTime expiresAt;
     private LocalDateTime createdAt;
     private User user;
+    private LocalDateTime usedAt;
 
-    public PasswordResetToken() {}
+    public PasswordResetToken() {
+    }
 
     public PasswordResetToken(UUID id, String token, LocalDateTime expiresAt, LocalDateTime createdAt, User user) {
         this.id = id;
@@ -54,6 +56,14 @@ public class PasswordResetToken {
         this.createdAt = createdAt;
     }
 
+    public LocalDateTime getUsedAt() {
+        return usedAt;
+    }
+
+    public void setUsedAt(LocalDateTime usedAt) {
+        this.usedAt = usedAt;
+    }
+
     public User getUser() {
         return user;
     }
@@ -64,18 +74,21 @@ public class PasswordResetToken {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         PasswordResetToken that = (PasswordResetToken) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(token, that.token) &&
                 Objects.equals(expiresAt, that.expiresAt) &&
                 Objects.equals(createdAt, that.createdAt) &&
-                Objects.equals(user, that.user);
+                Objects.equals(user, that.user) &&
+                Objects.equals(usedAt, that.usedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, token, expiresAt, createdAt, user);
+        return Objects.hash(id, token, expiresAt, createdAt, user, usedAt);
     }
 }

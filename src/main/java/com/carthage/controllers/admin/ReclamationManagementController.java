@@ -14,21 +14,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
-import javafx.stage.FileChooser;
-import java.io.File;
-import java.io.FileOutputStream;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.Phrase;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.FontFactory;
-import com.itextpdf.text.BaseColor;
 
 public class ReclamationManagementController {
 
@@ -413,7 +398,8 @@ public class ReclamationManagementController {
     // ── Actions ───────────────────────────────────────────────────────────────
 
     private void handleView(Reclamation r) {
-        if (r == null) return;
+        if (r == null)
+            return;
         try {
             AdminMainLayoutController main =
                 (AdminMainLayoutController) reclamationTable.getScene()
@@ -429,7 +415,8 @@ public class ReclamationManagementController {
     }
 
     private void handleDelete(Reclamation r) {
-        if (r == null) return;
+        if (r == null)
+            return;
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Supprimer la réclamation ?");
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {

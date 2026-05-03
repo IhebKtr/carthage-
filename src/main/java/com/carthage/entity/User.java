@@ -24,6 +24,8 @@ public class User {
     private AuthToken authToken;
     private List<TeamMembership> teamMemberships;
     private List<Purchase> purchases;
+    private String twoFactorSecret;
+    private boolean isTwoFactorEnabled;
 
     public User() {}
 
@@ -172,6 +174,22 @@ public class User {
 
     public void setPurchases(List<Purchase> purchases) {
         this.purchases = purchases;
+    }
+
+    public String getTwoFactorSecret() {
+        return twoFactorSecret;
+    }
+
+    public void setTwoFactorSecret(String twoFactorSecret) {
+        this.twoFactorSecret = twoFactorSecret;
+    }
+
+    public boolean isTwoFactorEnabled() {
+        return isTwoFactorEnabled;
+    }
+
+    public void setIsTwoFactorEnabled(boolean isTwoFactorEnabled) {
+        this.isTwoFactorEnabled = isTwoFactorEnabled;
     }
 
     @Override

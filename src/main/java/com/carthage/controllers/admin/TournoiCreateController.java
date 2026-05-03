@@ -152,7 +152,53 @@ public class TournoiCreateController {
 
     @FXML
     public void handleCancel() {
-        closeStage();
+        if (confirmCloseIfDirty()) {
+            closeStage();
+        }
+    }
+
+    /**
+     * Returns true if the admin has typed/selected anything beyond the initial
+     * defaults. The form opens with all text fields empty, both date pickers
+     * empty, both combos for game/referee empty, and statusCombo + typeCombo
+     * preselected (UPCOMING / SINGLE_ELIMINATION) — so any deviation from those
+     * means the user has work that would be lost on close.
+     */
+    public boolean isDirty() {
+        if (!safe(nameField.getText()).isEmpty())     return true;
+        if (!safe(maxTeamsField.getText()).isEmpty()) return true;
+        if (!safe(prizeField.getText()).isEmpty())    return true;
+        if (!safe(placeField.getText()).isEmpty())    return true;
+        if (startDatePicker.getValue() != null)       return true;
+        if (endDatePicker.getValue() != null)         return true;
+        if (gameCombo.getValue() != null)             return true;
+        if (refereeCombo.getValue() != null)          return true;
+        if (statusCombo.getValue() != TournamentStatus.UPCOMING)             return true;
+        if (typeCombo.getValue()   != TournamentType.SINGLE_ELIMINATION)     return true;
+        return false;
+    }
+
+    private static String safe(String s) { return s == null ? "" : s; }
+
+    /**
+     * Clean form: returns true (proceed to close, no prompt).
+     * Dirty form: shows a confirmation; true = discard & close, false = stay open.
+     */
+    public boolean confirmCloseIfDirty() {
+        if (!isDirty()) return true;
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Modifications non enregistrées");
+        confirm.setHeaderText(null);
+        confirm.setContentText("Vous avez des modifications non enregistrées. Voulez-vous vraiment fermer sans enregistrer ?");
+        ButtonType discard = new ButtonType("Abandonner les modifications");
+        ButtonType keep    = new ButtonType("Continuer l'édition", ButtonType.CANCEL.getButtonData());
+        confirm.getButtonTypes().setAll(discard, keep);
+
+        Stage owner = (Stage) nameField.getScene().getWindow();
+        if (owner != null) confirm.initOwner(owner);
+
+        return confirm.showAndWait().filter(b -> b == discard).isPresent();
     }
 
     @FXML

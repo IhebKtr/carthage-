@@ -1,8 +1,10 @@
 package com.carthage.controllers.user;
 
 import com.carthage.entity.User;
+import com.carthage.services.DiscordOAuthService;
 import com.carthage.services.UserService;
 import com.carthage.utils.SessionContext;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -54,6 +56,22 @@ public class SignupController {
             licenceContainer.setVisible(arbitre);
             licenceContainer.setManaged(arbitre);
         });
+
+        // ── Enter-key navigation ──
+        // Each text field forwards focus; the last field on the form submits.
+        pseudoField.setOnAction(e -> emailField.requestFocus());
+        emailField.setOnAction(e -> passwordField.requestFocus());
+        passwordField.setOnAction(e -> confirmPasswordField.requestFocus());
+        confirmPasswordField.setOnAction(e -> {
+            // If Arbitre is selected, Enter on confirm jumps to the licence field;
+            // otherwise it submits.
+            if (arbitreToggle.isSelected()) {
+                licenceField.requestFocus();
+            } else {
+                onSignUpClicked();
+            }
+        });
+        licenceField.setOnAction(e -> onSignUpClicked());
     }
 
     @FXML
@@ -85,7 +103,40 @@ public class SignupController {
 
     @FXML
     public void onDiscordSignUpClicked() {
-        System.out.println("Discord Sign up clicked (OAuth not implemented)");
+        clearMessages();
+        showSuccess("Ouverture de Discord dans votre navigateur...");
+
+        Task<User> task = new Task<>() {
+            @Override
+            protected User call() throws Exception {
+                DiscordOAuthService discordOAuthService = new DiscordOAuthService();
+                DiscordOAuthService.DiscordIdentity identity = discordOAuthService.authenticate();
+                return userService.loginOrRegisterWithDiscord(identity);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            User user = task.getValue();
+            SessionContext.getInstance().setCurrentUser(user);
+            loadScene("/com/carthage/view/user/main-layout-view.fxml", "Carthage Arena – Dashboard");
+        });
+
+        task.setOnFailed(e -> {
+            Throwable ex = task.getException();
+            if (ex instanceof UserService.AuthException ||
+                    ex instanceof DiscordOAuthService.OAuthException ||
+                    ex instanceof IllegalStateException) {
+                showError(ex.getMessage());
+            } else if (ex != null) {
+                showError("Erreur Discord OAuth : " + ex.getMessage());
+            } else {
+                showError("Erreur Discord OAuth inattendue.");
+            }
+        });
+
+        Thread t = new Thread(task, "discord-oauth-signup");
+        t.setDaemon(true);
+        t.start();
     }
 
     @FXML
