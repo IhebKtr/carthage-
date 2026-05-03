@@ -41,6 +41,7 @@ public class UserReclamationDetailsController {
     private boolean isListening = false;
     private Reclamation reclamation;
     private ReclamationsController parentController;
+    private final com.carthage.services.TranslationService translationService = new com.carthage.services.TranslationService();
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -129,7 +130,18 @@ public class UserReclamationDetailsController {
             txt.setWrapText(true);
             txt.setStyle("-fx-text-fill: white; -fx-font-size: 13px;");
 
-            msgBox.getChildren().addAll(header, txt);
+            Button trFrBtn = new Button("🌐 FR");
+            trFrBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #3B82F6; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 0;");
+            trFrBtn.setOnAction(e -> translateText(txt, "fr", trFrBtn));
+
+            Button trEnBtn = new Button("🌐 EN");
+            trEnBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #3B82F6; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 0;");
+            trEnBtn.setOnAction(e -> translateText(txt, "en", trEnBtn));
+
+            HBox actionsBox = new HBox(10, trFrBtn, trEnBtn);
+            actionsBox.setAlignment(Pos.CENTER_LEFT);
+
+            msgBox.getChildren().addAll(header, txt, actionsBox);
             conversationBox.getChildren().add(msgBox);
         }
 
@@ -215,6 +227,31 @@ public class UserReclamationDetailsController {
             replyArea.positionCaret(replyArea.getText().length());
             replyArea.requestFocus();
         }
+    }
+
+    @FXML
+    private void translateOriginalToFr(javafx.event.ActionEvent event) {
+        translateText(messageText, "fr", (Button) event.getSource());
+    }
+
+    @FXML
+    private void translateOriginalToEn(javafx.event.ActionEvent event) {
+        translateText(messageText, "en", (Button) event.getSource());
+    }
+
+    private void translateText(Label label, String lang, Button btn) {
+        String originalText = label.getText();
+        String oldBtnText = btn.getText();
+        btn.setText("⏳...");
+        btn.setDisable(true);
+        new Thread(() -> {
+            String translated = translationService.translate(originalText, lang);
+            javafx.application.Platform.runLater(() -> {
+                label.setText(translated);
+                btn.setText("✅ " + lang.toUpperCase());
+                btn.setDisable(false);
+            });
+        }).start();
     }
 
     @FXML

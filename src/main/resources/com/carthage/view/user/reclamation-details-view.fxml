@@ -29,6 +29,8 @@
                         <HBox alignment="CENTER_LEFT" spacing="10">
                             <Label fx:id="originalAuthorLabel" text="Vous" style="-fx-font-weight: bold; -fx-text-fill: white;" />
                             <Label fx:id="originalDateLabel" text="2026-04-14 10:00" styleClass="stat-label-mini" />
+                            <Button text="🌐 FR" style="-fx-background-color: transparent; -fx-text-fill: #3B82F6; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 0;" onAction="#translateOriginalToFr" />
+                            <Button text="🌐 EN" style="-fx-background-color: transparent; -fx-text-fill: #3B82F6; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 0;" onAction="#translateOriginalToEn" />
                         </HBox>
                         <Label fx:id="messageText" text="Message content here..." wrapText="true" style="-fx-text-fill: white; -fx-font-size: 14px;" />
                     </VBox>

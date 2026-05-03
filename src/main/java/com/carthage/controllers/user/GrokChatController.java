@@ -42,7 +42,7 @@ public class GrokChatController {
     private Label lblStatus;
 
     // ── API config ───────────────────────────────────────────────────────────
-    private static final String API_KEY = "AIzaSyBIpIlmRk70j4FkFakz48eWVO9ejqPRTbk";
+    private static final String API_KEY = "AIzaSyABm_rpdObuf_Zspl5JO5DC_vVhUnXwmdQ";
     private static final String API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
 
     /**
@@ -88,7 +88,7 @@ public class GrokChatController {
         dotTimeline.setCycleCount(Timeline.INDEFINITE);
 
         // Welcome message
-        addBotMessage("Bonjour ! Je suis votre assistant IA Carthage Arena propulsé par Gemini. 🎮\n" +
+        addBotMessage("Bonjour ! Je suis votre assistant IA Carthage Arena  🎮\n" +
                 "Je peux vous aider avec les **tournois**, **jeux**, **équipes** et la **plateforme**.\n" +
                 "Comment puis-je vous aider ?");
     }
@@ -141,9 +141,10 @@ public class GrokChatController {
             for (int i = 0; i < conversationHistory.size(); i++) {
                 String[] msg = conversationHistory.get(i);
                 String role = msg[0].equals("user") ? "user" : "model";
-                
-                if (i > 0) contentsJson.append(",");
-                
+
+                if (i > 0)
+                    contentsJson.append(",");
+
                 contentsJson.append("{\"role\":\"").append(role)
                         .append("\",\"parts\":[{\"text\":").append(jsonString(msg[1]))
                         .append("}]}");
