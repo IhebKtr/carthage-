@@ -11,7 +11,7 @@
 
     <!-- ─── Sidebar ─────────────────────────────────────────────────── -->
     <left>
-        <VBox styleClass="sidebar" spacing="8" prefWidth="240">
+        <VBox styleClass="sidebar" spacing="8" prefWidth="200">
             <padding><Insets top="24" right="16" bottom="24" left="16"/></padding>
 
             <!-- Logo -->
@@ -23,33 +23,58 @@
 
             <Separator styleClass="sidebar-divider"/>
 
-            <!-- Navigation -->
-            <Button fx:id="btnMerch" text="🛍️  Produits Merch"
-                    styleClass="nav-btn, nav-btn-active"
+            <!-- Navigation Client -->
+            <Label text="BOUTIQUE" styleClass="sidebar-section-title"/>
+            <Button fx:id="btnShop" text="🛒  E-Boutique"
+                    styleClass="nav-btn"
+                    onAction="#showShop"
+                    maxWidth="Infinity"/>
+
+            <Region prefHeight="20"/>
+
+            <!-- Navigation Admin -->
+            <Label text="ADMINISTRATION" styleClass="sidebar-section-title"/>
+            <Button fx:id="btnMerch" text="🛍️  Produits"
+                    styleClass="nav-btn"
                     onAction="#showMerch"
                     maxWidth="Infinity"/>
             <Button fx:id="btnOrders" text="📦  Commandes"
                     styleClass="nav-btn"
                     onAction="#showOrders"
                     maxWidth="Infinity"/>
-            <Button fx:id="btnAi" text="🤖  IA Descriptions"
+            <Button fx:id="btnAi" text="🤖  IA Description"
                     styleClass="nav-btn"
                     onAction="#showAi"
                     maxWidth="Infinity"/>
-            <Button fx:id="btnPayment" text="💳  Paiement Stripe"
-                    styleClass="nav-btn"
-                    onAction="#showPayment"
-                    maxWidth="Infinity"/>
-            <Button fx:id="btnStats" text="📊  Statistiques"
+            <Button fx:id="btnStats" text="📊  Dashboard"
                     styleClass="nav-btn"
                     onAction="#showStats"
                     maxWidth="Infinity"/>
 
-            <Separator styleClass="sidebar-divider"/>
-
             <Region VBox.vgrow="ALWAYS"/>
+            
+            <Button fx:id="btnPayment" text="💳  Stripe Portal"
+                    styleClass="nav-btn-alt"
+                    onAction="#showPayment"
+                    maxWidth="Infinity"/>
 
-            <Label text="Carthage Arena v1.0" styleClass="version-label"/>
+            <Button fx:id="btnLogin" text="🔑  Se Connecter"
+                    styleClass="nav-btn"
+                    onAction="#showLogin"
+                    maxWidth="Infinity"/>
+
+            <Label fx:id="lblUser" text="Utilisateur" 
+                   styleClass="sidebar-section-title" 
+                   visible="false" managed="false"/>
+
+            <Button fx:id="btnLogout" text="🚪  Déconnexion"
+                    styleClass="nav-btn"
+                    onAction="#onLogout"
+                    maxWidth="Infinity"
+                    visible="false" managed="false"/>
+
+            <Separator styleClass="sidebar-divider"/>
+            <Label text="Carthage Arena v1.1" styleClass="version-label"/>
         </VBox>
     </left>
 

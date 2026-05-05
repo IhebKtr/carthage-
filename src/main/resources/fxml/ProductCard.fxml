@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" 
+      xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.carthagearena.controller.ProductCardController"
+      styleClass="product-card" spacing="12"
+      prefWidth="250" maxWidth="250">
+    
+    <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+
+    <!-- Image Container -->
+    <StackPane styleClass="product-image-container" prefHeight="180" minHeight="180">
+        <ImageView fx:id="ivProduct" fitHeight="160" fitWidth="160" preserveRatio="true">
+            <!-- Image par défaut si le lien est mort -->
+            <Image url="@../images/placeholder_merch.png" />
+        </ImageView>
+    </StackPane>
+
+    <!-- Info Container -->
+    <VBox spacing="4" VBox.vgrow="ALWAYS">
+        <Label fx:id="lblType" styleClass="product-category" text="CATEGORIE" />
+        <Label fx:id="lblName" styleClass="product-name" text="Nom du produit" wrapText="true" />
+        <Label fx:id="lblDescription" styleClass="product-desc-short" text="Petite description..." wrapText="true" maxHeight="40" />
+    </VBox>
+
+    <!-- Footer: Price & Add btn -->
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label fx:id="lblPrice" styleClass="product-price" text="0.00 DT" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+        <Button fx:id="btnEdit" text="✏️" styleClass="btn-secondary" onAction="#onEditProduct" visible="false" managed="false" />
+        <Button fx:id="btnAddCart" text="🛒" styleClass="btn-add-cart" onAction="#onAddToCart" />
+    </HBox>
+
+</VBox>

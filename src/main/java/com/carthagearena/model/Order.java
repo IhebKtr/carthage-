@@ -112,7 +112,8 @@ public class Order {
     }
 
     public boolean canBePaid() {
-        return status == Status.PENDING && !items.isEmpty();
+        // items peut être vide si non chargé depuis la BDD → on vérifie juste le statut
+        return status == Status.PENDING;
     }
 
     public boolean canBeCancelled() {

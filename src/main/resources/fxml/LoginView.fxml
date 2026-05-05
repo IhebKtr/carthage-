@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns="http://javafx.com/javafx/21" 
+           xmlns:fx="http://javafx.com/fxml/1" 
+           fx:controller="com.carthagearena.controller.LoginController"
+           style="-fx-background-color: #0d1117;">
+
+    <VBox alignment="CENTER" spacing="30" maxWidth="400" 
+          styleClass="stat-card" style="-fx-padding: 40;">
+        
+        <!-- Logo -->
+        <VBox alignment="CENTER" spacing="10">
+            <Label text="🏟️" style="-fx-font-size: 48px;"/>
+            <Label text="Connexion" styleClass="page-title"/>
+            <Label text="Accédez à votre espace Carthage Arena" styleClass="page-subtitle"/>
+        </VBox>
+
+        <VBox spacing="15">
+            <VBox spacing="5">
+                <Label text="Email" styleClass="field-label"/>
+                <TextField fx:id="tfUsername" promptText="votre@email.tn" styleClass="form-field"/>
+            </VBox>
+
+            <VBox spacing="5">
+                <Label text="Mot de passe" styleClass="field-label"/>
+                <PasswordField fx:id="pfPassword" promptText="••••••••" styleClass="form-field" onAction="#onLogin"/>
+            </VBox>
+        </VBox>
+
+        <Label fx:id="lblError" styleClass="error-label" visible="false" />
+
+        <Button text="SE CONNECTER" onAction="#onLogin" 
+                maxWidth="Infinity" prefHeight="45" styleClass="btn-primary" />
+        
+        <Button text="← Retour à la boutique" onAction="#onBackToShop" 
+                style="-fx-background-color: transparent; -fx-text-fill: #8b949e; -fx-cursor: hand;"/>
+
+    </VBox>
+
+</StackPane>

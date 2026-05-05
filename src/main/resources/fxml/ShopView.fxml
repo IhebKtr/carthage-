@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" 
+      xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.carthagearena.controller.ShopController"
+      styleClass="page-container" spacing="20">
+
+    <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
+
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="🏟️ Carthage Arena Boutique" styleClass="page-title"/>
+            <Label text="Découvrez nos produits dérivés officiels" styleClass="page-subtitle"/>
+        </VBox>
+        
+        <!-- Cart Button -->
+        <Button fx:id="btnViewCart" onAction="#onViewCart" styleClass="btn-cart-float">
+            <graphic>
+                <HBox spacing="8" alignment="CENTER">
+                    <Label text="🛒" style="-fx-font-size: 18px;"/>
+                    <VBox alignment="CENTER" spacing="0">
+                        <Label fx:id="lblCartCount" text="0" styleClass="cart-badge" />
+                        <Label fx:id="lblCartTotal" text="0.00 DT" styleClass="cart-total-mini" />
+                    </VBox>
+                </HBox>
+            </graphic>
+        </Button>
+    </HBox>
+
+    <!-- Filters & Search -->
+    <HBox spacing="15" alignment="CENTER_LEFT" styleClass="filter-bar">
+        <padding><Insets top="15" right="20" bottom="15" left="20"/></padding>
+        
+        <TextField fx:id="tfSearch" promptText="🔍 Rechercher un produit..." 
+                   HBox.hgrow="ALWAYS" styleClass="search-field-modern"/>
+        
+        <Separator orientation="VERTICAL" prefHeight="25" />
+        
+        <Label text="Catégorie :" styleClass="filter-label" />
+        <ComboBox fx:id="cbCategory" prefWidth="180" promptText="Toutes" styleClass="combo-modern" />
+    </HBox>
+
+    <!-- Products Grid -->
+    <ScrollPane fx:id="scrollPane" fitToWidth="true" styleClass="modern-scroll" VBox.vgrow="ALWAYS">
+        <content>
+            <FlowPane fx:id="gridProducts" hgap="25" vgap="25" prefWrapLength="1000">
+                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                <!-- DYNAMIC CARDS HERE -->
+            </FlowPane>
+        </content>
+    </ScrollPane>
+
+</VBox>

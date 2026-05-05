@@ -11,7 +11,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainView.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/LoginView.fxml"));
         Parent root = loader.load();
 
         Scene scene = new Scene(root);
@@ -19,8 +19,14 @@ public class MainApp extends Application {
 
         primaryStage.setTitle("🏟️ Carthage Arena");
         primaryStage.setScene(scene);
-        primaryStage.setMinWidth(1200);
-        primaryStage.setMinHeight(750);
+        
+        // Ajustement des dimensions pour éviter le "zoom" excessif sur petits écrans
+        primaryStage.setMinWidth(1000);
+        primaryStage.setMinHeight(650);
+        
+        // Optionnel : Démarrer en plein écran pour tout voir
+        primaryStage.setMaximized(true);
+        
         primaryStage.show();
     }
 

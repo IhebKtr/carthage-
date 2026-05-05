@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21" 
+      xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.carthagearena.controller.CartController"
+      styleClass="page-container" spacing="20">
+
+    <padding><Insets top="24" right="32" bottom="24" left="32"/></padding>
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Button text="← Boutique" onAction="#onBackToShop" styleClass="btn-secondary" />
+        <Label text="🛒 Votre Panier" styleClass="page-title" />
+    </HBox>
+
+    <HBox spacing="30" VBox.vgrow="ALWAYS">
+        
+        <!-- List of items -->
+        <VBox HBox.hgrow="ALWAYS" spacing="15" styleClass="cart-items-container">
+            <ListView fx:id="lvCartItems" VBox.vgrow="ALWAYS" styleClass="main-table" />
+            
+            <HBox alignment="CENTER_RIGHT" spacing="10">
+                <Button text="🗑️ Vider le panier" onAction="#onClearCart" styleClass="btn-danger" />
+            </HBox>
+        </VBox>
+
+        <!-- Summary Panel -->
+        <VBox prefWidth="350" spacing="20" styleClass="stat-card" alignment="TOP_CENTER">
+            <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+            
+            <Label text="RÉSUMÉ DE LA COMMANDE" styleClass="section-title" />
+            <Separator />
+            
+            <HBox>
+                <Label text="Sous-total" textFill="#8b949e" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                <Label fx:id="lblSubtotal" text="0.00 DT" styleClass="stat-value" />
+            </HBox>
+            
+            <HBox>
+                <Label text="Livraison" textFill="#8b949e" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                <Label text="GRATUIT" style="-fx-text-fill: #3fb950; -fx-font-weight: bold;" />
+            </HBox>
+            
+            <Separator />
+            
+            <HBox alignment="CENTER_LEFT">
+                <Label text="TOTAL" styleClass="page-title" style="-fx-font-size: 18px;" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
+                <Label fx:id="lblTotal" text="0.00 DT" style="-fx-text-fill: #e6a817; -fx-font-size: 22px; -fx-font-weight: bold;" />
+            </HBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+            
+            <Button fx:id="btnCheckout" text="COMMANDER ET PAYER" 
+                    maxWidth="Infinity" prefHeight="50"
+                    styleClass="btn-primary" onAction="#onCheckout" />
+            
+            <Label text="Paiement sécurisé par Stripe 💳" styleClass="logo-subtitle" />
+        </VBox>
+
+    </HBox>
+
+</VBox>

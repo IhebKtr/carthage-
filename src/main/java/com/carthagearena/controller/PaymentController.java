@@ -2,6 +2,8 @@ package com.carthagearena.controller;
 
 import com.carthagearena.model.Merch;
 import com.carthagearena.model.Order;
+import com.carthagearena.model.User;
+import com.carthagearena.service.AuthService;
 import com.carthagearena.service.MerchService;
 import com.carthagearena.service.OrderService;
 import com.carthagearena.service.PaymentService;
@@ -43,6 +45,7 @@ public class PaymentController implements Initializable {
     @FXML private Label lblTotalAmount;
     @FXML private Label lblFraudScore;
     @FXML private VBox  panelSummary;
+    @FXML private VBox  panelHistory;
 
     // ─── Actions ─────────────────────────────────────────────────────────────
     @FXML private Button         btnCheckout;
@@ -58,6 +61,7 @@ public class PaymentController implements Initializable {
 
     private final MerchService   merchService  = new MerchService();
     private final OrderService   orderService  = new OrderService();
+    private final com.carthagearena.service.AiService aiService = new com.carthagearena.service.AiService();
     private PaymentService       paymentService;
 
     @Override
@@ -73,6 +77,60 @@ public class PaymentController implements Initializable {
         setupOrdersTable();
         spinner.setVisible(false);
         panelSummary.setVisible(false);
+
+        // Gestion de l'historique : masqué pour les clients
+        boolean isAdmin = AuthService.getInstance().isAdmin();
+        panelHistory.setVisible(isAdmin);
+        panelHistory.setManaged(isAdmin);
+
+        // Récupération automatique des données client
+        if (AuthService.getInstance().isLoggedIn()) {
+            User user = AuthService.getInstance().getCurrentUser();
+            tfUserId.setText(String.valueOf(user.getId()));
+            tfUserEmail.setText(user.getEmail());
+            
+            // Empêcher la modification si connecté
+            tfUserId.setEditable(false);
+            tfUserEmail.setEditable(false);
+            tfUserId.setStyle("-fx-opacity: 0.8; -fx-background-color: #1c2128;");
+            tfUserEmail.setStyle("-fx-opacity: 0.8; -fx-background-color: #1c2128;");
+            
+            // Charger l'historique seulement si visible (Admin)
+            if (isAdmin) {
+                loadUserOrders(user.getId());
+            }
+        }
+
+        // Intégration Panier E-commerce
+        if (com.carthagearena.service.CartService.getInstance().getItemCount() > 0) {
+            setupCheckoutFromCart();
+        }
+    }
+
+    private void setupCheckoutFromCart() {
+        com.carthagearena.service.CartService cart = com.carthagearena.service.CartService.getInstance();
+        panelSummary.setVisible(true);
+        lblProductName.setText(cart.getItems().size() + " types d'articles");
+        lblProductPrice.setText("Total du panier");
+        lblTotalAmount.setText(cart.getTotalFormatted());
+
+        // Calcul du score de fraude basé sur la quantité totale et le montant total
+        int totalQty    = cart.getItems().stream().mapToInt(com.carthagearena.model.CartItem::getQuantity).sum();
+        int totalAmount = cart.getTotalCents(); // en centimes
+        double score = aiService.fraudScore(totalQty, totalAmount);
+        lblFraudScore.setText(aiService.fraudScoreLabel(score));
+        if (score >= 0.8) {
+            lblFraudScore.setStyle("-fx-text-fill: #f85149; -fx-font-weight: bold;");
+        } else if (score >= 0.5) {
+            lblFraudScore.setStyle("-fx-text-fill: #d29922; -fx-font-weight: bold;");
+        } else {
+            lblFraudScore.setStyle("-fx-text-fill: #3fb950; -fx-font-weight: bold;");
+        }
+
+        // On désactive la sélection manuelle si on vient du panier
+        cbMerch.setDisable(true);
+        tfQuantity.setDisable(true);
+        lblStatus.setText("🛒 Prêt pour le paiement des articles du panier.");
     }
 
     // ─── Chargement des produits ──────────────────────────────────────────────
@@ -113,9 +171,8 @@ public class PaymentController implements Initializable {
             lblTotalAmount.setText(String.format("%.2f DT", total / 100.0));
 
             // Score fraude (AiService)
-            com.carthagearena.service.AiService ai = new com.carthagearena.service.AiService();
-            double score = ai.fraudScore(qty, total);
-            lblFraudScore.setText(ai.fraudScoreLabel(score));
+            double score = aiService.fraudScore(qty, total);
+            lblFraudScore.setText(aiService.fraudScoreLabel(score));
             if (score >= 0.8) {
                 lblFraudScore.setStyle("-fx-text-fill: #f85149; -fx-font-weight: bold;");
             } else if (score >= 0.5) {
@@ -137,7 +194,9 @@ public class PaymentController implements Initializable {
     private void onCheckout() {
         if (!validateForm()) return;
 
-        Merch merch = cbMerch.getValue();
+        com.carthagearena.service.CartService cart = com.carthagearena.service.CartService.getInstance();
+        boolean fromCart = !cart.getItems().isEmpty();
+
         int userId; String email;
         try {
             userId = Integer.parseInt(tfUserId.getText().trim());
@@ -152,20 +211,32 @@ public class PaymentController implements Initializable {
 
         Thread thread = new Thread(() -> {
             try {
-                // Créer la session Stripe (équiv. PHP : createCheckoutSession(...))
-                String checkoutUrl = paymentService.createCheckoutSession(merch, userId, email);
-
-                // Créer la commande en BDD avec statut PENDING
+                String checkoutUrl;
                 Order order = new Order(userId, email);
-                int qty = Integer.parseInt(tfQuantity.getText().trim());
-                order.addItem(merch, qty);
+
+                if (fromCart) {
+                    // Commande multi-articles depuis le panier
+                    for (com.carthagearena.model.CartItem item : cart.getItems()) {
+                        order.addItem(item.getProduct(), item.getQuantity());
+                    }
+                    // Note: PaymentService may need update for multi-item sessions, 
+                    // using first item as primary reference for now or a generic "Panier"
+                    checkoutUrl = paymentService.createCheckoutSession(cart.getItems().get(0).getProduct(), userId, email);
+                } else {
+                    // Commande produit unique
+                    Merch merch = cbMerch.getValue();
+                    int qty = Integer.parseInt(tfQuantity.getText().trim());
+                    order.addItem(merch, qty);
+                    checkoutUrl = paymentService.createCheckoutSession(merch, userId, email);
+                }
+
                 orderService.createOrder(order);
 
-                // Ouvrir le navigateur
                 Platform.runLater(() -> {
                     lblStatus.setText("✅ Session Stripe créée ! Ouverture du navigateur...");
                     setLoading(false);
                     openBrowser(checkoutUrl);
+                    if (fromCart) cart.clear();
                     loadUserOrders(userId);
                 });
 
@@ -187,19 +258,29 @@ public class PaymentController implements Initializable {
     private void onSimulatePayment() {
         if (!validateForm()) return;
 
-        Merch merch = cbMerch.getValue();
+        com.carthagearena.service.CartService cart = com.carthagearena.service.CartService.getInstance();
+        boolean fromCart = !cart.getItems().isEmpty();
+        
         int userId = Integer.parseInt(tfUserId.getText().trim());
         String email = tfUserEmail.getText().trim();
-        int qty = Integer.parseInt(tfQuantity.getText().trim());
 
         try {
-            // Créer la commande PENDING
             Order order = new Order(userId, email);
-            order.addItem(merch, qty);
-            orderService.createOrder(order);
+            
+            if (fromCart) {
+                for (com.carthagearena.model.CartItem item : cart.getItems()) {
+                    order.addItem(item.getProduct(), item.getQuantity());
+                }
+            } else {
+                Merch merch = cbMerch.getValue();
+                int qty = Integer.parseInt(tfQuantity.getText().trim());
+                order.addItem(merch, qty);
+            }
 
-            // Simuler le paiement → PAID immédiatement
+            orderService.createOrder(order);
             paymentService.simulatePayment(order.getId().toString());
+
+            if (fromCart) cart.clear();
 
             lblStatus.setText("✅ [Mode test] Commande " +
                     order.getId().toString().substring(0, 8) + " payée !");
@@ -267,16 +348,16 @@ public class PaymentController implements Initializable {
     // ─── Utilitaires ─────────────────────────────────────────────────────────
 
     private boolean validateForm() {
-        Merch merch = cbMerch.getValue();
-        if (merch == null) { showError("Produit requis", "Sélectionnez un produit."); return false; }
+        boolean fromCart = !com.carthagearena.service.CartService.getInstance().getItems().isEmpty();
+        
+        if (!fromCart && cbMerch.getValue() == null) { 
+            showError("Produit requis", "Sélectionnez un produit."); return false; 
+        }
         if (tfUserId.getText().isBlank() || tfUserEmail.getText().isBlank()) {
             showError("Champs requis", "Remplissez l'ID et l'email utilisateur."); return false;
         }
-        if (tfQuantity.getText().isBlank()) {
+        if (!fromCart && tfQuantity.getText().isBlank()) {
             showError("Quantité requise", "Entrez une quantité."); return false;
-        }
-        try { Integer.parseInt(tfQuantity.getText()); } catch (NumberFormatException e) {
-            showError("Quantité invalide", "La quantité doit être un entier."); return false;
         }
         return true;
     }
