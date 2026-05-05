@@ -154,7 +154,7 @@ public class TournoisController {
             
             for (TournoiData t : tournois) {
                 tournoisGrid.getChildren().add(buildCard(
-                    t.id, t.nom, t.dateDebut, t.maxTeams, t.currentTeams, t.prizePool, t.type, t.status
+                    t.id, t.nom, t.dateDebut, t.maxTeams, t.currentTeams, t.prizePool, t.type, t.status, null
                 ));
             }
             

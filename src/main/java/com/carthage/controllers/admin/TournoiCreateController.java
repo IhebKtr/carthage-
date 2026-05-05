@@ -168,7 +168,7 @@ public class TournoiCreateController {
         if (!safe(nameField.getText()).isEmpty())     return true;
         if (!safe(maxTeamsField.getText()).isEmpty()) return true;
         if (!safe(prizeField.getText()).isEmpty())    return true;
-        if (!safe(placeField.getText()).isEmpty())    return true;
+        if (placeCombo.getValue() != null && !placeCombo.getValue().equals("Tunis")) return true;
         if (startDatePicker.getValue() != null)       return true;
         if (endDatePicker.getValue() != null)         return true;
         if (gameCombo.getValue() != null)             return true;
