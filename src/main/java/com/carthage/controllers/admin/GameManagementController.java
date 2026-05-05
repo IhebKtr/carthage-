@@ -6,10 +6,12 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.control.ComboBox;
 
 import java.util.List;
 
@@ -21,12 +23,95 @@ public class GameManagementController {
     @FXML
     private TextField searchField;
 
+    @FXML
+    private ComboBox<String> typeFilter;
+
+    @FXML
+    private ComboBox<String> statusFilter;
+
     private final GameService gameService = new GameService();
     private List<Game> allGames;
 
     @FXML
     public void initialize() {
         loadGames();
+        setupSearchAndFilters();
+    }
+
+    private void setupSearchAndFilters() {
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> filterGames());
+
+        typeFilter.getItems().add("Toutes les catégories");
+        for (com.carthage.entity.enums.GameType type : com.carthage.entity.enums.GameType.values()) {
+            typeFilter.getItems().add(type.name());
+        }
+        typeFilter.setValue("Toutes les catégories");
+        typeFilter.valueProperty().addListener((obs, oldVal, newVal) -> filterGames());
+
+        statusFilter.getItems().add("Tous les statuts");
+        for (com.carthage.entity.enums.GameStatus status : com.carthage.entity.enums.GameStatus.values()) {
+            statusFilter.getItems().add(status.name());
+        }
+        statusFilter.setValue("Tous les statuts");
+        statusFilter.valueProperty().addListener((obs, oldVal, newVal) -> filterGames());
+    }
+
+    private void filterGames() {
+        if (allGames == null) return;
+        String searchText = searchField.getText() == null ? "" : searchField.getText().toLowerCase();
+        String selectedType = typeFilter.getValue();
+        String selectedStatus = statusFilter.getValue();
+
+        List<Game> filtered = allGames.stream()
+                .filter(game -> game.getName() != null && game.getName().toLowerCase().contains(searchText))
+                .filter(game -> "Toutes les catégories".equals(selectedType) || (game.getType() != null && game.getType().name().equals(selectedType)))
+                .filter(game -> "Tous les statuts".equals(selectedStatus) || (game.getStatus() != null && game.getStatus().name().equals(selectedStatus)))
+                .toList();
+        renderGames(filtered);
+    }
+
+    @FXML
+    public void handleAdd() {
+        openGameDialog(null);
+    }
+
+    private void handleEdit(Game game) {
+        openGameDialog(game);
+    }
+
+    private void openGameDialog(Game game) {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/com/carthage/view/admin/game-dialog.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            GameDialogController controller = loader.getController();
+            controller.setOnSuccessCallback(this::loadGames);
+            if (game != null) {
+                controller.setGameForEdit(game);
+            }
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.initStyle(javafx.stage.StageStyle.UNDECORATED);
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.showAndWait();
+        } catch (java.io.IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleDelete(Game game) {
+        javafx.scene.control.Alert confirm = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION, "Voulez-vous vraiment supprimer le jeu " + game.getName() + " ?");
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == javafx.scene.control.ButtonType.OK) {
+                try {
+                    gameService.delete(game.getId());
+                    loadGames();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void loadGames() {
@@ -55,19 +140,20 @@ public class GameManagementController {
         ImageView banner = new ImageView();
         try {
             if (game.getImageUrl() != null && !game.getImageUrl().isEmpty()) {
-                banner.setImage(new Image(game.getImageUrl()));
+                // The 'true' at the end enables background loading
+                Image img = new Image(game.getImageUrl(), true);
+                banner.setImage(img);
             }
         } catch (Exception e) {
             // fallback
         }
         banner.setFitWidth(300);
         banner.setFitHeight(150);
-        // We'll mask it using CSS later if needed
 
         // Status badge
         Label statusBadge = new Label(game.getStatus().toString());
         statusBadge.getStyleClass().add("status-badge");
-        if (game.getStatus().toString().equalsIgnoreCase("ACTIF")) {
+        if (game.getStatus().toString().equalsIgnoreCase("ACTIVE")) {
             statusBadge.getStyleClass().add("status-actif");
         } else {
             statusBadge.getStyleClass().add("status-inactif");
@@ -92,8 +178,11 @@ public class GameManagementController {
         typeLabel.getStyleClass().add("game-card-type");
         titleBox.getChildren().addAll(title, spacer, typeLabel);
 
-        Label subLabel = new Label("Publisher - " + game.getName());
+        Label subLabel = new Label(game.getDescription() != null && !game.getDescription().isEmpty() ? game.getDescription() : "Aucune description disponible");
         subLabel.getStyleClass().add("game-card-subtitle");
+        subLabel.setWrapText(true);
+        subLabel.setMaxHeight(40);
+        subLabel.setTextOverrun(javafx.scene.control.OverrunStyle.ELLIPSIS);
 
         // Stats Box
         HBox statsBox = new HBox(10);
@@ -127,8 +216,11 @@ public class GameManagementController {
         HBox actionsBox = new HBox(10);
         Button btnEdit = new Button("Modifier");
         btnEdit.getStyleClass().addAll("btn-outline");
+        btnEdit.setOnAction(e -> handleEdit(game));
+
         Button btnDelete = new Button("Supprimer");
         btnDelete.getStyleClass().addAll("btn-outline", "btn-delete");
+        btnDelete.setOnAction(e -> handleDelete(game));
 
         HBox.setHgrow(btnEdit, Priority.ALWAYS);
         HBox.setHgrow(btnDelete, Priority.ALWAYS);

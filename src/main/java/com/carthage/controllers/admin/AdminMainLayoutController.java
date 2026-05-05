@@ -78,6 +78,11 @@ public class AdminMainLayoutController {
     }
 
     @FXML
+    private void showBoutique() {
+        loadView("/com/carthage/view/admin/skins-view.fxml");
+    }
+
+    @FXML
     public void onLogoutClicked() {
         com.carthage.utils.SessionContext.getInstance().cleanSession();
         try {

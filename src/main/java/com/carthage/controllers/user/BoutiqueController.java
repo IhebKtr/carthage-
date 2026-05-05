@@ -10,41 +10,85 @@ import javafx.scene.layout.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import java.sql.*;
+import com.carthage.entity.User;
+import com.carthage.utils.SessionContext;
+import com.carthage.services.api.StripeService;
+import java.util.Arrays;
+import java.util.List;
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpExchange;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import javafx.application.Platform;
 
 public class BoutiqueController {
 
     @FXML private FlowPane skinsGrid;
     @FXML private TextField searchField;
-    @FXML private ToggleButton btnAll, btnVal, btnLol, btnCs;
+    @FXML private ComboBox<String> sortCombo;
+    @FXML private ComboBox<String> gameCombo;
 
     private Connection connection;
-    private String activeGame = null; // null = all
+    private final com.carthage.services.GameService gameService = new com.carthage.services.GameService();
+    private final StripeService stripeService = new StripeService();
+    
+    @FXML private Label balanceLabel;
 
     @FXML
     public void initialize() {
         connection = DatabaseConnection.getInstance().getConnection();
+        
+        if (gameCombo != null) {
+            gameCombo.getItems().add("Tous les Jeux");
+            for (com.carthage.entity.Game game : gameService.getAllGames()) {
+                gameCombo.getItems().add(game.getName());
+            }
+            gameCombo.setValue("Tous les Jeux");
+            gameCombo.valueProperty().addListener((obs, old, val) -> loadSkins());
+        }
+        
+        if (sortCombo != null) {
+            sortCombo.getItems().addAll("Prix: Décroissant", "Prix: Croissant", "Nom: A-Z", "Nom: Z-A");
+            sortCombo.setValue("Prix: Décroissant");
+            sortCombo.valueProperty().addListener((obs, old, val) -> loadSkins());
+        }
+        
         loadSkins();
-        searchField.textProperty().addListener((obs, old, val) -> loadSkins());
+        if (searchField != null) {
+            searchField.textProperty().addListener((obs, old, val) -> loadSkins());
+        }
+        
+        updateBalance();
     }
 
-    @FXML public void onFilterAll()     { activeGame = null;       updateToggle(btnAll); loadSkins(); }
-    @FXML public void onFilterValorant(){ activeGame = "Valorant"; updateToggle(btnVal); loadSkins(); }
-    @FXML public void onFilterLoL()    { activeGame = "League";   updateToggle(btnLol); loadSkins(); }
-    @FXML public void onFilterCS2()    { activeGame = "Counter";  updateToggle(btnCs);  loadSkins(); }
-
-    private void updateToggle(ToggleButton active) {
-        for (ToggleButton b : new ToggleButton[]{btnAll, btnVal, btnLol, btnCs}) {
-            b.getStyleClass().removeAll("filter-toggle-active");
-            if (!b.getStyleClass().contains("filter-toggle")) b.getStyleClass().add("filter-toggle");
+    private void updateBalance() {
+        User user = SessionContext.getInstance().getCurrentUser();
+        if (user != null && balanceLabel != null) {
+            // refresh from db to be accurate
+            try (PreparedStatement ps = connection.prepareStatement("SELECT balance FROM user WHERE id = UNHEX(REPLACE(?, '-', ''))")) {
+                ps.setString(1, user.getId().toString());
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    int bal = rs.getInt("balance");
+                    user.setBalance(bal);
+                    balanceLabel.setText(String.valueOf(bal));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else if (balanceLabel != null) {
+            balanceLabel.setText("Non Connecté");
         }
-        active.getStyleClass().removeAll("filter-toggle");
-        if (!active.getStyleClass().contains("filter-toggle-active")) active.getStyleClass().add("filter-toggle-active");
     }
 
     private void loadSkins() {
         skinsGrid.getChildren().clear();
-        String search = searchField.getText();
+        String search = searchField != null ? searchField.getText() : null;
         boolean hasSearch = search != null && !search.isBlank();
+        
+        String selectedGame = gameCombo != null ? gameCombo.getValue() : null;
+        boolean hasGameFilter = selectedGame != null && !"Tous les Jeux".equals(selectedGame);
 
         // Doctrine snake_case columns: skin.name, skin.price, skin.rarity, skin.image_url
         // game.name joined via skin.game_id
@@ -52,14 +96,24 @@ public class BoutiqueController {
             "SELECT s.id, s.name, s.price, s.rarity, s.image_url, g.name AS game_name " +
             "FROM skin s LEFT JOIN game g ON s.game_id = g.id WHERE 1=1"
         );
-        if (activeGame != null) sql.append(" AND g.name LIKE ?");
-        if (hasSearch)          sql.append(" AND s.name LIKE ?");
-        sql.append(" ORDER BY s.price DESC LIMIT 24");
+        if (hasGameFilter) sql.append(" AND g.name LIKE ?");
+        if (hasSearch)     sql.append(" AND s.name LIKE ?");
+        
+        if (sortCombo != null && sortCombo.getValue() != null) {
+            String sortOption = sortCombo.getValue();
+            if ("Prix: Croissant".equals(sortOption)) sql.append(" ORDER BY s.price ASC");
+            else if ("Nom: A-Z".equals(sortOption)) sql.append(" ORDER BY s.name ASC");
+            else if ("Nom: Z-A".equals(sortOption)) sql.append(" ORDER BY s.name DESC");
+            else sql.append(" ORDER BY s.price DESC");
+        } else {
+            sql.append(" ORDER BY s.price DESC");
+        }
+        sql.append(" LIMIT 24");
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int i = 1;
-            if (activeGame != null) ps.setString(i++, "%" + activeGame + "%");
-            if (hasSearch)          ps.setString(i, "%" + search + "%");
+            if (hasGameFilter) ps.setString(i++, "%" + selectedGame + "%");
+            if (hasSearch)     ps.setString(i++, "%" + search + "%");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 java.util.UUID skinId = com.carthage.utils.UUIDUtils.fromBytes(rs.getBytes("id"));
@@ -156,13 +210,147 @@ public class BoutiqueController {
         priceRow.getChildren().addAll(priceLabel, insuffLabel);
 
         // Buy button
-        Button buyBtn = new Button("Points Insuffisants");
+        Button buyBtn = new Button();
         buyBtn.setMaxWidth(Double.MAX_VALUE);
-        buyBtn.setStyle("-fx-background-color: #0B0E14; -fx-text-fill: #6b7280;" +
-            " -fx-background-radius: 8px; -fx-padding: 7 0; -fx-cursor: not-allowed;");
+        com.carthage.entity.User user = com.carthage.utils.SessionContext.getInstance().getCurrentUser();
+        
+        if (user == null) {
+            buyBtn.setText("Non Connecté");
+            buyBtn.setStyle("-fx-background-color: #0B0E14; -fx-text-fill: #6b7280; -fx-background-radius: 8px; -fx-padding: 7 0; -fx-cursor: not-allowed;");
+            insuffLabel.setVisible(false);
+            insuffLabel.setManaged(false);
+        } else if (user.getBalance() >= price) {
+            buyBtn.setText("Acheter");
+            buyBtn.setStyle("-fx-background-color: -carthage-accent; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8px; -fx-padding: 7 0; -fx-cursor: hand;");
+            buyBtn.setOnAction(evt -> handlePurchase(id, name, price, user));
+            insuffLabel.setVisible(false);
+            insuffLabel.setManaged(false);
+        } else {
+            buyBtn.setText("Points Insuffisants");
+            buyBtn.setStyle("-fx-background-color: #0B0E14; -fx-text-fill: #6b7280; -fx-background-radius: 8px; -fx-padding: 7 0; -fx-cursor: not-allowed;");
+            insuffLabel.setVisible(true);
+            insuffLabel.setManaged(true);
+        }
 
         body.getChildren().addAll(nameLabel, rarityBadge, priceRow, buyBtn);
         card.getChildren().addAll(imgPane, body);
         return card;
+    }
+
+    private void handlePurchase(java.util.UUID skinId, String skinName, int price, com.carthage.entity.User user) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Voulez-vous acheter " + skinName + " pour " + price + " PC ?");
+        confirm.showAndWait().ifPresent(res -> {
+            if (res == ButtonType.OK) {
+                user.setBalance(user.getBalance() - price);
+                Alert success = new Alert(Alert.AlertType.INFORMATION, "Achat réussi !");
+                success.showAndWait();
+                loadSkins();
+                updateBalance();
+            }
+        });
+    }
+
+    @FXML
+    public void onBuyCps() {
+        User user = SessionContext.getInstance().getCurrentUser();
+        if (user == null) {
+            Alert a = new Alert(Alert.AlertType.WARNING, "Vous devez être connecté pour acheter des CP.");
+            a.show();
+            return;
+        }
+
+        List<String> packages = Arrays.asList("500 CP (5€)", "1000 CP (10€)", "2500 CP (25€)", "5000 CP (50€)");
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("1000 CP (10€)", packages);
+        dialog.setTitle("Acheter des Carthage Points");
+        dialog.setHeaderText("Choisissez un pack de CP à acheter via Stripe");
+        dialog.setContentText("Pack :");
+
+        dialog.showAndWait().ifPresent(choice -> {
+            int amount = 0;
+            if (choice.startsWith("5000 CP")) amount = 5000;
+            else if (choice.startsWith("2500 CP")) amount = 2500;
+            else if (choice.startsWith("1000 CP")) amount = 1000;
+            else if (choice.startsWith("500 CP")) amount = 500;
+
+            com.carthage.entity.Skin cpItem = new com.carthage.entity.Skin();
+            cpItem.setName(amount + " Carthage Points (CP)");
+            cpItem.setDescription("Achat de points virtuels pour votre compte.");
+            cpItem.setPrice(amount / 100); 
+
+            try {
+                // Create local HTTP server to handle the Stripe redirect
+                HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+                int port = server.getAddress().getPort();
+                String successUrl = "http://localhost:" + port + "/success";
+                String cancelUrl = "http://localhost:" + port + "/cancel";
+
+                final int finalAmount = amount;
+                server.createContext("/success", new HttpHandler() {
+                    @Override
+                    public void handle(HttpExchange exchange) throws java.io.IOException {
+                        String response = "<html><body style='text-align:center; font-family:sans-serif; margin-top:50px;'><h1 style='color:green;'>Paiement Reussi!</h1><p>Les points ont ete ajoutes. Vous pouvez retourner a l'application.</p><p id='msg'>Fermeture automatique dans <span id='timer'>5</span> secondes...</p><script>var count=5; var intv = setInterval(function(){count--; if(count<=0){clearInterval(intv); document.getElementById('msg').innerHTML='<b>Vous pouvez fermer cet onglet en toute sécurité.</b>';} else {document.getElementById('timer').innerText=count;}}, 1000); setTimeout(function(){window.close();}, 5000);</script></body></html>";
+                        exchange.sendResponseHeaders(200, response.length());
+                        OutputStream os = exchange.getResponseBody();
+                        os.write(response.getBytes());
+                        os.close();
+                        
+                        Platform.runLater(() -> {
+                            user.setBalance(user.getBalance() + finalAmount);
+                            try (PreparedStatement ps = connection.prepareStatement("UPDATE user SET balance = ? WHERE id = UNHEX(REPLACE(?, '-', ''))")) {
+                                ps.setInt(1, user.getBalance());
+                                ps.setString(2, user.getId().toString());
+                                ps.executeUpdate();
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                            updateBalance();
+                            Alert a = new Alert(Alert.AlertType.INFORMATION, "Achat réussi ! " + finalAmount + " CP ont été ajoutés à votre compte.");
+                            a.show();
+                        });
+                        new Thread(() -> server.stop(0)).start();
+                    }
+                });
+
+                server.createContext("/cancel", new HttpHandler() {
+                    @Override
+                    public void handle(HttpExchange exchange) throws java.io.IOException {
+                        String response = "<html><body style='text-align:center; font-family:sans-serif; margin-top:50px;'><h1 style='color:red;'>Paiement Annule</h1><p>Vous pouvez retourner a l'application.</p><p id='msg'>Fermeture automatique dans <span id='timer'>5</span> secondes...</p><script>var count=5; var intv = setInterval(function(){count--; if(count<=0){clearInterval(intv); document.getElementById('msg').innerHTML='<b>Vous pouvez fermer cet onglet en toute sécurité.</b>';} else {document.getElementById('timer').innerText=count;}}, 1000); setTimeout(function(){window.close();}, 5000);</script></body></html>";
+                        exchange.sendResponseHeaders(200, response.length());
+                        OutputStream os = exchange.getResponseBody();
+                        os.write(response.getBytes());
+                        os.close();
+                        
+                        Platform.runLater(() -> {
+                            Alert a = new Alert(Alert.AlertType.WARNING, "L'achat a été annulé.");
+                            a.show();
+                        });
+                        new Thread(() -> server.stop(0)).start();
+                    }
+                });
+
+                server.setExecutor(null);
+                server.start();
+
+                String checkoutUrl = stripeService.createCheckoutSession(cpItem, successUrl, cancelUrl);
+                if (checkoutUrl != null) {
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported() && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
+                            java.awt.Desktop.getDesktop().browse(new java.net.URI(checkoutUrl));
+                        } else {
+                            Alert a = new Alert(Alert.AlertType.INFORMATION, "Veuillez ouvrir ce lien:\n" + checkoutUrl);
+                            a.show();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    server.stop(0);
+                    Alert a = new Alert(Alert.AlertType.ERROR, "Impossible d'initialiser Stripe. Vérifiez la clé API.");
+                    a.show();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 }
