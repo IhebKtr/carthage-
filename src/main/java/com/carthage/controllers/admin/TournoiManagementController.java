@@ -260,6 +260,19 @@ public class TournoiManagementController {
         }
     }
 
+    /** Navigate to the Anomaly Detection view. */
+    @FXML
+    public void handleShowAnomalies() {
+        try {
+            AdminMainLayoutController main = (AdminMainLayoutController) searchField.getScene().lookup("#contentArea").getUserData();
+            if (main != null) {
+                main.loadView("/com/carthage/view/admin/tournoi-anomaly-view.fxml");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void handleEdit(Tournoi t) {
         if (t == null) return;
         try {

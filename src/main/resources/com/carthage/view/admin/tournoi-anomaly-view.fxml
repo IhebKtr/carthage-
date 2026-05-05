@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox stylesheets="@../../css/main.css"
+      spacing="20"
+      style="-fx-background-color: -carthage-base; -fx-padding: 30;"
+      xmlns="http://javafx.com/javafx/16"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carthage.controllers.admin.TournoiAnomalyController">
+
+    <!-- ══ Header ══════════════════════════════════════════════════════════ -->
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="📊 Anomaly Detection" styleClass="header-title" />
+            <Label text="Detect suspicious patterns across tournaments and matches" styleClass="sub-header" />
+        </VBox>
+        <Button fx:id="refreshBtn" text="🔄 Re-analyse" styleClass="button-solid-red"
+                onAction="#handleRefresh" />
+    </HBox>
+
+    <!-- ══ Status Bar ═══════════════════════════════════════════════════════ -->
+    <Label fx:id="statusLabel" text="Starting analysis…"
+           style="-fx-text-fill: #9CA3AF; -fx-font-size: 12px;" />
+
+    <!-- ══ Stat Cards Row ═══════════════════════════════════════════════════ -->
+    <HBox spacing="12">
+
+        <!-- Total -->
+        <VBox styleClass="glass-panel" spacing="4" prefWidth="140"
+              style="-fx-padding: 16; -fx-background-radius: 12; -fx-alignment: center;">
+            <Label text="🔍 TOTAL" style="-fx-text-fill: #9CA3AF; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <Label fx:id="statTotal" text="—"
+                   style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;" />
+            <Label text="anomalies" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;" />
+        </VBox>
+
+        <!-- HIGH -->
+        <VBox styleClass="glass-panel" spacing="4" prefWidth="130"
+              style="-fx-padding: 16; -fx-background-radius: 12; -fx-alignment: center;
+                     -fx-border-color: rgba(239,68,68,0.4); -fx-border-width: 1; -fx-border-radius: 12;">
+            <Label text="🔴 HIGH" style="-fx-text-fill: #EF4444; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <Label fx:id="statHigh" text="—"
+                   style="-fx-text-fill: #EF4444; -fx-font-size: 28px; -fx-font-weight: bold;" />
+            <Label text="critical" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;" />
+        </VBox>
+
+        <!-- MEDIUM -->
+        <VBox styleClass="glass-panel" spacing="4" prefWidth="130"
+              style="-fx-padding: 16; -fx-background-radius: 12; -fx-alignment: center;
+                     -fx-border-color: rgba(245,158,11,0.4); -fx-border-width: 1; -fx-border-radius: 12;">
+            <Label text="🟡 MEDIUM" style="-fx-text-fill: #F59E0B; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <Label fx:id="statMedium" text="—"
+                   style="-fx-text-fill: #F59E0B; -fx-font-size: 28px; -fx-font-weight: bold;" />
+            <Label text="warnings" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;" />
+        </VBox>
+
+        <!-- LOW -->
+        <VBox styleClass="glass-panel" spacing="4" prefWidth="130"
+              style="-fx-padding: 16; -fx-background-radius: 12; -fx-alignment: center;
+                     -fx-border-color: rgba(59,130,246,0.4); -fx-border-width: 1; -fx-border-radius: 12;">
+            <Label text="🔵 LOW" style="-fx-text-fill: #3B82F6; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <Label fx:id="statLow" text="—"
+                   style="-fx-text-fill: #3B82F6; -fx-font-size: 28px; -fx-font-weight: bold;" />
+            <Label text="info" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;" />
+        </VBox>
+
+        <Region HBox.hgrow="ALWAYS" />
+
+        <!-- Tournaments analysed -->
+        <VBox styleClass="glass-panel" spacing="4" prefWidth="150"
+              style="-fx-padding: 16; -fx-background-radius: 12; -fx-alignment: center;">
+            <Label text="🏆 TOURNAMENTS" style="-fx-text-fill: #9CA3AF; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <Label fx:id="statTournaments" text="—"
+                   style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;" />
+            <Label text="analysed" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;" />
+        </VBox>
+
+        <!-- Matches analysed -->
+        <VBox styleClass="glass-panel" spacing="4" prefWidth="140"
+              style="-fx-padding: 16; -fx-background-radius: 12; -fx-alignment: center;">
+            <Label text="⚔ MATCHES" style="-fx-text-fill: #9CA3AF; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <Label fx:id="statMatches" text="—"
+                   style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;" />
+            <Label text="reviewed" style="-fx-text-fill: #6B7280; -fx-font-size: 11px;" />
+        </VBox>
+
+    </HBox>
+
+    <!-- ══ Legend Bar ════════════════════════════════════════════════════════ -->
+    <HBox styleClass="glass-panel"
+          style="-fx-padding: 10 16; -fx-background-radius: 8;"
+          spacing="24" alignment="CENTER_LEFT">
+        <Label text="Severity Legend:" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px; -fx-font-weight: bold;" />
+        <Label text="🔴 HIGH — Requires immediate action"
+               style="-fx-text-fill: #EF4444; -fx-font-size: 11px;" />
+        <Label text="🟡 MEDIUM — Review recommended"
+               style="-fx-text-fill: #F59E0B; -fx-font-size: 11px;" />
+        <Label text="🔵 LOW — Informational flag"
+               style="-fx-text-fill: #3B82F6; -fx-font-size: 11px;" />
+    </HBox>
+
+    <!-- ══ Anomaly List ══════════════════════════════════════════════════════ -->
+    <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" styleClass="edge-to-edge">
+        <VBox fx:id="anomalyListContainer" spacing="10"
+              style="-fx-padding: 4;" />
+    </ScrollPane>
+
+</VBox>

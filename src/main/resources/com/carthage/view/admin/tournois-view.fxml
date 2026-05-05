@@ -12,6 +12,8 @@
             <Label text="Créer et gérer les tournois de la plateforme" styleClass="sub-header" />
         </VBox>
         <Button text="+ Créer" styleClass="button-solid-red" onAction="#handleCreate" />
+        <Button text="📊 Anomalies" onAction="#handleShowAnomalies"
+                style="-fx-background-color: rgba(245,158,11,0.15); -fx-text-fill: #F59E0B; -fx-font-weight: bold; -fx-background-radius: 8; -fx-padding: 8 16; -fx-cursor: hand;" />
     </HBox>
 
     <!-- Filters Bar -->

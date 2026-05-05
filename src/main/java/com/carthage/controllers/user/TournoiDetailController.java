@@ -322,7 +322,7 @@ public class TournoiDetailController {
         }
 
         // Check if user's team is already registered in this tournament
-        String sql = "SELECT COUNT(*) AS cnt FROM tournoi_team tt " +
+        String sql = "SELECT tm.role FROM tournoi_team tt " +
                      "JOIN team_membership tm ON tt.team_id = tm.team_id " +
                      "WHERE tt.tournoi_id = UNHEX(REPLACE(?, '-', '')) " +
                      "AND tm.player_id = UNHEX(REPLACE(?, '-', ''))";
@@ -330,10 +330,17 @@ public class TournoiDetailController {
             ps.setString(1, currentTournoiId.toString());
             ps.setString(2, user.getId().toString());
             ResultSet rs = ps.executeQuery();
-            if (rs.next() && rs.getInt("cnt") > 0) {
-                joinBtn.setDisable(true);
-                joinBtn.setText("✔ Déjà inscrit");
-                joinBtn.setStyle("-fx-background-color: #1E2633; -fx-text-fill: #4ADE80; -fx-padding: 14 0; -fx-font-size: 16px; -fx-background-radius: 12; -fx-border-color: #4ADE80; -fx-border-radius: 12; -fx-border-width: 1;");
+            if (rs.next()) {
+                String role = rs.getString("role");
+                if ("CAPTAIN".equalsIgnoreCase(role)) {
+                    joinBtn.setDisable(false);
+                    joinBtn.setText("❌ Se désinscrire");
+                    joinBtn.setStyle("-fx-background-color: #1E2633; -fx-text-fill: #EF4444; -fx-padding: 14 0; -fx-font-size: 16px; -fx-background-radius: 12; -fx-border-color: #EF4444; -fx-border-radius: 12; -fx-border-width: 1; -fx-cursor: hand;");
+                } else {
+                    joinBtn.setDisable(true);
+                    joinBtn.setText("✔ Équipe inscrite");
+                    joinBtn.setStyle("-fx-background-color: #1E2633; -fx-text-fill: #4ADE80; -fx-padding: 14 0; -fx-font-size: 16px; -fx-background-radius: 12; -fx-border-color: #4ADE80; -fx-border-radius: 12; -fx-border-width: 1;");
+                }
                 return;
             }
         } catch (SQLException e) {
@@ -372,6 +379,8 @@ public class TournoiDetailController {
         User user = SessionContext.getInstance().getCurrentUser();
         if (user == null) return;
 
+        boolean isLeaving = joinBtn.getText().contains("désinscrire");
+
         // Finding user's team where they are Captain
         String findTeam = "SELECT HEX(team_id) as tid FROM team_membership WHERE player_id = UNHEX(REPLACE(?, '-', '')) AND role = 'CAPTAIN' LIMIT 1";
         try (PreparedStatement ps = connection.prepareStatement(findTeam)) {
@@ -379,17 +388,32 @@ public class TournoiDetailController {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 String teamHexId = rs.getString("tid");
-                String insert = "INSERT IGNORE INTO tournoi_team (tournoi_id, team_id) VALUES (UNHEX(REPLACE(?, '-', '')), UNHEX(?))";
-                try (PreparedStatement psIns = connection.prepareStatement(insert)) {
-                    psIns.setString(1, currentTournoiId.toString());
-                    psIns.setString(2, teamHexId);
-                    psIns.executeUpdate();
-                    loadRegisteredTeams();
-                    checkButtons();
-                    showAlert("Succès", "Votre équipe a été inscrite avec succès !");
+                if (isLeaving) {
+                    String delete = "DELETE FROM tournoi_team WHERE tournoi_id = UNHEX(REPLACE(?, '-', '')) AND team_id = UNHEX(?)";
+                    try (PreparedStatement psDel = connection.prepareStatement(delete)) {
+                        psDel.setString(1, currentTournoiId.toString());
+                        psDel.setString(2, teamHexId);
+                        psDel.executeUpdate();
+                        loadRegisteredTeams();
+                        // Reset join button style before checking again
+                        joinBtn.setStyle("-fx-background-color: -carthage-accent; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 14 0; -fx-font-size: 16px; -fx-background-radius: 12; -fx-cursor: hand;");
+                        joinBtn.setText("Rejoindre le tournoi");
+                        checkButtons();
+                        showAlert("Désinscription", "Votre équipe a été désinscrite avec succès.");
+                    }
+                } else {
+                    String insert = "INSERT IGNORE INTO tournoi_team (tournoi_id, team_id) VALUES (UNHEX(REPLACE(?, '-', '')), UNHEX(?))";
+                    try (PreparedStatement psIns = connection.prepareStatement(insert)) {
+                        psIns.setString(1, currentTournoiId.toString());
+                        psIns.setString(2, teamHexId);
+                        psIns.executeUpdate();
+                        loadRegisteredTeams();
+                        checkButtons();
+                        showAlert("Succès", "Votre équipe a été inscrite avec succès !");
+                    }
                 }
             } else {
-                showAlert("Erreur", "Seul le Leader d'une équipe peut effectuer une inscription.");
+                showAlert("Erreur", "Seul le Leader d'une équipe peut gérer l'inscription.");
             }
         } catch (SQLException e) {
             e.printStackTrace();

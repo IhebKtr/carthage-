@@ -95,6 +95,24 @@ public class TournoiCreateController {
                 FXCollections.observableArrayList("Tunis", "Sousse", "Sfax", "Monastir", "Bizerte", "Esprit, Ghazela"));
         placeCombo.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> updateMap(newVal));
         placeCombo.setValue("Tunis");
+        
+        // Auto-update status when dates change
+        javafx.beans.value.ChangeListener<java.time.LocalDate> dateListener = (obs, oldVal, newVal) -> {
+            if (startDatePicker.getValue() == null) return;
+            java.time.LocalDate today = java.time.LocalDate.now();
+            java.time.LocalDate start = startDatePicker.getValue();
+            java.time.LocalDate end = endDatePicker.getValue();
+            if (statusCombo.getValue() == TournamentStatus.COMPLETED) return;
+            if (end != null && today.isAfter(end)) {
+                statusCombo.setValue(TournamentStatus.COMPLETED);
+            } else if (!today.isBefore(start) && (end == null || !today.isAfter(end))) {
+                statusCombo.setValue(TournamentStatus.ONGOING);
+            } else {
+                statusCombo.setValue(TournamentStatus.UPCOMING);
+            }
+        };
+        startDatePicker.valueProperty().addListener(dateListener);
+        endDatePicker.valueProperty().addListener(dateListener);
     }
 
     private class CustomMapLayer extends MapLayer {
