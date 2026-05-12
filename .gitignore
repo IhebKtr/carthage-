@@ -37,7 +37,7 @@ build/
 ### Mac OS ###
 .DS_Store
 
-.env
+
 _bmad/
 _bmad-output/
 .agent/
