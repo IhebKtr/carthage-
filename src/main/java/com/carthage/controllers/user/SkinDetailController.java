@@ -11,6 +11,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import com.carthage.entity.Skin;
+import com.carthage.services.api.StripeService;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -27,6 +29,7 @@ public class SkinDetailController {
     private UUID currentSkinId;
     private int currentPrice;
     private UUID currentGameId;
+    private final StripeService stripeService = new StripeService();
 
     @FXML
     public void initialize() {
@@ -169,6 +172,31 @@ public class SkinDetailController {
             showAlert("Erreur", "Une erreur est survenue lors de l'achat.");
         } finally {
             try { connection.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
+        }
+    }
+
+    @FXML
+    public void onStripePurchase() {
+        Skin skin = new Skin();
+        skin.setId(currentSkinId);
+        skin.setName(skinName.getText());
+        skin.setDescription(skinDesc.getText() != null ? skinDesc.getText() : "Achat via Stripe");
+        skin.setPrice(currentPrice);
+
+        String checkoutUrl = stripeService.createCheckoutSession(skin, "https://example.com/success", "https://example.com/cancel");
+        if (checkoutUrl != null) {
+            try {
+                if (java.awt.Desktop.isDesktopSupported() && java.awt.Desktop.getDesktop().isSupported(java.awt.Desktop.Action.BROWSE)) {
+                    java.awt.Desktop.getDesktop().browse(new java.net.URI(checkoutUrl));
+                } else {
+                    showAlert("Lien de paiement", "Veuillez ouvrir ce lien dans votre navigateur:\n" + checkoutUrl);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert("Erreur", "Impossible d'ouvrir le navigateur web.");
+            }
+        } else {
+            showAlert("Erreur", "Impossible de générer le paiement Stripe. Vérifiez vos clés.");
         }
     }
 

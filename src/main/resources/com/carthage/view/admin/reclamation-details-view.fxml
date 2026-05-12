@@ -5,7 +5,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.shape.Circle?>
 
-<VBox stylesheets="@../../css/main.css" spacing="20" style="-fx-background-color: -carthage-base; -fx-padding: 30;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.ReclamationDetailsController">
+<VBox stylesheets="@../../css/main.css" spacing="20" style="-fx-background-color: -carthage-base; -fx-padding: 30;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.ReclamationDetailsController">
     <!-- Top Header Bar -->
     <HBox alignment="CENTER_LEFT" spacing="15">
         <Button text="←" styleClass="btn-icon-action" onAction="#handleBack" />
@@ -29,6 +29,8 @@
                         <HBox alignment="CENTER_LEFT" spacing="10">
                             <Label fx:id="originalAuthorLabel" text="Author Name" style="-fx-font-weight: bold; -fx-text-fill: -carthage-accent;" />
                             <Label fx:id="originalDateLabel" text="2026-04-14 10:00" styleClass="stat-label-mini" />
+                            <Button text="🌐 FR" style="-fx-background-color: transparent; -fx-text-fill: #3B82F6; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 0;" onAction="#translateOriginalToFr" />
+                            <Button text="🌐 EN" style="-fx-background-color: transparent; -fx-text-fill: #3B82F6; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 0;" onAction="#translateOriginalToEn" />
                         </HBox>
                         <Label fx:id="messageText" text="Message content here..." wrapText="true" style="-fx-text-fill: white; -fx-font-size: 14px;" />
                     </VBox>
@@ -37,14 +39,51 @@
                 </VBox>
             </ScrollPane>
 
-            <!-- Reply Box -->
-            <VBox spacing="10" style="-fx-background-color: #141A23; -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: #2A3441; -fx-border-radius: 12;">
-                <Label text="Répondre au ticket" styleClass="form-label" style="-fx-font-size: 14px; -fx-font-weight: bold;" />
-                <TextArea fx:id="replyArea" promptText="Tapez votre réponse ici..." prefHeight="100" wrapText="true" styleClass="rounded-input" style="-fx-background-radius: 12;" />
-                <HBox alignment="CENTER_RIGHT" spacing="15">
-                     <Button text="Annuler" styleClass="btn-outline" onAction="#handleBack" />
-                     <Button text="Envoyer la réponse" styleClass="button-solid-red" onAction="#handleSendReply" />
+            <!-- Reply Box (hidden when RESOLVED) -->
+            <VBox fx:id="replyBox" spacing="12" style="-fx-background-color: #0D1520; -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: #3B82F6; -fx-border-radius: 12; -fx-border-width: 1.5;">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="💬" style="-fx-font-size: 16px;" />
+                    <Label text="Répondre au ticket" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #60A5FA;" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <HBox spacing="8" alignment="CENTER">
+                        <Button text="👍" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;" onAction="#handleEmojiClick" />
+                        <Button text="❤️" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;" onAction="#handleEmojiClick" />
+                        <Button text="😂" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;" onAction="#handleEmojiClick" />
+                        <Button text="😡" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;" onAction="#handleEmojiClick" />
+                        <Button text="🙏" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;" onAction="#handleEmojiClick" />
+                    </HBox>
+                    <Button fx:id="micBtn" text="🎤 Dictée" 
+                            style="-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-border-color: #4B5563; -fx-border-radius: 12; -fx-cursor: hand;" 
+                            onAction="#handleToggleDictation" />
                 </HBox>
+                <TextArea fx:id="replyArea" promptText="Tapez votre réponse ici..." prefHeight="110" wrapText="true"
+                          style="-fx-background-color: #111827; -fx-control-inner-background: #111827; -fx-text-fill: white; -fx-prompt-text-fill: #4B5563;
+                                 -fx-background-radius: 8; -fx-border-color: #2563EB; -fx-border-radius: 8;
+                                 -fx-border-width: 1; -fx-font-size: 13px; -fx-padding: 10;" />
+                <HBox alignment="CENTER_RIGHT" spacing="12">
+                    <Button text="Annuler" styleClass="btn-outline" onAction="#handleBack" />
+                    <Button fx:id="markResolvedBtn" text="✅  Marquer comme Résolu"
+                            style="-fx-background-color: rgba(74,222,128,0.15); -fx-text-fill: #4ADE80;
+                                   -fx-border-color: #4ADE80; -fx-border-radius: 20; -fx-border-width: 1;
+                                   -fx-background-radius: 20; -fx-font-weight: bold; -fx-padding: 8 18; -fx-cursor: hand;"
+                            onAction="#handleMarkResolved" />
+                    <Button text="📤  Envoyer la réponse" styleClass="button-solid-red" onAction="#handleSendReply" />
+                </HBox>
+            </VBox>
+
+            <!-- Resolved Banner (shown when ticket is RESOLVED or CLOSED) -->
+            <VBox fx:id="resolvedBanner" spacing="8" alignment="CENTER" managed="false" visible="false"
+                  style="-fx-background-color: rgba(74,222,128,0.08); -fx-padding: 24;
+                         -fx-background-radius: 12; -fx-border-color: rgba(74,222,128,0.4);
+                         -fx-border-radius: 12; -fx-border-width: 1.5;">
+                <Label text="✅  Ticket Résolu" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4ADE80;" />
+                <Label text="Ce ticket a été marqué comme résolu. Aucune réponse supplémentaire n'est nécessaire."
+                       wrapText="true" style="-fx-text-fill: #9CA3AF; -fx-font-size: 12px;" />
+                <Button text="↩  Réouvrir le ticket"
+                        style="-fx-background-color: transparent; -fx-text-fill: #9CA3AF;
+                               -fx-border-color: #4B5563; -fx-border-radius: 20; -fx-border-width: 1;
+                               -fx-background-radius: 20; -fx-padding: 6 16; -fx-cursor: hand;"
+                        onAction="#handleReopenTicket" />
             </VBox>
         </VBox>
 

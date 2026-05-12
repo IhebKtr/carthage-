@@ -7,7 +7,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.shape.Circle?>
 
-<BorderPane stylesheets="@../../css/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.AdminMainLayoutController">
+<BorderPane stylesheets="@../../css/main.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.AdminMainLayoutController">
     <!-- LEFT SIDEBAR -->
     <left>
         <VBox fx:id="sidebarMenu" styleClass="sidebar" prefWidth="250" spacing="5">
@@ -39,9 +39,13 @@
             <ToggleButton text="Réclamations" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showReclamations"/>
             <ToggleButton text="Tournois" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showTournois"/>
             <ToggleButton text="Jeux" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showJeux"/>
-            <ToggleButton text="Boutique" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup"/>
+            <ToggleButton text="Boutique" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup" onAction="#showBoutique"/>
             <ToggleButton text="Rapports" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup"/>
             <ToggleButton text="Paramètres" styleClass="sidebar-button" maxWidth="Infinity" toggleGroup="$navGroup"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+            
+            <Button text="Déconnexion" styleClass="sidebar-button" maxWidth="Infinity" onAction="#onLogoutClicked" style="-fx-text-fill: #ff4d4d;"/>
         </VBox>
     </left>
 

@@ -17,9 +17,27 @@ public class TournoisController {
     @FXML private FlowPane tournoisGrid;
     @FXML private TextField searchField;
     @FXML private ToggleButton btnAll, btnMine, btnDone;
+    
+    @FXML private AnchorPane gridPaneView;
+    @FXML private VBox calendarPaneView;
+    @FXML private GridPane calendarGrid;
+    @FXML private Label monthYearLabel;
+    @FXML private Button btnGridMode, btnCalendarMode;
 
     private Connection connection;
     private String activeFilter = "ALL"; // ALL | MINE | DONE
+    private java.time.YearMonth currentMonth = java.time.YearMonth.now();
+
+    private static class TournoiData {
+        UUID id; String nom; Timestamp dateDebut;
+        int maxTeams, currentTeams, prizePool;
+        String type, status;
+        boolean isMine;
+        public TournoiData(UUID id, String nom, Timestamp dateDebut, int maxTeams, int currentTeams, int prizePool, String type, String status, boolean isMine) {
+            this.id = id; this.nom = nom; this.dateDebut = dateDebut; this.maxTeams = maxTeams;
+            this.currentTeams = currentTeams; this.prizePool = prizePool; this.type = type; this.status = status; this.isMine = isMine;
+        }
+    }
 
     @FXML
     public void initialize() {
@@ -41,6 +59,38 @@ public class TournoisController {
         if (!active.getStyleClass().contains("filter-toggle-active")) active.getStyleClass().add("filter-toggle-active");
     }
 
+    @FXML public void onModeGrid() {
+        gridPaneView.setVisible(true);
+        gridPaneView.setManaged(true);
+        calendarPaneView.setVisible(false);
+        calendarPaneView.setManaged(false);
+        btnGridMode.getStyleClass().clear();
+        btnGridMode.getStyleClass().add("button-solid-red");
+        btnCalendarMode.getStyleClass().clear();
+        btnCalendarMode.getStyleClass().add("filter-toggle");
+    }
+
+    @FXML public void onModeCalendar() {
+        gridPaneView.setVisible(false);
+        gridPaneView.setManaged(false);
+        calendarPaneView.setVisible(true);
+        calendarPaneView.setManaged(true);
+        btnCalendarMode.getStyleClass().clear();
+        btnCalendarMode.getStyleClass().add("button-solid-red");
+        btnGridMode.getStyleClass().clear();
+        btnGridMode.getStyleClass().add("filter-toggle");
+    }
+
+    @FXML public void onPrevMonth() {
+        currentMonth = currentMonth.minusMonths(1);
+        loadTournois();
+    }
+
+    @FXML public void onNextMonth() {
+        currentMonth = currentMonth.plusMonths(1);
+        loadTournois();
+    }
+
     private void loadTournois() {
         tournoisGrid.getChildren().clear();
         User user = com.carthage.utils.SessionContext.getInstance().getCurrentUser();
@@ -49,11 +99,15 @@ public class TournoisController {
 
         // 1. Base Query
         StringBuilder sql = new StringBuilder(
-            "SELECT DISTINCT HEX(t.id) as hex_id, t.id, t.nom, t.date_debut, t.nb_equipes_max, t.prize_pool, t.status, t.type, g.image_url, " +
-            "  (SELECT COUNT(*) FROM tournoi_team tt2 WHERE tt2.tournoi_id = t.id) AS current_teams " +
-            "FROM tournoi t " +
-            "LEFT JOIN game g ON t.game_id = g.id "
+            "SELECT DISTINCT HEX(t.id) as hex_id, t.id, t.nom, t.date_debut, t.nb_equipes_max, t.prize_pool, t.status, t.type, " +
+            "  (SELECT COUNT(*) FROM tournoi_team tt2 WHERE tt2.tournoi_id = t.id) AS current_teams "
         );
+        if (user != null) {
+            sql.append(", (SELECT COUNT(*) FROM tournoi_team tt3 JOIN team_membership tm3 ON tt3.team_id = tm3.team_id WHERE tt3.tournoi_id = t.id AND tm3.player_id = UNHEX(REPLACE(?, '-', ''))) > 0 AS is_mine ");
+        } else {
+            sql.append(", 0 AS is_mine ");
+        }
+        sql.append("FROM tournoi t ");
 
         // 2. Joins for filtering
         if ("MINE".equals(activeFilter)) {
@@ -77,32 +131,40 @@ public class TournoisController {
 
         try (PreparedStatement ps = connection.prepareStatement(sql.toString())) {
             int paramIdx = 1;
+            if (user != null) {
+                ps.setString(paramIdx++, user.getId().toString()); // For the is_mine subquery
+            }
             if ("MINE".equals(activeFilter) && user != null) {
                 ps.setString(paramIdx++, user.getId().toString());
             }
             if (hasSearch) ps.setString(paramIdx++, "%" + search + "%");
             
             ResultSet rs = ps.executeQuery();
+            java.util.List<TournoiData> tournois = new java.util.ArrayList<>();
 
             while (rs.next()) {
                 UUID tid = com.carthage.utils.UUIDUtils.fromBytes(rs.getBytes("id"));
-                tournoisGrid.getChildren().add(buildCard(
-                    tid,
-                    rs.getString("nom"),
-                    rs.getTimestamp("date_debut"),
-                    rs.getInt("nb_equipes_max"),
-                    rs.getInt("current_teams"),
-                    rs.getInt("prize_pool"),
-                    rs.getString("type"),
-                    rs.getString("status"),
-                    rs.getString("image_url")
+                tournois.add(new TournoiData(
+                    tid, rs.getString("nom"), rs.getTimestamp("date_debut"),
+                    rs.getInt("nb_equipes_max"), rs.getInt("current_teams"),
+                    rs.getInt("prize_pool"), rs.getString("type"), rs.getString("status"),
+                    rs.getBoolean("is_mine")
                 ));
             }
+            
+            for (TournoiData t : tournois) {
+                tournoisGrid.getChildren().add(buildCard(
+                    t.id, t.nom, t.dateDebut, t.maxTeams, t.currentTeams, t.prizePool, t.type, t.status, null
+                ));
+            }
+            
             if (tournoisGrid.getChildren().isEmpty()) {
                 Label empty = new Label("Aucun tournoi trouvé.");
                 empty.setStyle("-fx-text-fill: #6b7280; -fx-font-size: 14px; -fx-padding: 20 0;");
                 tournoisGrid.getChildren().add(empty);
             }
+            
+            buildCalendar(tournois);
         } catch (SQLException e) {
             e.printStackTrace();
             showError("Erreur DB: " + e.getMessage());
@@ -212,25 +274,7 @@ public class TournoisController {
         btn.setStyle("-fx-background-color: #1E2633; -fx-text-fill: white;" +
             " -fx-background-radius: 20px; -fx-padding: 6 14; -fx-cursor: hand; -fx-font-size: 12px;");
         btn.setOnAction(e -> {
-            Scene scene = card.getScene();
-            if (scene == null) {
-                showError("Impossible d'ouvrir les détails: vue non initialisée.");
-                return;
-            }
-
-            Object userData = null;
-            Pane contentArea = (Pane) scene.lookup("#contentArea");
-            if (contentArea != null) {
-                userData = contentArea.getUserData();
-            }
-            if (userData == null && scene.getRoot() != null) {
-                userData = scene.getRoot().getUserData();
-            }
-
-            if (!(userData instanceof MainLayoutController mlc)) {
-                showError("Impossible d'ouvrir les détails: contrôleur principal introuvable.");
-                return;
-            }
+            MainLayoutController mlc = (MainLayoutController) card.getScene().lookup("#contentArea").getUserData();
             mlc.loadTournoiDetail(id);
         });
 
@@ -240,5 +284,134 @@ public class TournoisController {
         body.getChildren().addAll(nameLabel, info, bottom);
         card.getChildren().addAll(banner, body);
         return card;
+    }
+
+    private void buildCalendar(java.util.List<TournoiData> tournois) {
+        calendarGrid.getChildren().clear();
+        
+        String[] days = {"Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"};
+        for (int i = 0; i < 7; i++) {
+            Label l = new Label(days[i]);
+            l.setMaxWidth(Double.MAX_VALUE);
+            l.setAlignment(Pos.CENTER);
+            l.setStyle("-fx-background-color: #1A212D; -fx-text-fill: #9CA3AF; -fx-font-weight: bold; -fx-padding: 10;");
+            calendarGrid.add(l, i, 0);
+        }
+
+        java.time.LocalDate firstOfMonth = currentMonth.atDay(1);
+        int dayOfWeek = firstOfMonth.getDayOfWeek().getValue(); 
+        int daysInMonth = currentMonth.lengthOfMonth();
+
+        int row = 1;
+        int col = dayOfWeek - 1;
+
+        for (int day = 1; day <= daysInMonth; day++) {
+            VBox dayCell = new VBox(5);
+            dayCell.setStyle("-fx-background-color: #141A23; -fx-padding: 8;");
+            dayCell.setMinHeight(100);
+            
+            Label dayLbl = new Label(String.valueOf(day));
+            dayLbl.setStyle("-fx-text-fill: #6b7280; -fx-font-weight: bold;");
+            
+            if (currentMonth.equals(java.time.YearMonth.now()) && day == java.time.LocalDate.now().getDayOfMonth()) {
+                dayLbl.setStyle("-fx-text-fill: white; -fx-background-color: #E50914; -fx-background-radius: 10; -fx-padding: 2 6;");
+            }
+            
+            dayCell.getChildren().add(dayLbl);
+            
+            java.time.LocalDate currentDay = currentMonth.atDay(day);
+            
+            // Conflict Detection Logic
+            int myTournamentsOnThisDay = 0;
+            for (TournoiData t : tournois) {
+                if (t.dateDebut != null && t.dateDebut.toLocalDateTime().toLocalDate().equals(currentDay) && t.isMine) {
+                    myTournamentsOnThisDay++;
+                }
+            }
+            
+            if (myTournamentsOnThisDay > 1) {
+                dayCell.setStyle("-fx-background-color: rgba(229, 9, 20, 0.15); -fx-padding: 8; -fx-border-color: #E50914; -fx-border-width: 1; -fx-border-radius: 4;");
+                Label conflictWarn = new Label("⚠️ Conflit d'Horaire");
+                conflictWarn.setStyle("-fx-text-fill: #E50914; -fx-font-size: 9px; -fx-font-weight: bold;");
+                dayCell.getChildren().add(conflictWarn);
+            }
+            
+            for (TournoiData t : tournois) {
+                if (t.dateDebut != null && t.dateDebut.toLocalDateTime().toLocalDate().equals(currentDay)) {
+                    Label tLbl = new Label(t.nom);
+                    tLbl.setWrapText(true);
+                    tLbl.setMaxWidth(Double.MAX_VALUE);
+                    
+                    // Smart Tooltip
+                    Tooltip tooltip = new Tooltip(
+                        t.nom + "\n" +
+                        "Jeu: " + (t.type != null ? t.type.toUpperCase() : "N/A") + "\n" +
+                        "Prize Pool: " + t.prizePool + " DT\n" +
+                        "Équipes: " + t.currentTeams + "/" + t.maxTeams + "\n" +
+                        "Statut: " + (t.status != null ? t.status : "UPCOMING")
+                    );
+                    tooltip.setStyle("-fx-background-color: #1E2633; -fx-text-fill: white; -fx-font-size: 12px; -fx-padding: 10px;");
+                    Tooltip.install(tLbl, tooltip);
+                    
+                    // Smart Color Coding by Game Type & Status
+                    String baseColor = "#22C55E"; // Green by default
+                    if ("VALORANT".equalsIgnoreCase(t.type)) baseColor = "#E50914";
+                    else if ("LEAGUE OF LEGENDS".equalsIgnoreCase(t.type) || "LOL".equalsIgnoreCase(t.type)) baseColor = "#0EA5E9";
+                    else if ("CSGO".equalsIgnoreCase(t.type) || "CS:GO".equalsIgnoreCase(t.type)) baseColor = "#F59E0B";
+                    
+                    if ("COMPLETED".equalsIgnoreCase(t.status)) baseColor = "#6b7280";
+                    else if ("ONGOING".equalsIgnoreCase(t.status)) baseColor = "#F59E0B";
+
+                    // Highlight if user is participating
+                    String borderStyle = t.isMine ? "; -fx-border-color: #FCD34D; -fx-border-width: 1.5px; -fx-border-radius: 4px;" : "";
+                    
+                    String normalStyle = "-fx-background-color: " + baseColor + "22; -fx-text-fill: " + baseColor + "; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 4 6; -fx-background-radius: 4; -fx-cursor: hand;" + borderStyle;
+                    String hoverStyle = "-fx-background-color: " + baseColor + "44; -fx-text-fill: " + baseColor + "; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 4 6; -fx-background-radius: 4; -fx-cursor: hand;" + borderStyle;
+                    
+                    tLbl.setStyle(normalStyle);
+                    tLbl.setOnMouseEntered(e -> tLbl.setStyle(hoverStyle));
+                    tLbl.setOnMouseExited(e -> tLbl.setStyle(normalStyle));
+                    
+                    tLbl.setOnMouseClicked(e -> {
+                        if (e.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
+                            MainLayoutController mlc = (MainLayoutController) calendarGrid.getScene().lookup("#contentArea").getUserData();
+                            mlc.loadTournoiDetail(t.id);
+                        }
+                    });
+                    
+                    // Smart Context Menu (Phase 3 - modified for PDF)
+                    ContextMenu contextMenu = new ContextMenu();
+                    MenuItem detailsItem = new MenuItem("Voir les Détails");
+                    detailsItem.setOnAction(ev -> {
+                        MainLayoutController mlc = (MainLayoutController) calendarGrid.getScene().lookup("#contentArea").getUserData();
+                        mlc.loadTournoiDetail(t.id);
+                    });
+                    
+                    MenuItem exportPdfItem = new MenuItem("Sauvegarder les infos (PDF)");
+                    exportPdfItem.setOnAction(ev -> {
+                        com.carthage.utils.PdfUtils.exportTournamentToPdf(
+                            calendarGrid.getScene().getWindow(), 
+                            t.nom, t.dateDebut, t.maxTeams, t.currentTeams, t.prizePool, t.type, t.status
+                        );
+                    });
+                    
+                    contextMenu.getItems().addAll(detailsItem, exportPdfItem);
+                    tLbl.setOnContextMenuRequested(e -> contextMenu.show(tLbl, e.getScreenX(), e.getScreenY()));
+                    
+                    dayCell.getChildren().add(tLbl);
+                }
+            }
+            
+            calendarGrid.add(dayCell, col, row);
+            
+            col++;
+            if (col == 7) {
+                col = 0;
+                row++;
+            }
+        }
+        
+        String[] months = {"Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"};
+        monthYearLabel.setText(months[currentMonth.getMonthValue()-1] + " " + currentMonth.getYear());
     }
 }

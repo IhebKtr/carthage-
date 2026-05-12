@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.shape.Circle?>
+
+<VBox stylesheets="@../../css/main.css" spacing="20" style="-fx-background-color: transparent; -fx-padding: 10;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.user.UserReclamationDetailsController">
+    <!-- Top Header Bar -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Button text="← Retour" styleClass="btn-icon-action" onAction="#handleBack" />
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label fx:id="subjectLabel" text="Reclamation Subject" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;" />
+            <Label fx:id="authorLabel" text="Par vous • 2026-04-14" styleClass="sub-header" />
+        </VBox>
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+             <Label text="Statut:" styleClass="sub-header" />
+             <Label fx:id="statusBadge" text="OPEN" style="-fx-padding: 4 12; -fx-background-radius: 12; -fx-font-weight: bold; -fx-font-size: 12px;" />
+        </HBox>
+    </HBox>
+
+    <HBox spacing="30" VBox.vgrow="ALWAYS">
+        <!-- Left Pane: Message & Responses -->
+        <VBox spacing="15" HBox.hgrow="ALWAYS">
+            <ScrollPane fx:id="scrollPane" VBox.vgrow="ALWAYS" fitToWidth="true" styleClass="transparent-scroll">
+                <VBox fx:id="conversationBox" spacing="20" style="-fx-padding: 10;">
+                    <!-- Original Message Box -->
+                    <VBox spacing="10" style="-fx-background-color: #1A212D; -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: #2A3441; -fx-border-radius: 12;">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label fx:id="originalAuthorLabel" text="Vous" style="-fx-font-weight: bold; -fx-text-fill: white;" />
+                            <Label fx:id="originalDateLabel" text="2026-04-14 10:00" styleClass="stat-label-mini" />
+                            <Button text="🌐 FR" style="-fx-background-color: transparent; -fx-text-fill: #3B82F6; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 0;" onAction="#translateOriginalToFr" />
+                            <Button text="🌐 EN" style="-fx-background-color: transparent; -fx-text-fill: #3B82F6; -fx-cursor: hand; -fx-font-size: 11px; -fx-padding: 0;" onAction="#translateOriginalToEn" />
+                        </HBox>
+                        <Label fx:id="messageText" text="Message content here..." wrapText="true" style="-fx-text-fill: white; -fx-font-size: 14px;" />
+                    </VBox>
+                    
+                    <!-- Dynamic responses will be injected here -->
+                </VBox>
+            </ScrollPane>
+
+            <!-- Reply Box (hidden when RESOLVED) -->
+            <VBox fx:id="replyBox" spacing="12" style="-fx-background-color: #0D1520; -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: #3B82F6; -fx-border-radius: 12; -fx-border-width: 1.5;">
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label text="💬" style="-fx-font-size: 16px;" />
+                    <Label text="Ajouter une réponse" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #60A5FA;" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <HBox spacing="8" alignment="CENTER">
+                        <Button text="👍" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;" onAction="#handleEmojiClick" />
+                        <Button text="❤️" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;" onAction="#handleEmojiClick" />
+                        <Button text="😂" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;" onAction="#handleEmojiClick" />
+                        <Button text="😡" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;" onAction="#handleEmojiClick" />
+                        <Button text="🙏" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 16px;" onAction="#handleEmojiClick" />
+                    </HBox>
+                    <Button fx:id="micBtn" text="🎤 Dictée" 
+                            style="-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-border-color: #4B5563; -fx-border-radius: 12; -fx-cursor: hand;" 
+                            onAction="#handleToggleDictation" />
+                </HBox>
+                <TextArea fx:id="replyArea" promptText="Tapez votre message ici..." prefHeight="90" wrapText="true"
+                          style="-fx-background-color: #111827; -fx-control-inner-background: #111827; -fx-text-fill: white; -fx-prompt-text-fill: #4B5563;
+                                 -fx-background-radius: 8; -fx-border-color: #2563EB; -fx-border-radius: 8;
+                                 -fx-border-width: 1; -fx-font-size: 13px; -fx-padding: 10;" />
+                <HBox alignment="CENTER_RIGHT" spacing="12">
+                    <Button text="Annuler" styleClass="btn-outline" onAction="#handleBack" />
+                    <Button text="📤  Envoyer la réponse" styleClass="button-solid-red" onAction="#handleSendReply" />
+                </HBox>
+            </VBox>
+
+            <!-- Resolved Banner (shown when ticket is RESOLVED or CLOSED) -->
+            <VBox fx:id="resolvedBanner" spacing="8" alignment="CENTER" managed="false" visible="false"
+                  style="-fx-background-color: rgba(74,222,128,0.08); -fx-padding: 24;
+                         -fx-background-radius: 12; -fx-border-color: rgba(74,222,128,0.4);
+                         -fx-border-radius: 12; -fx-border-width: 1.5;">
+                <Label text="✅  Ticket Résolu" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4ADE80;" />
+                <Label text="Ce ticket a été marqué comme résolu par l'administration. Aucune réponse supplémentaire n'est possible."
+                       wrapText="true" style="-fx-text-fill: #9CA3AF; -fx-font-size: 12px;" />
+            </VBox>
+        </VBox>
+
+        <!-- Right Pane: Metadata & Actions -->
+        <VBox spacing="20" prefWidth="250">
+            <!-- Ticket Info -->
+            <VBox spacing="15" style="-fx-background-color: #141A23; -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: #2A3441; -fx-border-radius: 12;">
+                <Label text="DÉTAILS DU TICKET" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #9CA3AF;" />
+                
+                <VBox spacing="2">
+                    <Label text="CATÉGORIE" styleClass="stat-label-mini" />
+                    <Label fx:id="categoryLabel" text="Technique" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                </VBox>
+                
+                <VBox spacing="2">
+                    <Label text="PRIORITÉ" styleClass="stat-label-mini" />
+                    <Label fx:id="priorityLabel" text="Haute" style="-fx-text-fill: #FBBF24; -fx-font-weight: bold;" />
+                </VBox>
+
+                <VBox spacing="2">
+                    <Label text="DATE DE CRÉATION" styleClass="stat-label-mini" />
+                    <Label fx:id="dateLabel" text="14/04/2026" style="-fx-text-fill: white; -fx-font-weight: bold;" />
+                </VBox>
+            </VBox>
+        </VBox>
+    </HBox>
+</VBox>

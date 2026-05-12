@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox stylesheets="@../../css/main.css" spacing="20" style="-fx-background-color: #141A23; -fx-padding: 30; -fx-border-color: #2A3441; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 1;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.GameDialogController">
+    
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT">
+        <Label fx:id="headerLabel" text="Ajouter un Jeu" styleClass="header-title" style="-fx-font-size: 20px;" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="✕" style="-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-font-size: 18px; -fx-cursor: hand;" onAction="#handleCancel"/>
+    </HBox>
+
+    <!-- Form Content -->
+    <VBox spacing="15">
+        <!-- Nom -->
+        <VBox spacing="5">
+            <Label text="Nom du Jeu" styleClass="form-label" />
+            <HBox spacing="10">
+                <TextField fx:id="nameField" styleClass="rounded-input" HBox.hgrow="ALWAYS"/>
+                <Button text="RAWG 🔄" onAction="#onFetchRawgData" styleClass="btn-outline"/>
+            </HBox>
+        </VBox>
+
+        <!-- Description -->
+        <VBox spacing="5">
+            <Label text="Description" styleClass="form-label" />
+            <TextArea fx:id="descField" styleClass="rounded-input" prefRowCount="3" />
+        </VBox>
+
+        <!-- Game Type & Status -->
+        <HBox spacing="15">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Type" styleClass="form-label" />
+                <ComboBox fx:id="typeCombo" promptText="Sélectionner un type" styleClass="rounded-input" maxWidth="Infinity"/>
+            </VBox>
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Statut" styleClass="form-label" />
+                <ComboBox fx:id="statusCombo" styleClass="rounded-input" maxWidth="Infinity"/>
+            </VBox>
+        </HBox>
+
+        <!-- Image URL -->
+        <VBox spacing="5">
+            <Label text="URL de l'image ou Fichier local" styleClass="form-label" />
+            <HBox spacing="10">
+                <TextField fx:id="imageUrlField" promptText="https://..." styleClass="rounded-input" HBox.hgrow="ALWAYS"/>
+                <Button text="Uploader" onAction="#onUploadImage" styleClass="btn-outline"/>
+            </HBox>
+        </VBox>
+
+    </VBox>
+
+    <Region VBox.vgrow="ALWAYS" />
+
+    <!-- Actions -->
+    <HBox alignment="CENTER_RIGHT" spacing="15" style="-fx-padding: 20 0 0 0;">
+        <Button text="Annuler" styleClass="btn-outline" onAction="#handleCancel" />
+        <Button text="Enregistrer" styleClass="button-solid-red" onAction="#handleSave" />
+    </HBox>
+
+</VBox>

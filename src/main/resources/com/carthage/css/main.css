@@ -158,6 +158,17 @@
     -fx-border-color: #4B5563;
 }
 
+.text-area.rounded-input {
+    -fx-padding: 5 10 5 10;
+}
+.text-area.rounded-input .content {
+    -fx-background-color: #0B0E14;
+    -fx-background-radius: 15px;
+}
+.text-area.rounded-input .viewport {
+    -fx-background-color: transparent;
+}
+
 .input-error {
     -fx-border-color: #FF4D4D !important;
     -fx-border-width: 1.5px !important;

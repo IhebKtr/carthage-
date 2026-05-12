@@ -1,0 +1,83 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< org.example:carthage >------------------------
+[INFO] Building carthage 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] 6 problems were encountered while building the effective model for org.openjfx:javafx-fxml:jar:21.0.2 during dependency collection step for project (use -X to see details)
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ carthage ---
+[INFO] Copying 27 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ carthage ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- exec:3.6.3:java (default-cli) @ carthage ---
+avr. 29, 2026 6:39:08 AM com.sun.javafx.application.PlatformImpl startup
+WARNING: Unsupported JavaFX configuration: classes were loaded from 'unnamed module @2cc20178'
+Connected to the database successfully!
+javafx.fxml.LoadException: 
+/C:/Users/DELL/IdeaProjects/carthage/target/classes/com/carthage/view/admin/reclamations-view.fxml
+
+	at javafx.fxml.FXMLLoader.constructLoadException(FXMLLoader.java:2722)
+	at javafx.fxml.FXMLLoader.loadImpl(FXMLLoader.java:2692)
+	at javafx.fxml.FXMLLoader.loadImpl(FXMLLoader.java:2563)
+	at javafx.fxml.FXMLLoader.load(FXMLLoader.java:2531)
+	at com.carthage.TestFxmlLoad.lambda$main$0(TestFxmlLoad.java:11)
+	at com.sun.javafx.application.PlatformImpl.lambda$startup$5(PlatformImpl.java:294)
+	at com.sun.glass.ui.Application.invokeAndWait(Application.java:470)
+	at com.sun.javafx.tk.quantum.QuantumToolkit.runToolkit(QuantumToolkit.java:377)
+	at com.sun.javafx.tk.quantum.QuantumToolkit.lambda$startup$10(QuantumToolkit.java:290)
+	at com.sun.glass.ui.Application.lambda$run$1(Application.java:155)
+	at com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+	at com.sun.glass.ui.win.WinApplication.lambda$runLoop$3(WinApplication.java:185)
+	at java.base/java.lang.Thread.run(Thread.java:1570)
+Caused by: java.lang.reflect.InvocationTargetException
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:118)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at com.sun.javafx.reflect.Trampoline.invoke(MethodUtil.java:76)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at com.sun.javafx.reflect.MethodUtil.invoke(MethodUtil.java:273)
+	at com.sun.javafx.fxml.MethodHelper.invoke(MethodHelper.java:84)
+	at javafx.fxml.FXMLLoader.loadImpl(FXMLLoader.java:2688)
+	... 11 more
+Caused by: java.lang.NoSuchMethodError: 'javafx.beans.value.ObservableValue javafx.beans.property.ObjectProperty.flatMap(java.util.function.Function)'
+	at javafx.scene.chart.XYChart$Data$4.invalidated(XYChart.java:1371)
+	at javafx.beans.property.ObjectPropertyBase.markInvalid(ObjectPropertyBase.java:112)
+	at javafx.beans.property.ObjectPropertyBase.set(ObjectPropertyBase.java:147)
+	at javafx.scene.chart.XYChart$Data.setNode(XYChart.java:1406)
+	at javafx.scene.chart.BarChart.createBar(BarChart.java:555)
+	at javafx.scene.chart.BarChart.seriesAdded(BarChart.java:290)
+	at javafx.scene.chart.XYChart.lambda$new$1(XYChart.java:164)
+	at com.sun.javafx.collections.ListListenerHelper$SingleChange.fireValueChangedEvent(ListListenerHelper.java:164)
+	at com.sun.javafx.collections.ListListenerHelper.fireValueChangedEvent(ListListenerHelper.java:73)
+	at javafx.collections.ObservableListBase.fireChange(ObservableListBase.java:239)
+	at javafx.collections.ListChangeBuilder.commit(ListChangeBuilder.java:482)
+	at javafx.collections.ListChangeBuilder.endChange(ListChangeBuilder.java:541)
+	at javafx.collections.ObservableListBase.endChange(ObservableListBase.java:211)
+	at javafx.collections.ModifiableObservableListBase.add(ModifiableObservableListBase.java:162)
+	at java.base/java.util.AbstractList.add(AbstractList.java:113)
+	at com.carthage.controllers.admin.ReclamationManagementController.updateCharts(ReclamationManagementController.java:279)
+	at com.carthage.controllers.admin.ReclamationManagementController.loadData(ReclamationManagementController.java:111)
+	at com.carthage.controllers.admin.ReclamationManagementController.initialize(ReclamationManagementController.java:94)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	... 18 more
+java.lang.IllegalStateException: This operation is permitted on the event thread only; currentThread = JavaFX Application Thread
+	at com.sun.glass.ui.Application.checkEventThread(Application.java:447)
+	at com.sun.glass.ui.Screen.getVideoRefreshPeriod(Screen.java:50)
+	at com.sun.javafx.tk.quantum.QuantumToolkit.runToolkit(QuantumToolkit.java:388)
+	at com.sun.javafx.tk.quantum.QuantumToolkit.lambda$startup$10(QuantumToolkit.java:290)
+	at com.sun.glass.ui.Application.lambda$run$1(Application.java:155)
+	at com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+	at com.sun.glass.ui.win.WinApplication.lambda$runLoop$3(WinApplication.java:185)
+	at java.base/java.lang.Thread.run(Thread.java:1570)
+[WARNING] thread Thread[#57,mysql-cj-abandoned-connection-cleanup,5,com.carthage.TestFxmlLoad] was interrupted but is still alive after waiting at least 14968msecs
+[WARNING] thread Thread[#57,mysql-cj-abandoned-connection-cleanup,5,com.carthage.TestFxmlLoad] will linger despite being asked to die via interruption
+[WARNING] NOTE: 1 thread(s) did not finish despite being asked to via interruption. This is not a problem with exec:java, it is a problem with the running code. Although not serious, it should be remedied.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  20.704 s
+[INFO] Finished at: 2026-04-29T06:39:27+01:00
+[INFO] ------------------------------------------------------------------------

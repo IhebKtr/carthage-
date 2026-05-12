@@ -2,7 +2,7 @@
 <?import javafx.scene.layout.*?>
 
 <StackPane fx:id="contentContainer" 
-           xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.carthage.controllers.user.EquipeController">
     <!-- Sub-views will be loaded here dynamically -->
 </StackPane>

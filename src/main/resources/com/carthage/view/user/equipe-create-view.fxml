@@ -4,7 +4,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.shape.Circle?>
 
-<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<VBox xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
       alignment="TOP_CENTER" spacing="25" style="-fx-background-color: transparent;">
 
     <padding><Insets top="10" bottom="30" left="50" right="50"/></padding>

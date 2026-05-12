@@ -3,8 +3,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
+<?import com.gluonhq.maps.MapView?>
 
-<VBox stylesheets="@../../css/main.css" spacing="20" style="-fx-background-color: #141A23; -fx-padding: 30; -fx-border-color: #2A3441; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 1;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.TournoiCreateController">
+<VBox stylesheets="@../../css/main.css" spacing="20" style="-fx-background-color: #141A23; -fx-padding: 30; -fx-border-color: #2A3441; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 1;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.TournoiCreateController">
     
     <!-- Header -->
     <HBox alignment="CENTER_LEFT">
@@ -66,8 +67,8 @@
         <!-- Place & Arbitre -->
         <HBox spacing="15">
             <VBox spacing="5" HBox.hgrow="ALWAYS">
-                <Label text="Place" styleClass="form-label" />
-                <TextField fx:id="placeField" promptText="Sélectionner un lieu" styleClass="rounded-input" />
+                <Label text="Lieu" styleClass="form-label" />
+                <ComboBox fx:id="placeCombo" promptText="Sélectionner un lieu" styleClass="rounded-input" maxWidth="Infinity" />
             </VBox>
             <VBox spacing="5" HBox.hgrow="ALWAYS">
                 <Label text="Arbitre" styleClass="form-label" />
@@ -75,6 +76,12 @@
             </VBox>
         </HBox>
 
+    </VBox>
+
+    <!-- Map View -->
+    <VBox spacing="5">
+        <Label text="Aperçu du Lieu sur la Carte" styleClass="form-label" />
+        <MapView fx:id="mapWebView" prefHeight="150" minHeight="120" minWidth="200" />
     </VBox>
 
     <Region VBox.vgrow="ALWAYS" />
