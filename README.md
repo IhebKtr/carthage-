@@ -1,5 +1,13 @@
 # 🏟️ Carthage Arena
 
+[![Java](https://img.shields.io/badge/Java-17-orange.svg?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/17/)
+[![JavaFX](https://img.shields.io/badge/JavaFX-17.0.10-blue.svg?logo=java&logoColor=white)](https://openjfx.io/)
+[![Maven](https://img.shields.io/badge/Maven-3.8%2B-C71A36.svg?logo=apachemaven&logoColor=white)](https://maven.apache.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1.svg?logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/IhebKtr/carthage-)
+[![License](https://img.shields.io/badge/license-Academic-lightgrey.svg)](#-licence)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/IhebKtr/carthage-/pulls)
+
 Plateforme esports de gestion de tournois développée en Java avec JavaFX.
 
 ## 📋 Description
