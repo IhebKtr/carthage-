@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carthage.controllers.user.GrokChatController"
+      spacing="10" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+    
+    <!-- Header -->
+    <HBox style="-fx-background-color: #2b2b2b; -fx-padding: 10; -fx-background-radius: 12 12 0 0;" alignment="CENTER_LEFT">
+        <Label text="Gemini AI Assistant" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+    </HBox>
+
+    <!-- Messages Area -->
+    <ScrollPane fx:id="scrollMessages" fitToWidth="true" vbarPolicy="ALWAYS" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+        <VBox fx:id="messagesBox" spacing="10" style="-fx-padding: 10;"/>
+    </ScrollPane>
+
+    <!-- Typing Indicator -->
+    <HBox fx:id="typingIndicator" visible="false" managed="false" style="-fx-padding: 0 10 0 10;">
+        <Label text="L'assistant écrit" style="-fx-text-fill: #aaa;"/>
+        <Label fx:id="dotAnimLabel" text="..." style="-fx-text-fill: #aaa;"/>
+    </HBox>
+
+    <!-- Input Area -->
+    <HBox spacing="8" style="-fx-padding: 10;">
+        <TextArea fx:id="inputField" promptText="Posez votre question..." HBox.hgrow="ALWAYS" prefRowCount="2" wrapText="true"
+                  style="-fx-control-inner-background: #1e1e1e; -fx-text-fill: white;"/>
+        <Button fx:id="btnSend" text="Envoyer" onAction="#onSendMessage" 
+                style="-fx-background-color: #E50914; -fx-text-fill: white; -fx-cursor: hand;"/>
+    </HBox>
+
+</VBox>

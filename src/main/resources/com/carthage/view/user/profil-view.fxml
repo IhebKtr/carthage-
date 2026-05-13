@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carthage.controllers.user.ProfilController"
+      spacing="20" style="-fx-background-color: transparent;">
+
+    <!-- Profile Header Card -->
+    <VBox styleClass="glass-panel">
+        <padding><Insets top="24" right="28" bottom="24" left="28"/></padding>
+        <HBox spacing="24" alignment="CENTER_LEFT">
+
+            <!-- Avatar -->
+            <StackPane>
+                <Rectangle arcWidth="20" arcHeight="20" width="90" height="90"
+                           fill="#1E2633" stroke="#E50914" strokeWidth="2"/>
+                <Label fx:id="avatarInitial" text="?" style="-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold;"/>
+            </StackPane>
+
+            <!-- User Info -->
+            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                <Label fx:id="usernameLabel" text="—" styleClass="header-title" style="-fx-font-size: 26px;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label fx:id="roleLabel" text="JOUEUR"
+                           style="-fx-background-color: rgba(229,9,20,0.2); -fx-text-fill: -carthage-accent;
+                                  -fx-background-radius: 4px; -fx-padding: 2 8; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                    <Label text="📍 Tunisie" styleClass="text-muted" style="-fx-font-size: 12px;"/>
+                    <Label fx:id="memberSinceLabel" text="" styleClass="text-muted" style="-fx-font-size: 12px;"/>
+                </HBox>
+                <Label fx:id="bioLabel" text="" styleClass="text-muted"
+                       style="-fx-font-size: 13px; -fx-wrap-text: true;" maxWidth="400"/>
+                <HBox spacing="24" style="-fx-padding: 8 0 0 0;">
+                    <VBox spacing="2">
+                        <Label text="RANG" styleClass="stat-title" style="-fx-font-size: 10px;"/>
+                        <Label fx:id="rankLabel" text="Unranked"
+                               style="-fx-text-fill: #F59E0B; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+                    </VBox>
+                    <VBox spacing="2">
+                        <Label text="BALANCE" styleClass="stat-title" style="-fx-font-size: 10px;"/>
+                        <Label fx:id="balanceLabel" text="0 CP"
+                               style="-fx-text-fill: #F59E0B; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+                    </VBox>
+                    <VBox spacing="2">
+                        <Label text="EMAIL" styleClass="stat-title" style="-fx-font-size: 10px;"/>
+                        <Label fx:id="emailLabel" text="—"
+                               style="-fx-text-fill: white; -fx-font-size: 13px;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Action Buttons -->
+            <VBox spacing="10" alignment="TOP_RIGHT">
+                <Button text="✏  Modifier le Profil" styleClass="filter-toggle"
+                        style="-fx-background-radius: 8px; -fx-padding: 10 16;" onAction="#onEditProfil"/>
+                <Button text="🕐  Historique Achat" styleClass="filter-toggle"
+                        style="-fx-background-radius: 8px; -fx-padding: 10 16;" onAction="#onHistorique"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- Two-column stats -->
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+
+        <!-- Left: Stats -->
+        <VBox spacing="16" HBox.hgrow="ALWAYS">
+            <Label text="| Statistiques" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+            <HBox spacing="12">
+                <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="CENTER" spacing="6">
+                    <Label fx:id="matchesLabel" text="0" styleClass="stat-value"/>
+                    <Label text="Matchs Joués" styleClass="stat-title"/>
+                </VBox>
+                <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="CENTER" spacing="6">
+                    <Label fx:id="victoriesLabel" text="0" styleClass="stat-value"
+                           style="-fx-text-fill: #4ADE80; -fx-font-size: 32px; -fx-font-weight: bold;"/>
+                    <Label text="Victoires" styleClass="stat-title"/>
+                </VBox>
+                <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="CENTER" spacing="6">
+                    <Label fx:id="defaitesLabel" text="0" styleClass="stat-value"
+                           style="-fx-text-fill: #F87171; -fx-font-size: 32px; -fx-font-weight: bold;"/>
+                    <Label text="Défaites" styleClass="stat-title"/>
+                </VBox>
+            </HBox>
+            <HBox spacing="12">
+                <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="8">
+                    <Label text="📈  Taux de Victoire" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                    <Label fx:id="winRateLabel" text="0%" styleClass="stat-value" style="-fx-font-size: 22px;"/>
+                    <ProgressBar fx:id="winRateProg" progress="0" maxWidth="Infinity"
+                                 style="-fx-accent: -carthage-accent;"/>
+                </VBox>
+                <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="8">
+                    <Label text="🏆  Tournois Gagnés" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                    <Label fx:id="tournoiGagnesLabel" text="0" styleClass="stat-value" style="-fx-font-size: 22px;"/>
+                    <Label fx:id="gainsLabel" text="Gains totaux: 0 DT" styleClass="text-muted" style="-fx-font-size: 12px;"/>
+                </VBox>
+            </HBox>
+
+            <Label text="| Matchs Récents" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+            <VBox fx:id="matchsList" styleClass="glass-panel" spacing="10">
+                <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                <Label text="Aucun match récent." styleClass="text-muted"/>
+            </VBox>
+        </VBox>
+
+        <!-- Right: Succès -->
+        <VBox spacing="16" prefWidth="280">
+            <Label text="| Succès" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+            <VBox fx:id="successList" styleClass="glass-panel" spacing="12">
+                <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                <Label text="Aucun succès pour l'instant." styleClass="text-muted"/>
+            </VBox>
+        </VBox>
+    </HBox>
+</VBox>

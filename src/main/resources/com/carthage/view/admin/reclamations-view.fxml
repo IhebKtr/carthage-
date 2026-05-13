@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox stylesheets="@../../css/main.css" spacing="16" style="-fx-background-color: -carthage-base; -fx-padding: 20;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.ReclamationManagementController">
+
+    <!-- Header + KPIs -->
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Gestion des Réclamations" styleClass="header-title" />
+            <Label text="Gérez les tickets de support et les signalements des utilisateurs" styleClass="sub-header" />
+        </VBox>
+        <Button text="📥 Rapport PDF" styleClass="button-solid-red" onAction="#handleDownloadPDF" style="-fx-font-weight: bold; -fx-padding: 8 16; -fx-background-radius: 20;" />
+        <HBox spacing="12">
+            <VBox alignment="CENTER" styleClass="stat-box-mini">
+                <Label text="TOTAL" styleClass="stat-label-mini"/>
+                <Label fx:id="totalLabel" text="-" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;" />
+            </VBox>
+            <VBox alignment="CENTER" styleClass="stat-box-mini">
+                <Label text="EN ATTENTE" styleClass="stat-label-mini"/>
+                <Label fx:id="pendingLabel" text="-" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #3B82F6;" />
+            </VBox>
+            <VBox alignment="CENTER" styleClass="stat-box-mini">
+                <Label text="RÉSOLU" styleClass="stat-label-mini"/>
+                <Label fx:id="resolvedLabel" text="-" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4ADE80;" />
+            </VBox>
+            <VBox alignment="CENTER" styleClass="stat-box-mini">
+                <Label text="URGENT" styleClass="stat-label-mini"/>
+                <Label fx:id="urgentLabel" text="-" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: -carthage-accent;" />
+            </VBox>
+        </HBox>
+    </HBox>
+
+    <!-- Advanced Stats Row -->
+    <HBox spacing="12">
+        <VBox styleClass="glass-panel" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER" style="-fx-padding: 14;">
+            <Label text="TAUX DE RÉSOLUTION" style="-fx-text-fill: #6B7280; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <Label fx:id="resolutionRateLabel" text="- %" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #4ADE80;" />
+            <ProgressBar fx:id="resolutionProgress" progress="0" prefWidth="130" style="-fx-accent: #4ADE80;" />
+        </VBox>
+        <VBox styleClass="glass-panel" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER" style="-fx-padding: 14;">
+            <Label text="CATÉGORIE LA PLUS FRÉQUENTE" style="-fx-text-fill: #6B7280; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <Label fx:id="topCategoryLabel" text="-" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #FBBF24;" />
+        </VBox>
+        <VBox styleClass="glass-panel" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER" style="-fx-padding: 14;">
+            <Label text="PRIORITÉ DOMINANTE" style="-fx-text-fill: #6B7280; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <Label fx:id="topPriorityLabel" text="-" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #E50914;" />
+        </VBox>
+        <VBox styleClass="glass-panel" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER" style="-fx-padding: 14;">
+            <Label text="MOYENNE / JOUR (14J)" style="-fx-text-fill: #6B7280; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <Label fx:id="avgPerDayLabel" text="-" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #3B82F6;" />
+        </VBox>
+        <VBox styleClass="glass-panel" HBox.hgrow="ALWAYS" spacing="6" alignment="CENTER" style="-fx-padding: 14;">
+            <Label text="TICKETS OUVERTS" style="-fx-text-fill: #6B7280; -fx-font-size: 10px; -fx-font-weight: bold;" />
+            <Label fx:id="openLabel" text="-" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #A78BFA;" />
+        </VBox>
+    </HBox>
+
+    <!-- Charts Row -->
+    <HBox spacing="14" prefHeight="220">
+        <VBox styleClass="glass-panel" HBox.hgrow="ALWAYS" alignment="CENTER">
+            <PieChart fx:id="statusPieChart" title="Répartition Statuts" legendSide="BOTTOM" />
+        </VBox>
+        <VBox styleClass="glass-panel" HBox.hgrow="ALWAYS" alignment="CENTER">
+            <BarChart fx:id="categoryBarChart" title="Tickets par Catégorie" legendVisible="false">
+                <xAxis><CategoryAxis /></xAxis>
+                <yAxis><NumberAxis /></yAxis>
+            </BarChart>
+        </VBox>
+        <VBox styleClass="glass-panel" HBox.hgrow="ALWAYS" alignment="CENTER">
+            <BarChart fx:id="priorityBarChart" title="Distribution des Priorités" legendVisible="false">
+                <xAxis><CategoryAxis /></xAxis>
+                <yAxis><NumberAxis /></yAxis>
+            </BarChart>
+        </VBox>
+    </HBox>
+
+    <!-- Line Chart -->
+    <VBox styleClass="glass-panel" prefHeight="170">
+        <LineChart fx:id="activityLineChart" title="Évolution des Réclamations — 14 derniers jours" legendVisible="false">
+            <xAxis><CategoryAxis /></xAxis>
+            <yAxis><NumberAxis /></yAxis>
+        </LineChart>
+    </VBox>
+
+    <!-- Search + Category + Filter Buttons -->
+    <HBox spacing="12" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="🔍  Rechercher par sujet ou auteur..." styleClass="rounded-input" prefWidth="270" onKeyReleased="#handleSearch" />
+        <ComboBox fx:id="categoryFilterCombo" promptText="Catégorie" styleClass="rounded-input" prefWidth="150" onAction="#handleCategoryFilter" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button fx:id="filterAllBtn"      text="Tout voir"   styleClass="filter-toggle-active" onAction="#filterAll" />
+        <Button fx:id="filterPendingBtn"  text="En Attente"  styleClass="filter-toggle"        onAction="#filterPending" />
+        <Button fx:id="filterOpenBtn"     text="En Cours"    styleClass="filter-toggle"        onAction="#filterOpen" />
+        <Button fx:id="filterResolvedBtn" text="Résolu"      styleClass="filter-toggle"        onAction="#filterResolved" />
+        <Button fx:id="filterUrgentBtn"   text="🔥 Urgent"   styleClass="filter-toggle"        onAction="#filterUrgent" />
+    </HBox>
+
+    <!-- Table -->
+    <TableView fx:id="reclamationTable" VBox.vgrow="ALWAYS" styleClass="admin-table">
+        <columns>
+            <TableColumn fx:id="colSujet"     text="SUJET / AUTEUR" prefWidth="250"/>
+            <TableColumn fx:id="colCategorie" text="CATÉGORIE"      prefWidth="140" />
+            <TableColumn fx:id="colPriorite"  text="PRIORITÉ"       prefWidth="120" />
+            <TableColumn fx:id="colStatut"    text="STATUT"         prefWidth="120" />
+            <TableColumn fx:id="colDate"      text="DATE"           prefWidth="150" />
+            <TableColumn fx:id="colActions"   text="ACTIONS"        prefWidth="120"/>
+        </columns>
+    </TableView>
+
+</VBox>

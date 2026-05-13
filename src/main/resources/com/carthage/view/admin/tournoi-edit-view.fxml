@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import com.gluonhq.maps.MapView?>
+
+<VBox stylesheets="@../../css/main.css" spacing="20" style="-fx-background-color: -carthage-base; -fx-padding: 30;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.TournoiEditController">
+    
+    <!-- Top Header Bar -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Button text="←" styleClass="btn-icon-action" onAction="#handleBack" />
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <Label text="Modifier le Tournoi" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;" />
+            <Label text="Mettre à jour les paramètres et les participants du tournoi" styleClass="sub-header" />
+        </VBox>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" styleClass="edge-to-edge" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-background: -carthage-base; -fx-border-color: transparent; -fx-padding: 0;">
+        <HBox spacing="30">
+        <!-- Left Pane: Forms -->
+        <VBox spacing="15" HBox.hgrow="ALWAYS" style="-fx-background-color: #141A23; -fx-padding: 25; -fx-background-radius: 12; -fx-border-color: #2A3441; -fx-border-radius: 12;">
+            <Label text="⚙ Configuration Générale" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: white;" />
+            <Region prefHeight="10" />
+
+            <!-- Nom -->
+            <VBox spacing="5">
+                <Label text="NOM DU TOURNOI" styleClass="form-label" style="-fx-font-size: 10px;" />
+                <TextField fx:id="nameField" styleClass="rounded-input" />
+            </VBox>
+
+            <!-- Game & Type -->
+            <HBox spacing="15">
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="JEU ASSOCIÉ" styleClass="form-label" style="-fx-font-size: 10px;"/>
+                    <ComboBox fx:id="gameCombo" styleClass="rounded-input" maxWidth="Infinity"/>
+                </VBox>
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="TYPE DE COMPÉTITION" styleClass="form-label" style="-fx-font-size: 10px;"/>
+                    <ComboBox fx:id="typeCombo" styleClass="rounded-input" maxWidth="Infinity"/>
+                </VBox>
+            </HBox>
+
+            <!-- Dates -->
+            <HBox spacing="15">
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="DATE DE DÉBUT" styleClass="form-label" style="-fx-font-size: 10px;"/>
+                    <DatePicker fx:id="startDatePicker" styleClass="rounded-input" maxWidth="Infinity" />
+                </VBox>
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="DATE DE FIN" styleClass="form-label" style="-fx-font-size: 10px;"/>
+                    <DatePicker fx:id="endDatePicker" styleClass="rounded-input" maxWidth="Infinity" />
+                </VBox>
+            </HBox>
+
+            <!-- Numbers -->
+            <HBox spacing="15">
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="NOMBRE MAX ÉQUIPES" styleClass="form-label" style="-fx-font-size: 10px;"/>
+                    <TextField fx:id="maxTeamsField" styleClass="rounded-input" />
+                </VBox>
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="PRIZE POOL (DT)" styleClass="form-label" style="-fx-font-size: 10px;"/>
+                    <TextField fx:id="prizeField" styleClass="rounded-input" />
+                </VBox>
+            </HBox>
+
+            <!-- Status & Referee -->
+            <HBox spacing="15">
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="STATUT DU TOURNOI" styleClass="form-label" style="-fx-font-size: 10px;"/>
+                    <ComboBox fx:id="statusCombo" styleClass="rounded-input" maxWidth="Infinity"/>
+                </VBox>
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="ARBITRE ASSIGNÉ" styleClass="form-label" style="-fx-font-size: 10px;"/>
+                    <ComboBox fx:id="refereeCombo" styleClass="rounded-input" maxWidth="Infinity"/>
+                </VBox>
+            </HBox>
+
+            <!-- Teams Area -->
+            <VBox spacing="5" VBox.vgrow="ALWAYS">
+                <Label text="ÉQUIPES SÉLECTIONNÉES" styleClass="form-label" style="-fx-font-size: 10px;"/>
+                <ListView fx:id="teamsList" prefHeight="120" minHeight="100" style="-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-border-color: #2A3441; -fx-border-radius: 8;" VBox.vgrow="ALWAYS" />
+            </VBox>
+
+            <!-- Winner and Place -->
+            <HBox spacing="15">
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="VAINQUEUR DU TOURNOI" styleClass="form-label" style="-fx-font-size: 10px;"/>
+                    <ComboBox fx:id="winnerCombo" styleClass="rounded-input" maxWidth="Infinity"/>
+                </VBox>
+                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                    <Label text="LIEU" styleClass="form-label" style="-fx-font-size: 10px;"/>
+                    <ComboBox fx:id="placeCombo" promptText="Sélectionner un lieu" styleClass="rounded-input" maxWidth="Infinity" />
+                </VBox>
+            </HBox>
+
+            <!-- Map View -->
+            <VBox spacing="5">
+                <Label text="APERÇU DU LIEU SUR LA CARTE" styleClass="form-label" style="-fx-font-size: 10px;"/>
+                <MapView fx:id="mapWebView" prefHeight="180" minHeight="150" minWidth="300" />
+            </VBox>
+
+            <!-- Update Button -->
+            <HBox alignment="CENTER_RIGHT" spacing="15" style="-fx-padding: 15 0 0 0;">
+                <Label fx:id="smartWarningLabel" text="" style="-fx-text-fill: #F59E0B; -fx-font-size: 12px; -fx-font-weight: bold;" visible="false" managed="false"/>
+                <Button text="💾 Mettre à Jour le tournoi" styleClass="button-solid-red" style="-fx-font-size: 14px;" onAction="#handleUpdate" />
+            </HBox>
+
+        </VBox>
+
+        <!-- Right Pane: Info & Danger -->
+        <VBox spacing="20" minWidth="280" prefWidth="350" maxWidth="400">
+            <!-- Current Info -->
+            <VBox spacing="15" style="-fx-background-color: #141A23; -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: #2A3441; -fx-border-radius: 12;">
+                <Label text="INFORMATIONS ACTUELLES" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #9CA3AF;" />
+                
+                <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-background-color: #1A212D; -fx-padding: 15; -fx-background-radius: 8;">
+                    <Label text="📅" style="-fx-text-fill: #E50914; -fx-font-size: 20px;" />
+                    <VBox spacing="2">
+                        <Label text="DÉBUT" style="-fx-text-fill: #6B7280; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+                        <Label fx:id="infoStartDate" text="--" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="15" alignment="CENTER_LEFT" style="-fx-background-color: #1A212D; -fx-padding: 15; -fx-background-radius: 8;">
+                    <Label text="👥" style="-fx-text-fill: #FBBF24; -fx-font-size: 20px;" />
+                    <VBox spacing="2">
+                        <Label text="PARTICIPANTS" style="-fx-text-fill: #6B7280; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+                        <Label fx:id="infoParticipants" text="-- / --" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Match Generation Card -->
+            <VBox spacing="12" style="-fx-background-color: rgba(229, 9, 20, 0.05); -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: rgba(229, 9, 20, 0.3); -fx-border-radius: 12;">
+                <Label text="⚡  GÉNÉRATION DES MATCHS" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #E50914;" />
+                <Label text="Créez automatiquement le tableau des rencontres à partir des équipes inscrites. Le bracket est généré selon le type de tournoi." wrapText="true" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;" />
+                <Button text="⚡  Créer les Matchs" onAction="#handleGoToMatches"
+                        style="-fx-background-color: -carthage-accent; -fx-text-fill: white;
+                               -fx-font-weight: bold; -fx-font-size: 13px;
+                               -fx-background-radius: 20; -fx-padding: 10 20; -fx-cursor: hand;" />
+            </VBox>
+
+            <!-- Danger Zone -->
+            <VBox spacing="15" style="-fx-background-color: rgba(229, 9, 20, 0.05); -fx-padding: 20; -fx-background-radius: 12; -fx-border-color: rgba(229, 9, 20, 0.2); -fx-border-radius: 12;">
+                <Label text="ZONE DE DANGER" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #FF4D4D;" />
+                <Label text="La suppression d'un tournoi est irréversible. Toutes les données associées seront perdues." wrapText="true" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;" />
+                <Button text="Delete Tournoi" style="-fx-background-color: #FF4D4D; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 20;" onAction="#handleDelete" />
+            </VBox>
+        </VBox>
+
+        </HBox>
+    </ScrollPane>
+</VBox>

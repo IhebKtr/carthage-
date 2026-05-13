@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox stylesheets="@../../css/main.css" spacing="20" style="-fx-background-color: -carthage-base; -fx-padding: 30;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.GameManagementController">
+    
+    <!-- Top Header Bar -->
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <VBox spacing="5">
+            <Label text="Gestion des Jeux" styleClass="header-title" />
+            <Label text="Ajouter et configurer les jeux disponibles" styleClass="sub-header" />
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="+ Ajouter" styleClass="button-solid-red" onAction="#handleAdd" />
+    </HBox>
+
+    <!-- Filters Bar -->
+    <HBox spacing="15" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="Rechercher un jeu..." styleClass="rounded-input" prefWidth="400" />
+        <Region HBox.hgrow="ALWAYS" />
+        <ComboBox fx:id="typeFilter" promptText="Toutes les catégories" styleClass="filter-toggle" />
+        <ComboBox fx:id="statusFilter" promptText="Tous les statuts" styleClass="filter-toggle" />
+    </HBox>
+
+    <!-- Games Grid Scroll View -->
+    <ScrollPane fitToWidth="true" styleClass="scroll-pane" VBox.vgrow="ALWAYS">
+        <FlowPane fx:id="gamesGrid" hgap="20" vgap="20" />
+    </ScrollPane>
+</VBox>

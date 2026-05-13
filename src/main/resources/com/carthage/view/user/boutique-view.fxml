@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.carthage.controllers.user.BoutiqueController"
+      spacing="20" style="-fx-background-color: transparent;">
+
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <VBox spacing="4">
+            <Label text="Boutique de Skins" styleClass="header-title"/>
+            <Label text="Améliorez votre arsenal avec des skins exclusifs." styleClass="sub-header"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS" />
+        
+        <HBox spacing="15" alignment="CENTER" style="-fx-background-color: #1E2633; -fx-padding: 10 20; -fx-background-radius: 12; -fx-border-color: #2A3441; -fx-border-radius: 12; -fx-border-width: 1;">
+            <Label text="💎" style="-fx-font-size: 20px;"/>
+            <VBox>
+                <Label text="Vos CP" style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px;"/>
+                <Label fx:id="balanceLabel" text="0" style="-fx-text-fill: #FACC15; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+            </VBox>
+            <Button text="Acheter CP 💳" styleClass="button-solid-red" style="-fx-padding: 8 15; -fx-font-weight: bold;" onAction="#onBuyCps"/>
+        </HBox>
+    </HBox>
+
+    <!-- Filter Bar -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <ComboBox fx:id="gameCombo" promptText="Tous les Jeux" styleClass="filter-toggle"
+                  style="-fx-background-radius: 20px; -fx-padding: 5 10;"/>
+
+        <Region HBox.hgrow="ALWAYS"/>
+
+        <ComboBox fx:id="sortCombo" promptText="Trier par  ↕" styleClass="filter-toggle"
+                  style="-fx-background-radius: 20px; -fx-padding: 5 10;"/>
+        <TextField fx:id="searchField" promptText="🔍  Rechercher des skins..."
+                   style="-fx-background-color: #141A23; -fx-text-fill: white; -fx-prompt-text-fill: #6b7280;
+                          -fx-background-radius: 20px; -fx-padding: 9 16 9 16; -fx-font-size: 13px;"
+                   prefWidth="220"/>
+    </HBox>
+
+    <!-- Skin Grid -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+        <FlowPane fx:id="skinsGrid" hgap="18" vgap="18" prefWrapLength="9999"
+                  style="-fx-background-color: transparent; -fx-padding: 5 0 0 0;"/>
+    </ScrollPane>
+
+</VBox>

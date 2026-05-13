@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.TextFlow?>
+<?import javafx.scene.text.Text?>
+
+<StackPane stylesheets="@../../css/main.css" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.carthage.controllers.user.MainLayoutController">
+    <BorderPane>
+        <!-- Sidebar -->
+        <left>
+            <VBox styleClass="sidebar" prefWidth="220" spacing="4">
+                <padding>
+                    <Insets top="24" right="12" bottom="20" left="12"/>
+                </padding>
+
+                <!-- Logo -->
+                <TextFlow style="-fx-padding: 0 0 24 10; -fx-font-size: 22px; -fx-font-weight: bold; -fx-font-style: italic;">
+                    <Text text="CARTHAGE " fill="WHITE"/>
+                    <Text text="ARENA" fill="#E50914"/>
+                </TextFlow>
+
+                <!-- Nav Items -->
+                <Button fx:id="btnDashboard"    text="⌂   Accueil"       styleClass="sidebar-button, active" maxWidth="Infinity" onAction="#onDashboardClicked"/>
+                <Button fx:id="btnTournois"     text="🏆  Mes Tournois"  styleClass="sidebar-button" maxWidth="Infinity" onAction="#onTournoisClicked"/>
+                <Button fx:id="btnBoutique"     text="🛒  Boutique"       styleClass="sidebar-button" maxWidth="Infinity" onAction="#onBoutiqueClicked"/>
+                <Button fx:id="btnEquipe"       text="👥  Équipe"         styleClass="sidebar-button" maxWidth="Infinity" onAction="#onEquipeClicked"/>
+                <Button fx:id="btnProfil"       text="👤  Profil"         styleClass="sidebar-button" maxWidth="Infinity" onAction="#onProfilClicked"/>
+                <Button fx:id="btnReclamations" text="🎧  Réclamations"   styleClass="sidebar-button" maxWidth="Infinity" onAction="#onReclamationsClicked"/>
+                <Button fx:id="btnParametres"   text="⚙   Paramètres"    styleClass="sidebar-button" maxWidth="Infinity" onAction="#onParametresClicked"/>
+
+                <Region VBox.vgrow="ALWAYS"/>
+
+                <Button text="⏻   Déconnexion" styleClass="sidebar-button" maxWidth="Infinity" onAction="#onLogoutClicked"
+                        style="-fx-text-fill: -carthage-accent;"/>
+            </VBox>
+        </left>
+
+        <!-- Content -->
+        <center>
+            <ScrollPane fitToWidth="true"
+                        style="-fx-background-color: -carthage-base; -fx-background: -carthage-base; -fx-border-color: transparent;">
+                <StackPane fx:id="contentArea" style="-fx-background-color: -carthage-base;">
+                    <padding>
+                        <Insets top="30" right="40" bottom="30" left="40"/>
+                    </padding>
+                </StackPane>
+            </ScrollPane>
+        </center>
+    </BorderPane>
+
+    <!-- Chat Overlay Window -->
+    <VBox fx:id="chatOverlay" visible="false" managed="false" StackPane.alignment="BOTTOM_RIGHT" 
+          prefWidth="350" prefHeight="450" maxWidth="350" maxHeight="450"
+          style="-fx-background-color: #1e1e1e; -fx-background-radius: 12px; -fx-border-color: #333; -fx-border-radius: 12px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 10, 0, 0, 5);">
+        <StackPane.margin>
+            <Insets bottom="80" right="20"/>
+        </StackPane.margin>
+        <fx:include source="grok-chat-overlay.fxml" />
+    </VBox>
+
+    <!-- Floating AI Chat button -->
+    <Button text="🤖" styleClass="chat-fab" StackPane.alignment="BOTTOM_RIGHT" onAction="#onChatToggle"
+            style="-fx-background-radius: 50%; -fx-min-width: 50px; -fx-min-height: 50px; -fx-font-size: 24px; -fx-background-color: #E50914; -fx-text-fill: white; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 8, 0, 0, 4);">
+        <StackPane.margin>
+            <Insets bottom="20" right="20"/>
+        </StackPane.margin>
+    </Button>
+</StackPane>

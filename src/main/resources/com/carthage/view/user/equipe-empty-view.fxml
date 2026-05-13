@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+      alignment="CENTER" spacing="25" style="-fx-background-color: transparent;">
+
+    <padding><Insets top="50" bottom="50"/></padding>
+
+    <!-- Icon Stack (simulated circles) -->
+    <StackPane>
+        <Region style="-fx-background-color: -carthage-surface; -fx-background-radius: 100px; -fx-min-width: 120; -fx-min-height: 120; -fx-max-width: 120; -fx-max-height: 120; -fx-opacity: 0.3;"/>
+        <Label text="👥" style="-fx-font-size: 50px; -fx-opacity: 0.5;"/>
+        <Label text="\\" style="-fx-font-size: 60px; -fx-text-fill: -carthage-accent; -fx-font-weight: bold; -fx-rotate: 45;"/>
+    </StackPane>
+
+    <VBox alignment="CENTER" spacing="10">
+        <Label text="Vous n'avez pas encore d'équipe" styleClass="header-title" style="-fx-font-size: 26px;"/>
+        <Label text="Pour participer aux tournois majeurs, vous devez faire partie&#10;d'une équipe. Créez votre propre légende ou rejoignez une alliance&#10;existante." 
+               alignment="CENTER" textAlignment="CENTER" styleClass="text-muted" style="-fx-font-size: 14px; -fx-line-spacing: 5;"/>
+    </VBox>
+
+    <HBox alignment="CENTER" spacing="20">
+        <Button text="⊕  Créer une Équipe" styleClass="button-solid-red" 
+                style="-fx-padding: 14 30; -fx-font-size: 14px; -fx-background-radius: 30;" onAction="#showCreateForm"/>
+        <Button text="👥  Rejoindre une Équipe" styleClass="filter-toggle" 
+                style="-fx-padding: 14 30; -fx-font-size: 14px; -fx-background-radius: 30; -fx-border-color: -carthage-border; -fx-border-radius: 30; -fx-background-color: rgba(30,38,51,0.5);"
+                onAction="#showJoinForm"/>
+    </HBox>
+
+</VBox>

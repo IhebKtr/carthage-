@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<VBox xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+      spacing="25" alignment="TOP_LEFT" style="-fx-background-color: transparent;">
+
+    <!-- Header / Navigation -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Button text="← Retour à la liste" onAction="#onCancel"
+                style="-fx-background-color: transparent; -fx-text-fill: -carthage-text-muted; -fx-cursor: hand;"/>
+    </HBox>
+
+    <VBox spacing="20" styleClass="glass-panel" maxWidth="700">
+        <padding><Insets top="30" right="40" bottom="30" left="40"/></padding>
+
+        <VBox spacing="8">
+            <Label text="Nouvelle Demande de Support" styleClass="header-title" style="-fx-font-size: 24px;"/>
+            <Label text="Expliquez votre problème en détail pour une résolution rapide." styleClass="text-muted"/>
+            <Label fx:id="errorLabel" text="" style="-fx-text-fill: #FF4D4D; -fx-font-weight: bold; -fx-font-size: 13px;" managed="false" visible="false"/>
+        </VBox>
+
+        <VBox spacing="20">
+            <!-- Subject -->
+            <VBox spacing="8">
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label text="Sujet" styleClass="input-label"/>
+                    <Label text="*" style="-fx-text-fill: -carthage-accent;"/>
+                </HBox>
+                <TextField fx:id="formSubject" promptText="Ex: Problème de connexion au tournoi"
+                           styleClass="rounded-input" maxWidth="Infinity"
+                           style="-fx-control-inner-background: #111827; -fx-text-fill: white; -fx-prompt-text-fill: #4B5563;"/>
+            </VBox>
+
+            <HBox spacing="20">
+                <!-- Category -->
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <Label text="Catégorie" styleClass="input-label"/>
+                    <ComboBox fx:id="formCategory" maxWidth="Infinity" promptText="Choisir une catégorie" styleClass="filter-toggle">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="BUG"/>
+                                <String fx:value="ACCOUNT"/>
+                                <String fx:value="TOURNAMENT"/>
+                                <String fx:value="PAYMENT"/>
+                                <String fx:value="OTHER"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </VBox>
+
+                <!-- Priority -->
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <Label text="Priorité" styleClass="input-label"/>
+                    <ComboBox fx:id="formPriority" maxWidth="Infinity" promptText="Choisir la priorité" styleClass="filter-toggle">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="LOW"/>
+                                <String fx:value="NORMAL"/>
+                                <String fx:value="HIGH"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </VBox>
+            </HBox>
+
+            <!-- Message -->
+            <VBox spacing="8">
+                <HBox spacing="5" alignment="CENTER_LEFT">
+                    <Label text="Description du problème" styleClass="input-label"/>
+                    <Label text="*" style="-fx-text-fill: -carthage-accent;"/>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button fx:id="micBtn" text="🎤 Dictée" 
+                            style="-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-border-color: #4B5563; -fx-border-radius: 12; -fx-cursor: hand;" 
+                            onAction="#handleToggleDictation" />
+                </HBox>
+                <TextArea fx:id="formMessage" promptText="Décrivez ici ce qui s'est passé..."
+                          styleClass="rounded-input" prefHeight="150" wrapText="true"
+                          style="-fx-control-inner-background: #111827; -fx-text-fill: white; -fx-prompt-text-fill: #4B5563;"/>
+            </VBox>
+        </VBox>
+
+        <HBox spacing="15" alignment="CENTER_RIGHT">
+            <Button text="Annuler" onAction="#onCancel" styleClass="filter-toggle"
+                    style="-fx-padding: 10 25; -fx-background-radius: 20;"/>
+            <Button text="🚀  Envoyer la demande" onAction="#onSubmitReclamation" styleClass="button-solid-red"
+                    style="-fx-padding: 10 30; -fx-background-radius: 20;"/>
+        </HBox>
+    </VBox>
+
+</VBox>

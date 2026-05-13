@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+      spacing="20" style="-fx-background-color: transparent;">
+
+    <!-- Header -->
+    <VBox spacing="4">
+        <Label text="Mon Équipe" styleClass="header-title"/>
+        <Label text="Gérez vos coéquipiers et vos inscriptions aux tournois." styleClass="sub-header"/>
+    </VBox>
+
+    <!-- Team Header Card -->
+    <VBox fx:id="teamCard" styleClass="glass-panel" spacing="10">
+        <padding><Insets top="20" right="24" bottom="20" left="24"/></padding>
+        <HBox alignment="CENTER_LEFT" spacing="20">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label fx:id="teamNameLabel" text="—" styleClass="header-title" style="-fx-font-size: 22px;"/>
+                    <Label fx:id="teamTagLabel" text="" style="-fx-background-color: #1E2633; -fx-text-fill: #9CA3AF;
+                           -fx-background-radius: 5px; -fx-padding: 2 8; -fx-font-size: 12px;"/>
+                    <Label fx:id="levelLabel" text="LVL 1" style="-fx-background-color: #2A3441; -fx-text-fill: #9CA3AF;
+                           -fx-background-radius: 5px; -fx-padding: 2 8; -fx-font-size: 11px;"/>
+                </HBox>
+                <Label fx:id="teamDescLabel" text="" styleClass="text-muted" style="-fx-font-size: 13px;"/>
+                <HBox spacing="16">
+                    <Label fx:id="memberCountLabel" text="" styleClass="text-muted" style="-fx-font-size: 12px;"/>
+                    <Label fx:id="leaderLabel" text="" styleClass="text-muted" style="-fx-font-size: 12px;"/>
+                </HBox>
+            </VBox>
+            <VBox alignment="CENTER_RIGHT" spacing="4">
+                <Label text="VICTOIRES" styleClass="stat-title"/>
+                <Label fx:id="winsLabel" text="0" style="-fx-text-fill: #4ADE80; -fx-font-size: 22px; -fx-font-weight: bold;"/>
+                <Label text="Défaites 0" styleClass="text-muted" style="-fx-font-size: 12px;"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- Two-column content -->
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+        <!-- Left column -->
+        <VBox spacing="16" HBox.hgrow="ALWAYS">
+            <!-- Effectif -->
+            <VBox styleClass="glass-panel" spacing="12">
+                <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="| Effectif" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;" HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="rosterCountLabel" text="0/8" styleClass="text-muted" style="-fx-font-size: 12px;"/>
+                </HBox>
+                <VBox fx:id="rosterList" spacing="8"/>
+            </VBox>
+            <!-- Inscriptions Tournois -->
+            <VBox styleClass="glass-panel" spacing="12" VBox.vgrow="ALWAYS">
+                <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+                <Label text="| Inscriptions Tournois" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+                <VBox fx:id="inscriptionsList" alignment="CENTER" spacing="10" VBox.vgrow="ALWAYS">
+                    <Label text="❌" style="-fx-font-size: 28px;"/>
+                    <Label text="Aucune inscription en cours" styleClass="text-muted"/>
+                    <Button text="🔍  Parcourir les tournois" styleClass="button-solid-red"
+                            style="-fx-background-radius: 20px; -fx-padding: 10 20;" onAction="#onBrowseTournois"/>
+                </VBox>
+                <HBox alignment="CENTER_LEFT" spacing="8"
+                      style="-fx-background-color: rgba(74,222,128,0.08); -fx-background-radius: 8px; -fx-padding: 10 14;">
+                    <Label text="✅" style="-fx-font-size: 14px;"/>
+                    <Label text="Droit d'inscription activé" style="-fx-text-fill: #4ADE80; -fx-font-weight: bold; -fx-font-size: 13px;"/>
+                    <Label text="    En tant que Leader, vous pouvez inscrire votre équipe aux tournois." styleClass="text-muted" style="-fx-font-size: 12px;"/>
+                </HBox>
+            </VBox>
+        </VBox>
+        <!-- Right column -->
+        <VBox spacing="16" prefWidth="300">
+            <!-- Statistiques Saison -->
+            <VBox styleClass="glass-panel" spacing="12">
+                <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+                <Label text="| Statistiques Saison" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Win Rate" styleClass="text-muted" HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="winRateLabel" text="0%" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                </HBox>
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Série actuelle" styleClass="text-muted" HBox.hgrow="ALWAYS"/>
+                    <Label text="✅ 3 Victoires" style="-fx-text-fill: #4ADE80; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                </HBox>
+            </VBox>
+            <!-- Code d'invitation -->
+            <VBox styleClass="glass-panel" spacing="12">
+                <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+                <Label text="| Code d'invitation" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+                <HBox alignment="CENTER" spacing="10"
+                      style="-fx-background-color: #0B0E14; -fx-background-radius: 8px; -fx-padding: 12 16;">
+                    <Label fx:id="inviteCodeLabel" text="XXXXXXX"
+                           style="-fx-text-fill: -carthage-accent; -fx-font-weight: bold; -fx-font-size: 18px; -fx-font-family: 'Courier New';"
+                           HBox.hgrow="ALWAYS"/>
+                    <Button text="📋" onAction="#onCopyCode"
+                            style="-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-cursor: hand; -fx-font-size: 14px;"/>
+                </HBox>
+                <Label text="Partagez ce code pour inviter des joueurs" styleClass="text-muted" style="-fx-font-size: 11px;"/>
+            </VBox>
+            <!-- Gestion -->
+            <VBox styleClass="glass-panel" spacing="10">
+                <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+                <Label text="| Gestion" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px;"/>
+                <Button text="✏  Modifier l'équipe" maxWidth="Infinity" styleClass="filter-toggle"
+                        style="-fx-background-radius: 8px; -fx-padding: 10 0;" onAction="#onEdit"/>
+                <Button text="👥  Gérer les invitations" maxWidth="Infinity" styleClass="filter-toggle"
+                        style="-fx-background-radius: 8px; -fx-padding: 10 0;" onAction="#onInvitations"/>
+                <Button text="💀  Dissoudre l'équipe" maxWidth="Infinity"
+                        style="-fx-background-color: rgba(229,9,20,0.15); -fx-text-fill: -carthage-accent;
+                               -fx-border-color: transparent; -fx-background-radius: 8px; -fx-padding: 10 0; -fx-cursor: hand;"
+                        onAction="#onDissolve"/>
+            </VBox>
+        </VBox>
+    </HBox>
+</VBox>

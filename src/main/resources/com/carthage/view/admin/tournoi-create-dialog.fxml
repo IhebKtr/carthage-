@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import com.gluonhq.maps.MapView?>
+
+<VBox stylesheets="@../../css/main.css" spacing="20" style="-fx-background-color: #141A23; -fx-padding: 30; -fx-border-color: #2A3441; -fx-border-radius: 12; -fx-background-radius: 12; -fx-border-width: 1;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.carthage.controllers.admin.TournoiCreateController">
+    
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT">
+        <Label text="Nouveau Tournoi" styleClass="header-title" style="-fx-font-size: 20px;" />
+        <Region HBox.hgrow="ALWAYS" />
+        <Button text="✕" style="-fx-background-color: transparent; -fx-text-fill: #9CA3AF; -fx-font-size: 18px; -fx-cursor: hand;" onAction="#handleCancel"/>
+    </HBox>
+
+    <!-- Form Content -->
+    <VBox spacing="15">
+        <!-- Nom -->
+        <VBox spacing="5">
+            <Label text="Nom du Tournoi" styleClass="form-label" />
+            <TextField fx:id="nameField" styleClass="rounded-input" />
+        </VBox>
+
+        <!-- Dates -->
+        <HBox spacing="15">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Date Début" styleClass="form-label" />
+                <DatePicker fx:id="startDatePicker" styleClass="rounded-input" maxWidth="Infinity" />
+            </VBox>
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Date Fin" styleClass="form-label" />
+                <DatePicker fx:id="endDatePicker" styleClass="rounded-input" maxWidth="Infinity" />
+            </VBox>
+        </HBox>
+
+        <!-- Numbers -->
+        <HBox spacing="15">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Équipes Max" styleClass="form-label" />
+                <TextField fx:id="maxTeamsField" styleClass="rounded-input" />
+            </VBox>
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Prize Pool (DT)" styleClass="form-label" />
+                <TextField fx:id="prizeField" text="0" styleClass="rounded-input" />
+            </VBox>
+        </HBox>
+
+        <!-- Game & Status -->
+        <HBox spacing="15">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Jeu" styleClass="form-label" />
+                <ComboBox fx:id="gameCombo" promptText="Sélectionner un jeu" styleClass="rounded-input" maxWidth="Infinity"/>
+            </VBox>
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Statut" styleClass="form-label" />
+                <ComboBox fx:id="statusCombo" styleClass="rounded-input" maxWidth="Infinity"/>
+            </VBox>
+        </HBox>
+
+        <!-- Type -->
+        <VBox spacing="5">
+            <Label text="Type de Tournoi" styleClass="form-label" />
+            <ComboBox fx:id="typeCombo" styleClass="rounded-input" maxWidth="Infinity" />
+        </VBox>
+
+        <!-- Place & Arbitre -->
+        <HBox spacing="15">
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Lieu" styleClass="form-label" />
+                <ComboBox fx:id="placeCombo" promptText="Sélectionner un lieu" styleClass="rounded-input" maxWidth="Infinity" />
+            </VBox>
+            <VBox spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Arbitre" styleClass="form-label" />
+                <ComboBox fx:id="refereeCombo" promptText="Sélectionner un arbitre" styleClass="rounded-input" maxWidth="Infinity" />
+            </VBox>
+        </HBox>
+
+    </VBox>
+
+    <!-- Map View -->
+    <VBox spacing="5">
+        <Label text="Aperçu du Lieu sur la Carte" styleClass="form-label" />
+        <MapView fx:id="mapWebView" prefHeight="150" minHeight="120" minWidth="200" />
+    </VBox>
+
+    <Region VBox.vgrow="ALWAYS" />
+
+    <!-- Actions -->
+    <HBox alignment="CENTER_RIGHT" spacing="15" style="-fx-padding: 20 0 0 0;">
+        <Button text="Annuler" styleClass="btn-outline" onAction="#handleCancel" />
+        <Button text="Enregistrer" styleClass="button-solid-red" onAction="#handleSave" />
+    </HBox>
+
+</VBox>
