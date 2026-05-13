@@ -28,7 +28,7 @@ public class OrderValidator {
     public static ValidationResult validate(Order order) {
         ValidationResult result = new ValidationResult();
 
-        if (order.getUserId() <= 0) {
+        if (order.getUserId() == null) {
             result.addError("Utilisateur", "L'identifiant de l'utilisateur est invalide");
         }
 

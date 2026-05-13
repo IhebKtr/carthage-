@@ -1,36 +1,40 @@
 package com.carthagearena.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class User {
-    private int id;
-    private String nom;
-    private String prenom;
+    private UUID id;
+    private String username;
+    private String nickname;
     private String email;
     private String password;
-    private String role; // ROLE_USER, ROLE_ADMIN
+    private List<String> roles = new ArrayList<>();
+    private int age;
+    private String gender;
     private LocalDateTime createdAt;
 
     public User() {}
 
-    public User(int id, String nom, String prenom, String email, String password, String role) {
+    public User(UUID id, String username, String email, String password, List<String> roles) {
         this.id = id;
-        this.nom = nom;
-        this.prenom = prenom;
+        this.username = username;
         this.email = email;
         this.password = password;
-        this.role = role;
+        this.roles = roles;
     }
 
     // Getters and Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
 
-    public String getNom() { return nom; }
-    public void setNom(String nom) { this.nom = nom; }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
 
-    public String getPrenom() { return prenom; }
-    public void setPrenom(String prenom) { this.prenom = prenom; }
+    public String getNickname() { return nickname; }
+    public void setNickname(String nickname) { this.nickname = nickname; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
@@ -38,17 +42,23 @@ public class User {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    public String getRole() { return role; }
-    public void setRole(String role) { this.role = role; }
+    public List<String> getRoles() { return roles; }
+    public void setRoles(List<String> roles) { this.roles = roles; }
+
+    public int getAge() { return age; }
+    public void setAge(int age) { this.age = age; }
+
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
     public boolean isAdmin() {
-        return "ROLE_ADMIN".equalsIgnoreCase(role);
+        return roles != null && roles.contains("ROLE_ADMIN");
     }
 
     public String getFullName() {
-        return prenom + " " + nom;
+        return nickname != null ? nickname : username;
     }
 }

@@ -27,6 +27,8 @@ public class StatsController implements Initializable {
 
     @FXML private BarChart<String, Number> barChartSales;
     @FXML private PieChart pieChartTypes;
+    @FXML private PieChart pieChartGender;
+    @FXML private BarChart<String, Number> barChartAge;
 
     private final OrderService orderService = new OrderService();
     private final MerchService merchService = new MerchService();
@@ -73,8 +75,26 @@ public class StatsController implements Initializable {
                 pieChartTypes.getData().add(new PieChart.Data(type + " (" + count + ")", count));
             });
 
-        } catch (SQLException e) {
-            System.err.println("Erreur chargement stats : " + e.getMessage());
+            // Graphique 3 : Répartition par Genre
+            Map<String, Integer> genderStats = orderService.getGenderStats();
+            pieChartGender.getData().clear();
+            genderStats.forEach((gender, count) -> {
+                pieChartGender.getData().add(new PieChart.Data(gender, count));
+            });
+
+            // Graphique 4 : Répartition par Âge
+            Map<String, Integer> ageStats = orderService.getAgeStats();
+            XYChart.Series<String, Number> ageSeries = new XYChart.Series<>();
+            ageSeries.setName("Utilisateurs");
+            ageStats.forEach((group, count) -> {
+                ageSeries.getData().add(new XYChart.Data<>(group, count));
+            });
+            barChartAge.getData().clear();
+            barChartAge.getData().add(ageSeries);
+
+        } catch (Exception e) {
+            System.err.println("❌ Erreur lors du chargement des statistiques : " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

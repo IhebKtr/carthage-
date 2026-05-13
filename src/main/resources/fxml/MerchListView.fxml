@@ -24,32 +24,46 @@
 
     <!-- ─── Stats cards ──────────────────────────────────────────────── -->
     <HBox spacing="16">
-        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
             <Label text="📦" styleClass="stat-icon"/>
             <Label fx:id="lblTotalProducts" text="Produits : 0" styleClass="stat-value"/>
         </VBox>
-        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
             <Label text="📊" styleClass="stat-icon"/>
             <Label fx:id="lblTotalStock" text="Stock total : 0" styleClass="stat-value"/>
         </VBox>
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+            <Label text="⚠️" styleClass="stat-icon"/>
+            <Label fx:id="lblOutOfStock" text="Rupture : 0" styleClass="stat-value"/>
+        </VBox>
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+            <Label text="💰" styleClass="stat-icon"/>
+            <Label fx:id="lblTotalValue" text="Valeur : 0 DT" styleClass="stat-value"/>
+        </VBox>
     </HBox>
 
-    <!-- ─── Filtres ──────────────────────────────────────────────────── -->
-    <HBox spacing="12" alignment="CENTER_LEFT">
+    <!-- ─── Filtres & Tri ──────────────────────────────────────────────── -->
+    <HBox spacing="12" alignment="CENTER_LEFT" styleClass="filter-bar">
+        <padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
         <TextField fx:id="tfSearch" promptText="🔍 Rechercher par nom..."
-                   styleClass="search-field" prefWidth="300"/>
-        <Label text="Type :"/>
-        <ComboBox fx:id="cbTypeFilter" prefWidth="180"/>
+                   styleClass="search-field-modern" HBox.hgrow="ALWAYS"/>
+        <Separator orientation="VERTICAL" prefHeight="25"/>
+        <Label text="Type :" styleClass="filter-label"/>
+        <ComboBox fx:id="cbTypeFilter" prefWidth="150"/>
+        <Separator orientation="VERTICAL" prefHeight="25"/>
+        <Label text="Tri :" styleClass="filter-label"/>
+        <ComboBox fx:id="cbSort" prefWidth="160"/>
     </HBox>
 
     <!-- ─── Tableau ──────────────────────────────────────────────────── -->
     <TableView fx:id="tableMerch" VBox.vgrow="ALWAYS" styleClass="main-table">
         <columns>
-            <TableColumn fx:id="colName"    text="Nom du produit"   prefWidth="250"/>
-            <TableColumn fx:id="colType"    text="Type"             prefWidth="120"/>
-            <TableColumn fx:id="colPrice"   text="Prix"             prefWidth="120"/>
-            <TableColumn fx:id="colStock"   text="Stock"            prefWidth="100"/>
-            <TableColumn fx:id="colActions" text="Actions"          prefWidth="220"/>
+            <TableColumn fx:id="colName"    text="Nom du produit"   prefWidth="220"/>
+            <TableColumn fx:id="colType"    text="Type"             prefWidth="100"/>
+            <TableColumn fx:id="colPrice"   text="Prix"             prefWidth="100"/>
+            <TableColumn fx:id="colStock"   text="Stock"            prefWidth="80"/>
+            <TableColumn fx:id="colStatus"  text="Statut"           prefWidth="120"/>
+            <TableColumn fx:id="colActions" text="Actions"          prefWidth="200"/>
         </columns>
         <placeholder>
             <Label text="Aucun produit trouvé" styleClass="empty-placeholder"/>

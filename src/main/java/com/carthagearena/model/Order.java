@@ -39,7 +39,7 @@ public class Order {
     private LocalDateTime date;
     private int totalAmount;       // en centimes
     private Status status;
-    private int userId;
+    private UUID userId;           // Référence au User UUID du Core
     private String userFullName;   // pour affichage
     private List<OrderItem> items;
 
@@ -53,7 +53,7 @@ public class Order {
         this.totalAmount = 0;
     }
 
-    public Order(int userId, String userFullName) {
+    public Order(UUID userId, String userFullName) {
         this();
         this.userId = userId;
         this.userFullName = userFullName;
@@ -61,12 +61,12 @@ public class Order {
 
     // Constructeur depuis base de données
     public Order(String id, LocalDateTime date, int totalAmount,
-                 Status status, int userId, String userFullName) {
+                 Status status, String userId, String userFullName) {
         this.id = UUID.fromString(id);
         this.date = date;
         this.totalAmount = totalAmount;
         this.status = status;
-        this.userId = userId;
+        this.userId = UUID.fromString(userId);
         this.userFullName = userFullName;
         this.items = new ArrayList<>();
     }
@@ -134,8 +134,8 @@ public class Order {
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
 
-    public int getUserId() { return userId; }
-    public void setUserId(int userId) { this.userId = userId; }
+    public UUID getUserId() { return userId; }
+    public void setUserId(UUID userId) { this.userId = userId; }
 
     public String getUserFullName() { return userFullName; }
     public void setUserFullName(String userFullName) { this.userFullName = userFullName; }

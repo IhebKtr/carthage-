@@ -16,7 +16,7 @@ public class GameService {
         List<Game> games = new ArrayList<>();
         String sql = "SELECT * FROM game ORDER BY name ASC";
 
-        try (PreparedStatement stmt = DatabaseConnection.getInstance().prepareStatement(sql);
+        try (PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {

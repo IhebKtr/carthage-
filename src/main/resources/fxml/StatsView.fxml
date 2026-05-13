@@ -33,25 +33,43 @@
         </VBox>
     </HBox>
 
-    <!-- Graphiques -->
+    <!-- Graphiques Activité -->
     <HBox spacing="16" VBox.vgrow="ALWAYS">
         <!-- Stock des Top produits -->
         <VBox styleClass="main-table" HBox.hgrow="ALWAYS" prefWidth="400">
-            <Label text="Niveau de Stock (Top 5)" style="-fx-padding: 10; -fx-text-fill: #c9d1d9;"/>
+            <Label text="📦 Niveau de Stock (Top 5)" style="-fx-padding: 10; -fx-text-fill: #c9d1d9;"/>
             <BarChart fx:id="barChartSales" legendVisible="false" VBox.vgrow="ALWAYS">
-                <xAxis>
-                    <CategoryAxis label="Produit"/>
-                </xAxis>
-                <yAxis>
-                    <NumberAxis label="Quantité"/>
-                </yAxis>
+                <xAxis><CategoryAxis label="Produit"/></xAxis>
+                <yAxis><NumberAxis label="Quantité"/></yAxis>
             </BarChart>
         </VBox>
 
-        <!-- Répartition par type -->
-        <VBox styleClass="main-table" HBox.hgrow="ALWAYS" prefWidth="300">
-            <Label text="Répartition par Type" style="-fx-padding: 10; -fx-text-fill: #c9d1d9;"/>
-            <PieChart fx:id="pieChartTypes" VBox.vgrow="ALWAYS" legendSide="BOTTOM"/>
+        <!-- Répartition par Type -->
+        <VBox styleClass="main-table" HBox.hgrow="ALWAYS" prefWidth="400">
+            <Label text="🏷️ Répartition par Type" style="-fx-padding: 10; -fx-text-fill: #c9d1d9;"/>
+            <PieChart fx:id="pieChartTypes" VBox.vgrow="ALWAYS" legendSide="RIGHT"/>
+        </VBox>
+    </HBox>
+
+    <!-- Graphiques Démographiques (Pro Dashboard) -->
+    <HBox spacing="16" VBox.vgrow="ALWAYS">
+        <!-- Répartition par Genre -->
+        <VBox styleClass="main-table" HBox.hgrow="ALWAYS" prefWidth="350">
+            <Label text="👥 Répartition par Genre" style="-fx-padding: 10; -fx-text-fill: #c9d1d9;"/>
+            <PieChart fx:id="pieChartGender" VBox.vgrow="ALWAYS" legendSide="BOTTOM"/>
+        </VBox>
+
+        <!-- Répartition par Tranche d'Âge -->
+        <VBox styleClass="main-table" HBox.hgrow="ALWAYS" prefWidth="350">
+            <Label text="🎂 Tranches d'Âge" style="-fx-padding: 10; -fx-text-fill: #c9d1d9;"/>
+            <BarChart fx:id="barChartAge" legendVisible="false" VBox.vgrow="ALWAYS">
+                <xAxis>
+                    <CategoryAxis label="Groupe"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis label="Utilisateurs"/>
+                </yAxis>
+            </BarChart>
         </VBox>
     </HBox>
 </VBox>

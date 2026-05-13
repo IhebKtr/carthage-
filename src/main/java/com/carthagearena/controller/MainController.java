@@ -146,14 +146,12 @@ public class MainController implements Initializable {
     }
 
     private void setActiveButton(Button active) {
-        btnShop.getStyleClass().remove("nav-btn-active");
-        btnMerch.getStyleClass().remove("nav-btn-active");
-        btnOrders.getStyleClass().remove("nav-btn-active");
-        btnAi.getStyleClass().remove("nav-btn-active");
-        btnPayment.getStyleClass().remove("nav-btn-active");
-        btnStats.getStyleClass().remove("nav-btn-active");
-        if (btnLogin != null) btnLogin.getStyleClass().remove("nav-btn-active");
-        
-        if (active != null) active.getStyleClass().add("nav-btn-active");
+        for (Button btn : new Button[]{btnShop, btnMerch, btnOrders, btnAi, btnPayment, btnStats, btnLogin, btnLogout}) {
+            if (btn != null) {
+                btn.getStyleClass().remove("active");
+                btn.getStyleClass().remove("nav-btn-active");
+            }
+        }
+        if (active != null) active.getStyleClass().add("active");
     }
 }

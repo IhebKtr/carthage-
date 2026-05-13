@@ -7,81 +7,76 @@
 <BorderPane xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.carthagearena.controller.MainController"
-            styleClass="root-pane">
+            style="-fx-background-color: #0B0E14;">
 
     <!-- ─── Sidebar ─────────────────────────────────────────────────── -->
     <left>
-        <VBox styleClass="sidebar" spacing="8" prefWidth="200">
-            <padding><Insets top="24" right="16" bottom="24" left="16"/></padding>
+        <VBox styleClass="sidebar" prefWidth="220" spacing="4">
+            <padding><Insets top="24" right="12" bottom="20" left="12"/></padding>
 
-            <!-- Logo -->
-            <VBox alignment="CENTER" spacing="4">
-                <Label text="🏟️" styleClass="logo-icon"/>
-                <Label text="Carthage Arena" styleClass="logo-text"/>
-                <Label text="Gestion Merchandising" styleClass="logo-subtitle"/>
-            </VBox>
+            <!-- Logo : CARTHAGE ARENA en rouge/blanc comme master -->
+            <TextFlow style="-fx-padding: 0 0 24 10; -fx-font-size: 20px; -fx-font-weight: bold; -fx-font-style: italic;">
+                <Text text="CARTHAGE " fill="WHITE"/>
+                <Text text="ARENA" fill="#E50914"/>
+            </TextFlow>
 
-            <Separator styleClass="sidebar-divider"/>
-
-            <!-- Navigation Client -->
+            <!-- BOUTIQUE section -->
             <Label text="BOUTIQUE" styleClass="sidebar-section-title"/>
-            <Button fx:id="btnShop" text="🛒  E-Boutique"
-                    styleClass="nav-btn"
-                    onAction="#showShop"
-                    maxWidth="Infinity"/>
+            <Button fx:id="btnShop" text="🛒   E-Boutique"
+                    styleClass="sidebar-button, active"
+                    onAction="#showShop" maxWidth="Infinity"/>
 
-            <Region prefHeight="20"/>
+            <Region prefHeight="8"/>
 
-            <!-- Navigation Admin -->
+            <!-- ADMINISTRATION section -->
             <Label text="ADMINISTRATION" styleClass="sidebar-section-title"/>
-            <Button fx:id="btnMerch" text="🛍️  Produits"
-                    styleClass="nav-btn"
-                    onAction="#showMerch"
-                    maxWidth="Infinity"/>
-            <Button fx:id="btnOrders" text="📦  Commandes"
-                    styleClass="nav-btn"
-                    onAction="#showOrders"
-                    maxWidth="Infinity"/>
-            <Button fx:id="btnAi" text="🤖  IA Description"
-                    styleClass="nav-btn"
-                    onAction="#showAi"
-                    maxWidth="Infinity"/>
-            <Button fx:id="btnStats" text="📊  Dashboard"
-                    styleClass="nav-btn"
-                    onAction="#showStats"
-                    maxWidth="Infinity"/>
+            <Button fx:id="btnMerch" text="🛍️   Produits"
+                    styleClass="sidebar-button"
+                    onAction="#showMerch" maxWidth="Infinity"/>
+            <Button fx:id="btnOrders" text="📦   Commandes"
+                    styleClass="sidebar-button"
+                    onAction="#showOrders" maxWidth="Infinity"/>
+            <Button fx:id="btnAi" text="🤖   IA Description"
+                    styleClass="sidebar-button"
+                    onAction="#showAi" maxWidth="Infinity"/>
+            <Button fx:id="btnStats" text="📊   Dashboard"
+                    styleClass="sidebar-button"
+                    onAction="#showStats" maxWidth="Infinity"/>
 
             <Region VBox.vgrow="ALWAYS"/>
-            
-            <Button fx:id="btnPayment" text="💳  Stripe Portal"
-                    styleClass="nav-btn-alt"
-                    onAction="#showPayment"
-                    maxWidth="Infinity"/>
 
-            <Button fx:id="btnLogin" text="🔑  Se Connecter"
-                    styleClass="nav-btn"
-                    onAction="#showLogin"
-                    maxWidth="Infinity"/>
+            <Button fx:id="btnPayment" text="💳   Stripe Portal"
+                    styleClass="sidebar-button"
+                    onAction="#showPayment" maxWidth="Infinity"/>
 
-            <Label fx:id="lblUser" text="Utilisateur" 
-                   styleClass="sidebar-section-title" 
+            <Button fx:id="btnLogin" text="🔑   Se Connecter"
+                    styleClass="sidebar-button"
+                    onAction="#showLogin" maxWidth="Infinity"/>
+
+            <Label fx:id="lblUser" text=""
+                   style="-fx-text-fill: #9CA3AF; -fx-font-size: 11px; -fx-padding: 4 0 4 10;"
                    visible="false" managed="false"/>
 
-            <Button fx:id="btnLogout" text="🚪  Déconnexion"
-                    styleClass="nav-btn"
-                    onAction="#onLogout"
-                    maxWidth="Infinity"
+            <Button fx:id="btnLogout" text="⏻   Déconnexion"
+                    styleClass="sidebar-button"
+                    onAction="#onLogout" maxWidth="Infinity"
+                    style="-fx-text-fill: #E50914;"
                     visible="false" managed="false"/>
 
-            <Separator styleClass="sidebar-divider"/>
-            <Label text="Carthage Arena v1.1" styleClass="version-label"/>
+            <Label text="Carthage Arena v1.1"
+                   style="-fx-text-fill: #4B5563; -fx-font-size: 11px; -fx-padding: 8 0 0 10;"/>
         </VBox>
     </left>
 
     <!-- ─── Contenu principal ──────────────────────────────────────── -->
     <center>
-        <StackPane fx:id="contentArea" styleClass="content-area">
-        </StackPane>
+        <ScrollPane fitToWidth="true"
+                    style="-fx-background-color: #0B0E14; -fx-background: #0B0E14; -fx-border-color: transparent;">
+            <StackPane fx:id="contentArea"
+                       style="-fx-background-color: #0B0E14;">
+                <padding><Insets top="30" right="40" bottom="30" left="40"/></padding>
+            </StackPane>
+        </ScrollPane>
     </center>
 
 </BorderPane>

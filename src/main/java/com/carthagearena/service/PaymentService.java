@@ -13,6 +13,7 @@ import com.stripe.param.checkout.SessionCreateParams;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Service de paiement Stripe - traduit depuis PaymentService.php (Symfony)
@@ -57,7 +58,7 @@ public class PaymentService {
      * @return URL de redirection vers la page Stripe Checkout
      * @throws StripeException en cas d'erreur Stripe
      */
-    public String createCheckoutSession(Merch merch, int userId, String userEmail)
+    public String createCheckoutSession(Merch merch, UUID userId, String userEmail)
             throws StripeException {
 
         // Équiv. PHP : (int) round($item->getPrice() * 100)
@@ -76,7 +77,7 @@ public class PaymentService {
                 // Métadonnées (équiv. 'metadata' => [...] en PHP)
                 .putMetadata("item_id",   merch.getId().toString())
                 .putMetadata("item_type", "merch")
-                .putMetadata("user_id",   String.valueOf(userId))
+                .putMetadata("user_id",   userId.toString())
                 // Produit
                 .addLineItem(SessionCreateParams.LineItem.builder()
                         .setQuantity(1L)
@@ -160,7 +161,7 @@ public class PaymentService {
 
         // Marquer la commande PENDING correspondante comme PAID
         try {
-            java.util.List<Order> orders = orderService.findByUserId(Integer.parseInt(userId));
+            java.util.List<Order> orders = orderService.findByUserId(UUID.fromString(userId));
             orders.stream()
                   .filter(o -> o.getStatus() == Order.Status.PENDING)
                   .findFirst()

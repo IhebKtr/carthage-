@@ -23,12 +23,15 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 /**
  * Contrôleur de la liste des produits Merch (vue principale)
+ * Inclut : filtrage, tri, statistiques avancées, badges de statut
  */
 public class MerchListController implements Initializable {
 
@@ -38,15 +41,19 @@ public class MerchListController implements Initializable {
     @FXML private TableColumn<Merch, String> colType;
     @FXML private TableColumn<Merch, String> colPrice;
     @FXML private TableColumn<Merch, Integer> colStock;
+    @FXML private TableColumn<Merch, Void> colStatus;
     @FXML private TableColumn<Merch, Void> colActions;
 
     // ─── Filtres ─────────────────────────────────────────────────────────────
     @FXML private TextField tfSearch;
     @FXML private ComboBox<String> cbTypeFilter;
+    @FXML private ComboBox<String> cbSort;
 
     // ─── Stats ───────────────────────────────────────────────────────────────
     @FXML private Label lblTotalProducts;
     @FXML private Label lblTotalStock;
+    @FXML private Label lblOutOfStock;
+    @FXML private Label lblTotalValue;
 
     private final MerchService merchService = new MerchService();
     private ObservableList<Merch> masterList = FXCollections.observableArrayList();
@@ -55,6 +62,7 @@ public class MerchListController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setupColumns();
         setupFilters();
+        setupSort();
         loadData();
     }
 
@@ -70,7 +78,7 @@ public class MerchListController implements Initializable {
 
         colStock.setCellValueFactory(new PropertyValueFactory<>("stock"));
 
-        // Colonne stock colorée (rouge si 0)
+        // Colonne stock colorée (rouge si 0, jaune si < 5)
         colStock.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(Integer stock, boolean empty) {
@@ -80,9 +88,40 @@ public class MerchListController implements Initializable {
                     setStyle("");
                 } else {
                     setText(String.valueOf(stock));
-                    setStyle(stock == 0
-                            ? "-fx-text-fill: #e74c3c; -fx-font-weight: bold;"
-                            : "-fx-text-fill: #2ecc71;");
+                    if (stock == 0) {
+                        setStyle("-fx-text-fill: #FF4D4D; -fx-font-weight: bold;");
+                    } else if (stock < 5) {
+                        setStyle("-fx-text-fill: #FBBF24; -fx-font-weight: bold;");
+                    } else {
+                        setStyle("-fx-text-fill: #4ADE80;");
+                    }
+                }
+            }
+        });
+
+        // Colonne statut avec badges
+        colStatus.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    Merch merch = getTableView().getItems().get(getIndex());
+                    Label badge = new Label();
+                    badge.getStyleClass().add("status-badge");
+
+                    if (merch.getStock() == 0) {
+                        badge.setText("RUPTURE");
+                        badge.getStyleClass().add("status-out-of-stock");
+                    } else if (merch.getStock() < 5) {
+                        badge.setText("STOCK BAS");
+                        badge.getStyleClass().add("status-low-stock");
+                    } else {
+                        badge.setText("EN STOCK");
+                        badge.getStyleClass().add("status-in-stock");
+                    }
+                    setGraphic(badge);
                 }
             }
         });
@@ -128,21 +167,61 @@ public class MerchListController implements Initializable {
         ));
         cbTypeFilter.setValue("Tous");
 
-        tfSearch.textProperty().addListener((obs, old, newVal) -> applyFilter());
-        cbTypeFilter.valueProperty().addListener((obs, old, newVal) -> applyFilter());
+        tfSearch.textProperty().addListener((obs, old, newVal) -> applyFilterAndSort());
+        cbTypeFilter.valueProperty().addListener((obs, old, newVal) -> applyFilterAndSort());
     }
 
-    private void applyFilter() {
-        String keyword = tfSearch.getText().toLowerCase().trim();
+    // ─── Tri ─────────────────────────────────────────────────────────────────
+
+    private void setupSort() {
+        cbSort.setItems(FXCollections.observableArrayList(
+                "Date (récent)", "Date (ancien)",
+                "Nom (A-Z)", "Nom (Z-A)",
+                "Prix (croissant)", "Prix (décroissant)",
+                "Stock (croissant)", "Stock (décroissant)"
+        ));
+        cbSort.setValue("Date (récent)");
+        cbSort.valueProperty().addListener((obs, old, newVal) -> applyFilterAndSort());
+    }
+
+    private void applyFilterAndSort() {
+        String keyword = tfSearch.getText() != null ? tfSearch.getText().toLowerCase().trim() : "";
         String type = cbTypeFilter.getValue();
+        String sort = cbSort.getValue();
 
-        ObservableList<Merch> filtered = masterList.filtered(m -> {
-            boolean nameMatch = keyword.isEmpty() || m.getName().toLowerCase().contains(keyword);
-            boolean typeMatch = "Tous".equals(type) || type.equals(m.getType());
-            return nameMatch && typeMatch;
-        });
+        // Filtrage
+        List<Merch> filtered = masterList.stream()
+                .filter(m -> {
+                    boolean nameMatch = keyword.isEmpty() || m.getName().toLowerCase().contains(keyword);
+                    boolean descMatch = keyword.isEmpty() ||
+                            (m.getDescription() != null && m.getDescription().toLowerCase().contains(keyword));
+                    boolean typeMatch = "Tous".equals(type) || type.equals(m.getType());
+                    return (nameMatch || descMatch) && typeMatch;
+                })
+                .collect(Collectors.toList());
 
-        tableMerch.setItems(filtered);
+        // Tri
+        Comparator<Merch> comparator = getComparator(sort);
+        if (comparator != null) {
+            filtered.sort(comparator);
+        }
+
+        tableMerch.setItems(FXCollections.observableArrayList(filtered));
+    }
+
+    private Comparator<Merch> getComparator(String sortOption) {
+        if (sortOption == null) return null;
+        return switch (sortOption) {
+            case "Date (récent)" -> Comparator.comparing(Merch::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder()));
+            case "Date (ancien)" -> Comparator.comparing(Merch::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder()));
+            case "Nom (A-Z)" -> Comparator.comparing(Merch::getName, String.CASE_INSENSITIVE_ORDER);
+            case "Nom (Z-A)" -> Comparator.comparing(Merch::getName, String.CASE_INSENSITIVE_ORDER).reversed();
+            case "Prix (croissant)" -> Comparator.comparingInt(Merch::getPrice);
+            case "Prix (décroissant)" -> Comparator.comparingInt(Merch::getPrice).reversed();
+            case "Stock (croissant)" -> Comparator.comparingInt(Merch::getStock);
+            case "Stock (décroissant)" -> Comparator.comparingInt(Merch::getStock).reversed();
+            default -> null;
+        };
     }
 
     // ─── Chargement données ───────────────────────────────────────────────────
@@ -160,8 +239,17 @@ public class MerchListController implements Initializable {
 
     private void updateStats() {
         lblTotalProducts.setText("Produits : " + masterList.size());
+
         int totalStock = masterList.stream().mapToInt(Merch::getStock).sum();
         lblTotalStock.setText("Stock total : " + totalStock);
+
+        long outOfStock = masterList.stream().filter(m -> m.getStock() == 0).count();
+        lblOutOfStock.setText("Rupture : " + outOfStock);
+
+        double totalValue = masterList.stream()
+                .mapToDouble(m -> (m.getPrice() / 100.0) * m.getStock())
+                .sum();
+        lblTotalValue.setText(String.format("Valeur : %.2f DT", totalValue));
     }
 
     // ─── Boutons ─────────────────────────────────────────────────────────────
@@ -175,6 +263,7 @@ public class MerchListController implements Initializable {
     private void onRefresh() {
         tfSearch.clear();
         cbTypeFilter.setValue("Tous");
+        cbSort.setValue("Date (récent)");
         loadData();
     }
 

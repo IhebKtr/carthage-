@@ -25,7 +25,7 @@ import java.util.ResourceBundle;
 
 /**
  * Contrôleur du formulaire Merch (Ajouter / Modifier)
- * Inclut le contrôle de saisie (validation)
+ * Inclut le contrôle de saisie (validation) avec règles avancées
  */
 public class MerchFormController implements Initializable {
 
@@ -62,6 +62,7 @@ public class MerchFormController implements Initializable {
         setupGameCombo();
         setupRealTimeValidation();
         setupImagePreview();
+        setupNumericInputFilters();
         clearErrors();
     }
 
@@ -83,9 +84,7 @@ public class MerchFormController implements Initializable {
     // ─── Initialisation ──────────────────────────────────────────────────────
 
     private void setupTypeCombo() {
-        cbType.setItems(FXCollections.observableArrayList(
-                "shirt", "cap", "jersey", "poster", "accessory", "other"
-        ));
+        cbType.setItems(FXCollections.observableArrayList(MerchValidator.getValidTypes()));
         cbType.setPromptText("Choisir un type...");
     }
 
@@ -117,6 +116,22 @@ public class MerchFormController implements Initializable {
         }
     }
 
+    // ─── Filtres numériques (empêcher les lettres dans prix/stock) ────────────
+
+    private void setupNumericInputFilters() {
+        tfPrice.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.matches("\\d*")) {
+                tfPrice.setText(newVal.replaceAll("[^\\d]", ""));
+            }
+        });
+
+        tfStock.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && !newVal.matches("\\d*")) {
+                tfStock.setText(newVal.replaceAll("[^\\d]", ""));
+            }
+        });
+    }
+
     // ─── Contrôle de saisie en temps réel ────────────────────────────────────
 
     private void setupRealTimeValidation() {
@@ -124,6 +139,8 @@ public class MerchFormController implements Initializable {
         tfName.textProperty().addListener((obs, old, val) -> {
             if (val.isBlank()) {
                 showFieldError(lblErrorName, "Le nom du produit est obligatoire");
+            } else if (val.trim().length() < 3) {
+                showFieldError(lblErrorName, "Min 3 caractères");
             } else if (val.length() > 255) {
                 showFieldError(lblErrorName, "Max 255 caractères");
             } else {
@@ -221,13 +238,19 @@ public class MerchFormController implements Initializable {
     private void onSave() {
         clearErrors();
 
-        // Validation globale avant soumission
-        ValidationResult result = MerchValidator.validate(
+        // Validation globale avant soumission (avec validation image)
+        ValidationResult result = MerchValidator.validateFull(
                 tfName.getText(),
                 tfPrice.getText(),
                 tfStock.getText(),
-                cbType.getValue()
+                cbType.getValue(),
+                tfImageUrl.getText()
         );
+
+        // Vérifier la description
+        if (!MerchValidator.isDescriptionValid(taDescription.getText())) {
+            result.getErrors().add("❌ Description : ne doit pas dépasser 2000 caractères");
+        }
 
         if (!result.isValid()) {
             lblGlobalError.setText(result.getErrorsSummary());
@@ -299,11 +322,11 @@ public class MerchFormController implements Initializable {
     }
 
     private void highlightErrors(ValidationResult result) {
-        String errors = result.getErrorsSummary();
-        if (errors.contains("nom")) tfName.setStyle("-fx-border-color: #e74c3c;");
-        if (errors.contains("prix")) tfPrice.setStyle("-fx-border-color: #e74c3c;");
-        if (errors.contains("stock")) tfStock.setStyle("-fx-border-color: #e74c3c;");
-        if (errors.contains("type")) cbType.setStyle("-fx-border-color: #e74c3c;");
+        String errors = result.getErrorsSummary().toLowerCase();
+        if (errors.contains("nom")) tfName.setStyle("-fx-border-color: #FF4D4D;");
+        if (errors.contains("prix")) tfPrice.setStyle("-fx-border-color: #FF4D4D;");
+        if (errors.contains("stock")) tfStock.setStyle("-fx-border-color: #FF4D4D;");
+        if (errors.contains("type")) cbType.setStyle("-fx-border-color: #FF4D4D;");
     }
 
     private void showSuccessAndClose(String message) {

@@ -21,6 +21,7 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
 /**
  * Contrôleur Paiement Stripe - traduit depuis PaymentService.php (Symfony)
@@ -86,7 +87,7 @@ public class PaymentController implements Initializable {
         // Récupération automatique des données client
         if (AuthService.getInstance().isLoggedIn()) {
             User user = AuthService.getInstance().getCurrentUser();
-            tfUserId.setText(String.valueOf(user.getId()));
+            tfUserId.setText(user.getId().toString());
             tfUserEmail.setText(user.getEmail());
             
             // Empêcher la modification si connecté
@@ -197,12 +198,12 @@ public class PaymentController implements Initializable {
         com.carthagearena.service.CartService cart = com.carthagearena.service.CartService.getInstance();
         boolean fromCart = !cart.getItems().isEmpty();
 
-        int userId; String email;
+        UUID userId; String email;
         try {
-            userId = Integer.parseInt(tfUserId.getText().trim());
+            userId = UUID.fromString(tfUserId.getText().trim());
             email  = tfUserEmail.getText().trim();
-        } catch (NumberFormatException e) {
-            showError("UserId invalide", "L'identifiant utilisateur doit être un entier.");
+        } catch (IllegalArgumentException e) {
+            showError("UserId invalide", "L'identifiant utilisateur doit être un UUID valide.");
             return;
         }
 
@@ -261,7 +262,7 @@ public class PaymentController implements Initializable {
         com.carthagearena.service.CartService cart = com.carthagearena.service.CartService.getInstance();
         boolean fromCart = !cart.getItems().isEmpty();
         
-        int userId = Integer.parseInt(tfUserId.getText().trim());
+        UUID userId = UUID.fromString(tfUserId.getText().trim());
         String email = tfUserEmail.getText().trim();
 
         try {
@@ -330,13 +331,13 @@ public class PaymentController implements Initializable {
         String userIdStr = tfUserId.getText().trim();
         if (userIdStr.isBlank()) { showError("UserId requis", "Entrez un ID utilisateur."); return; }
         try {
-            loadUserOrders(Integer.parseInt(userIdStr));
-        } catch (NumberFormatException e) {
-            showError("UserId invalide", "Entrez un entier valide.");
+            loadUserOrders(UUID.fromString(userIdStr));
+        } catch (IllegalArgumentException e) {
+            showError("UserId invalide", "Entrez un UUID valide.");
         }
     }
 
-    private void loadUserOrders(int userId) {
+    private void loadUserOrders(UUID userId) {
         try {
             List<Order> orders = orderService.findByUserId(userId);
             tableUserOrders.setItems(FXCollections.observableArrayList(orders));

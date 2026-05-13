@@ -7,12 +7,13 @@
 <VBox xmlns="http://javafx.com/javafx/21"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.carthagearena.controller.MerchFormController"
-      styleClass="form-container" spacing="20" prefWidth="520">
+      styleClass="form-container" spacing="20" prefWidth="540">
 
     <padding><Insets top="32" right="32" bottom="32" left="32"/></padding>
 
     <!-- Titre -->
     <Label fx:id="lblTitle" text="➕ Nouveau produit" styleClass="form-title"/>
+    <Label text="Remplissez les informations du produit merch" styleClass="page-subtitle"/>
 
     <!-- ─── Nom ─────────────────────────────────────────────────────── -->
     <VBox spacing="4">
@@ -53,13 +54,14 @@
     </VBox>
 
     <!-- ─── Image URL & Preview ────────────────────────────────────────── -->
-    <HBox spacing="16">
+    <HBox spacing="16" alignment="CENTER_LEFT">
         <VBox spacing="4" HBox.hgrow="ALWAYS">
             <Label text="URL de l'image (ou Base64)" styleClass="field-label"/>
             <TextField fx:id="tfImageUrl" promptText="https://... ou data:image/..."
                        styleClass="form-field"/>
         </VBox>
-        <VBox alignment="CENTER" style="-fx-border-color: #444c56; -fx-border-radius: 4; -fx-padding: 4; -fx-background-color: #22272e;">
+        <VBox alignment="CENTER" 
+              style="-fx-border-color: #2A3441; -fx-border-radius: 8; -fx-padding: 6; -fx-background-color: #0B0E14; -fx-background-radius: 8;">
             <ImageView fx:id="imagePreview" fitWidth="80" fitHeight="80" preserveRatio="true"/>
         </VBox>
     </HBox>

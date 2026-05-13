@@ -7,13 +7,16 @@ import com.carthagearena.util.DatabaseConnection;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
  * Service Merch - couche métier
  * Gère toutes les opérations CRUD sur les produits Merch
+ * Inclut : recherche, filtrage, statistiques, gestion de stock
  */
 public class MerchService {
 
@@ -25,7 +28,7 @@ public class MerchService {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (PreparedStatement stmt = DatabaseConnection.getInstance().prepareStatement(sql)) {
+        try (PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setString(1, merch.getId().toString());
             stmt.setString(2, merch.getName());
             stmt.setString(3, merch.getDescription());
@@ -54,7 +57,7 @@ public class MerchService {
                 """;
 
         List<Merch> list = new ArrayList<>();
-        try (Statement stmt = DatabaseConnection.getInstance().createStatement();
+        try (Statement stmt = DatabaseConnection.getInstance().getConnection().createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
@@ -72,8 +75,29 @@ public class MerchService {
                      "WHERE m.name LIKE ? ORDER BY m.name";
 
         List<Merch> list = new ArrayList<>();
-        try (PreparedStatement stmt = DatabaseConnection.getInstance().prepareStatement(sql)) {
+        try (PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setString(1, "%" + keyword + "%");
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSet(rs));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Recherche par nom ET description
+     */
+    public List<Merch> search(String keyword) throws SQLException {
+        String sql = "SELECT m.*, g.id as game_id, g.name as game_name " +
+                     "FROM merch m LEFT JOIN game g ON m.game_id = g.id " +
+                     "WHERE m.name LIKE ? OR m.description LIKE ? ORDER BY m.name";
+
+        List<Merch> list = new ArrayList<>();
+        try (PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(sql)) {
+            String pattern = "%" + keyword + "%";
+            stmt.setString(1, pattern);
+            stmt.setString(2, pattern);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSet(rs));
@@ -88,8 +112,64 @@ public class MerchService {
                      "WHERE m.type = ? ORDER BY m.name";
 
         List<Merch> list = new ArrayList<>();
-        try (PreparedStatement stmt = DatabaseConnection.getInstance().prepareStatement(sql)) {
+        try (PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setString(1, type);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSet(rs));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Trouve les produits associés à un jeu spécifique
+     */
+    public List<Merch> findByGame(int gameId) throws SQLException {
+        String sql = "SELECT m.*, g.id as game_id, g.name as game_name " +
+                     "FROM merch m LEFT JOIN game g ON m.game_id = g.id " +
+                     "WHERE m.game_id = ? ORDER BY m.name";
+
+        List<Merch> list = new ArrayList<>();
+        try (PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, gameId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                list.add(mapResultSet(rs));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Trouve les produits en rupture de stock
+     */
+    public List<Merch> findOutOfStock() throws SQLException {
+        String sql = "SELECT m.*, g.id as game_id, g.name as game_name " +
+                     "FROM merch m LEFT JOIN game g ON m.game_id = g.id " +
+                     "WHERE m.stock = 0 ORDER BY m.name";
+
+        List<Merch> list = new ArrayList<>();
+        try (Statement stmt = DatabaseConnection.getInstance().getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(mapResultSet(rs));
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Trouve les produits avec un stock bas (< seuil)
+     */
+    public List<Merch> findLowStock(int threshold) throws SQLException {
+        String sql = "SELECT m.*, g.id as game_id, g.name as game_name " +
+                     "FROM merch m LEFT JOIN game g ON m.game_id = g.id " +
+                     "WHERE m.stock > 0 AND m.stock < ? ORDER BY m.stock ASC";
+
+        List<Merch> list = new ArrayList<>();
+        try (PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, threshold);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 list.add(mapResultSet(rs));
@@ -104,7 +184,7 @@ public class MerchService {
         String sql = "SELECT m.*, g.id as game_id, g.name as game_name " +
                      "FROM merch m LEFT JOIN game g ON m.game_id = g.id WHERE m.id = ?";
 
-        try (PreparedStatement stmt = DatabaseConnection.getInstance().prepareStatement(sql)) {
+        try (PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setString(1, id.toString());
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -124,7 +204,7 @@ public class MerchService {
                 WHERE id = ?
                 """;
 
-        try (PreparedStatement stmt = DatabaseConnection.getInstance().prepareStatement(sql)) {
+        try (PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setString(1, merch.getName());
             stmt.setString(2, merch.getDescription());
             stmt.setInt(3, merch.getPrice());
@@ -145,7 +225,7 @@ public class MerchService {
 
     public void delete(UUID id) throws SQLException {
         String sql = "DELETE FROM merch WHERE id = ?";
-        try (PreparedStatement stmt = DatabaseConnection.getInstance().prepareStatement(sql)) {
+        try (PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setString(1, id.toString());
             stmt.executeUpdate();
         }
@@ -155,7 +235,7 @@ public class MerchService {
 
     public void decreaseStock(UUID id, int quantity) throws SQLException {
         String sql = "UPDATE merch SET stock = stock - ? WHERE id = ? AND stock >= ?";
-        try (PreparedStatement stmt = DatabaseConnection.getInstance().prepareStatement(sql)) {
+        try (PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(sql)) {
             stmt.setInt(1, quantity);
             stmt.setString(2, id.toString());
             stmt.setInt(3, quantity);
@@ -164,6 +244,63 @@ public class MerchService {
                 throw new SQLException("Stock insuffisant pour le produit : " + id);
             }
         }
+    }
+
+    /**
+     * Augmente le stock d'un produit (ex : retour, réapprovisionnement)
+     */
+    public void increaseStock(UUID id, int quantity) throws SQLException {
+        String sql = "UPDATE merch SET stock = stock + ? WHERE id = ?";
+        try (PreparedStatement stmt = DatabaseConnection.getInstance().getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, quantity);
+            stmt.setString(2, id.toString());
+            stmt.executeUpdate();
+        }
+    }
+
+    // ─── STATISTIQUES ────────────────────────────────────────────────────────
+
+    /**
+     * Compte le nombre de produits par type
+     */
+    public Map<String, Integer> countByType() throws SQLException {
+        String sql = "SELECT type, COUNT(*) as count FROM merch GROUP BY type ORDER BY count DESC";
+        Map<String, Integer> result = new LinkedHashMap<>();
+        try (Statement stmt = DatabaseConnection.getInstance().getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                result.put(rs.getString("type"), rs.getInt("count"));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Calcule la valeur totale du stock (prix * quantité pour chaque produit)
+     */
+    public double getTotalStockValue() throws SQLException {
+        String sql = "SELECT SUM(price * stock) / 100.0 as total FROM merch";
+        try (Statement stmt = DatabaseConnection.getInstance().getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+        }
+        return 0.0;
+    }
+
+    /**
+     * Nombre total de produits
+     */
+    public int count() throws SQLException {
+        String sql = "SELECT COUNT(*) as total FROM merch";
+        try (Statement stmt = DatabaseConnection.getInstance().getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        }
+        return 0;
     }
 
     // ─── MAPPING ─────────────────────────────────────────────────────────────
